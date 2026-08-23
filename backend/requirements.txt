@@ -1,0 +1,11 @@
+# Python 3.11+ . Pins are lower bounds with a major-version ceiling so the team can be on
+# mixed Python versions (3.11 - 3.14) without wheel-availability fights.
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.34,<1.0
+sqlalchemy>=2.0.36,<3.0
+psycopg[binary]>=3.2.9,<4.0
+pydantic>=2.10,<3.0
+pydantic-settings>=2.7,<3.0
+python-dotenv>=1.0,<2.0
+httpx>=0.28,<1.0
+pytest>=8.3,<9.0

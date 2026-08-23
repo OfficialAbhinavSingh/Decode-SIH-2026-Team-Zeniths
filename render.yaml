@@ -1,0 +1,51 @@
+# Render blueprint -- 4 services. Owner: R6 (DevOps).
+# Deploy: Render dashboard -> New -> Blueprint -> point at this repo.
+services:
+  - type: web
+    name: neerdrishti-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m app.init_db && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: neerdrishti-db
+          property: connectionString
+      - key: INGEST_TOKEN
+        generateValue: true
+      - key: CITY_DEFAULT
+        value: Jaipur
+      - key: CORS_ORIGINS
+        value: https://neerdrishti-web.onrender.com
+
+  - type: web
+    name: neerdrishti-web
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://neerdrishti-api.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  - type: worker
+    name: neerdrishti-fusion
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # Recompute priority scores every 30 minutes.
+    startCommand: python worker.py
+
+databases:
+  - name: neerdrishti-db
+    plan: free
+    databaseName: neerdrishti
+    user: neer

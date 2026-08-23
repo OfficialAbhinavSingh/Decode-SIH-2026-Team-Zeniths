@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: neerdrishti-db
+    environment:
+      POSTGRES_USER: neer
+      POSTGRES_PASSWORD: neer
+      POSTGRES_DB: neerdrishti
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U neer -d neerdrishti"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./backend
+    container_name: neerdrishti-api
+    environment:
+      DATABASE_URL: postgresql+psycopg://neer:neer@db:5432/neerdrishti
+      INGEST_TOKEN: dev-ingest-token
+      CORS_ORIGINS: http://localhost:5173,http://localhost:3000
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+
+volumes:
+  pgdata:

@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Env & secrets -- never commit real keys
+.env
+.env.local
+*.pem
+service-account*.json
+gee-credentials*.json
+
+# Data exports (keep data/samples/, ignore big raw pulls)
+data/raw/
+*.tif
+*.zip
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store

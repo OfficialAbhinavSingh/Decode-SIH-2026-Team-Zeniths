@@ -1,0 +1,1145 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7453,
+       26.8764
+      ],
+      [
+       75.7573,
+       26.8764
+      ],
+      [
+       75.7573,
+       26.8884
+      ],
+      [
+       75.7453,
+       26.8884
+      ],
+      [
+       75.7453,
+       26.8764
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-001",
+    "name": "Ward 1 - Sector 1",
+    "city": "Jaipur",
+    "ward": "Ward 1",
+    "pipe_length_km": 4.31,
+    "population": 20466
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7573,
+       26.8764
+      ],
+      [
+       75.7693,
+       26.8764
+      ],
+      [
+       75.7693,
+       26.8884
+      ],
+      [
+       75.7573,
+       26.8884
+      ],
+      [
+       75.7573,
+       26.8764
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-002",
+    "name": "Ward 1 - Sector 2",
+    "city": "Jaipur",
+    "ward": "Ward 1",
+    "pipe_length_km": 13.46,
+    "population": 7363
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7693,
+       26.8764
+      ],
+      [
+       75.7813,
+       26.8764
+      ],
+      [
+       75.7813,
+       26.8884
+      ],
+      [
+       75.7693,
+       26.8884
+      ],
+      [
+       75.7693,
+       26.8764
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-003",
+    "name": "Ward 1 - Sector 3",
+    "city": "Jaipur",
+    "ward": "Ward 1",
+    "pipe_length_km": 12.73,
+    "population": 17782
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7813,
+       26.8764
+      ],
+      [
+       75.7933,
+       26.8764
+      ],
+      [
+       75.7933,
+       26.8884
+      ],
+      [
+       75.7813,
+       26.8884
+      ],
+      [
+       75.7813,
+       26.8764
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-004",
+    "name": "Ward 1 - Sector 4",
+    "city": "Jaipur",
+    "ward": "Ward 1",
+    "pipe_length_km": 11.62,
+    "population": 21950
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7933,
+       26.8764
+      ],
+      [
+       75.8053,
+       26.8764
+      ],
+      [
+       75.8053,
+       26.8884
+      ],
+      [
+       75.7933,
+       26.8884
+      ],
+      [
+       75.7933,
+       26.8764
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-005",
+    "name": "Ward 1 - Sector 5",
+    "city": "Jaipur",
+    "ward": "Ward 1",
+    "pipe_length_km": 12.27,
+    "population": 20085
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8053,
+       26.8764
+      ],
+      [
+       75.8173,
+       26.8764
+      ],
+      [
+       75.8173,
+       26.8884
+      ],
+      [
+       75.8053,
+       26.8884
+      ],
+      [
+       75.8053,
+       26.8764
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-006",
+    "name": "Ward 1 - Sector 6",
+    "city": "Jaipur",
+    "ward": "Ward 1",
+    "pipe_length_km": 11.26,
+    "population": 18453
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7453,
+       26.8884
+      ],
+      [
+       75.7573,
+       26.8884
+      ],
+      [
+       75.7573,
+       26.9004
+      ],
+      [
+       75.7453,
+       26.9004
+      ],
+      [
+       75.7453,
+       26.8884
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-007",
+    "name": "Ward 2 - Sector 1",
+    "city": "Jaipur",
+    "ward": "Ward 2",
+    "pipe_length_km": 5.64,
+    "population": 6645
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7573,
+       26.8884
+      ],
+      [
+       75.7693,
+       26.8884
+      ],
+      [
+       75.7693,
+       26.9004
+      ],
+      [
+       75.7573,
+       26.9004
+      ],
+      [
+       75.7573,
+       26.8884
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-008",
+    "name": "Ward 2 - Sector 2",
+    "city": "Jaipur",
+    "ward": "Ward 2",
+    "pipe_length_km": 4.22,
+    "population": 7212
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7693,
+       26.8884
+      ],
+      [
+       75.7813,
+       26.8884
+      ],
+      [
+       75.7813,
+       26.9004
+      ],
+      [
+       75.7693,
+       26.9004
+      ],
+      [
+       75.7693,
+       26.8884
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-009",
+    "name": "Ward 2 - Sector 3",
+    "city": "Jaipur",
+    "ward": "Ward 2",
+    "pipe_length_km": 7.95,
+    "population": 20065
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7813,
+       26.8884
+      ],
+      [
+       75.7933,
+       26.8884
+      ],
+      [
+       75.7933,
+       26.9004
+      ],
+      [
+       75.7813,
+       26.9004
+      ],
+      [
+       75.7813,
+       26.8884
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-010",
+    "name": "Ward 2 - Sector 4",
+    "city": "Jaipur",
+    "ward": "Ward 2",
+    "pipe_length_km": 10.47,
+    "population": 10888
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7933,
+       26.8884
+      ],
+      [
+       75.8053,
+       26.8884
+      ],
+      [
+       75.8053,
+       26.9004
+      ],
+      [
+       75.7933,
+       26.9004
+      ],
+      [
+       75.7933,
+       26.8884
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-011",
+    "name": "Ward 2 - Sector 5",
+    "city": "Jaipur",
+    "ward": "Ward 2",
+    "pipe_length_km": 7.37,
+    "population": 15392
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8053,
+       26.8884
+      ],
+      [
+       75.8173,
+       26.8884
+      ],
+      [
+       75.8173,
+       26.9004
+      ],
+      [
+       75.8053,
+       26.9004
+      ],
+      [
+       75.8053,
+       26.8884
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-012",
+    "name": "Ward 2 - Sector 6",
+    "city": "Jaipur",
+    "ward": "Ward 2",
+    "pipe_length_km": 13.78,
+    "population": 15686
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7453,
+       26.9004
+      ],
+      [
+       75.7573,
+       26.9004
+      ],
+      [
+       75.7573,
+       26.9124
+      ],
+      [
+       75.7453,
+       26.9124
+      ],
+      [
+       75.7453,
+       26.9004
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-013",
+    "name": "Ward 3 - Sector 1",
+    "city": "Jaipur",
+    "ward": "Ward 3",
+    "pipe_length_km": 11.86,
+    "population": 20829
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7573,
+       26.9004
+      ],
+      [
+       75.7693,
+       26.9004
+      ],
+      [
+       75.7693,
+       26.9124
+      ],
+      [
+       75.7573,
+       26.9124
+      ],
+      [
+       75.7573,
+       26.9004
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-014",
+    "name": "Ward 3 - Sector 2",
+    "city": "Jaipur",
+    "ward": "Ward 3",
+    "pipe_length_km": 10.01,
+    "population": 15154
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7693,
+       26.9004
+      ],
+      [
+       75.7813,
+       26.9004
+      ],
+      [
+       75.7813,
+       26.9124
+      ],
+      [
+       75.7693,
+       26.9124
+      ],
+      [
+       75.7693,
+       26.9004
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-015",
+    "name": "Ward 3 - Sector 3",
+    "city": "Jaipur",
+    "ward": "Ward 3",
+    "pipe_length_km": 3.99,
+    "population": 21631
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7813,
+       26.9004
+      ],
+      [
+       75.7933,
+       26.9004
+      ],
+      [
+       75.7933,
+       26.9124
+      ],
+      [
+       75.7813,
+       26.9124
+      ],
+      [
+       75.7813,
+       26.9004
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-016",
+    "name": "Ward 3 - Sector 4",
+    "city": "Jaipur",
+    "ward": "Ward 3",
+    "pipe_length_km": 6.21,
+    "population": 18989
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7933,
+       26.9004
+      ],
+      [
+       75.8053,
+       26.9004
+      ],
+      [
+       75.8053,
+       26.9124
+      ],
+      [
+       75.7933,
+       26.9124
+      ],
+      [
+       75.7933,
+       26.9004
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-017",
+    "name": "Ward 3 - Sector 5",
+    "city": "Jaipur",
+    "ward": "Ward 3",
+    "pipe_length_km": 4.55,
+    "population": 14125
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8053,
+       26.9004
+      ],
+      [
+       75.8173,
+       26.9004
+      ],
+      [
+       75.8173,
+       26.9124
+      ],
+      [
+       75.8053,
+       26.9124
+      ],
+      [
+       75.8053,
+       26.9004
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-018",
+    "name": "Ward 3 - Sector 6",
+    "city": "Jaipur",
+    "ward": "Ward 3",
+    "pipe_length_km": 3.27,
+    "population": 16086
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7453,
+       26.9124
+      ],
+      [
+       75.7573,
+       26.9124
+      ],
+      [
+       75.7573,
+       26.924400000000002
+      ],
+      [
+       75.7453,
+       26.924400000000002
+      ],
+      [
+       75.7453,
+       26.9124
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-019",
+    "name": "Ward 4 - Sector 1",
+    "city": "Jaipur",
+    "ward": "Ward 4",
+    "pipe_length_km": 7.0,
+    "population": 17835
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7573,
+       26.9124
+      ],
+      [
+       75.7693,
+       26.9124
+      ],
+      [
+       75.7693,
+       26.924400000000002
+      ],
+      [
+       75.7573,
+       26.924400000000002
+      ],
+      [
+       75.7573,
+       26.9124
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-020",
+    "name": "Ward 4 - Sector 2",
+    "city": "Jaipur",
+    "ward": "Ward 4",
+    "pipe_length_km": 4.0,
+    "population": 20333
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7693,
+       26.9124
+      ],
+      [
+       75.7813,
+       26.9124
+      ],
+      [
+       75.7813,
+       26.924400000000002
+      ],
+      [
+       75.7693,
+       26.924400000000002
+      ],
+      [
+       75.7693,
+       26.9124
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-021",
+    "name": "Ward 4 - Sector 3",
+    "city": "Jaipur",
+    "ward": "Ward 4",
+    "pipe_length_km": 12.54,
+    "population": 17940
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7813,
+       26.9124
+      ],
+      [
+       75.7933,
+       26.9124
+      ],
+      [
+       75.7933,
+       26.924400000000002
+      ],
+      [
+       75.7813,
+       26.924400000000002
+      ],
+      [
+       75.7813,
+       26.9124
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-022",
+    "name": "Ward 4 - Sector 4",
+    "city": "Jaipur",
+    "ward": "Ward 4",
+    "pipe_length_km": 8.57,
+    "population": 20090
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7933,
+       26.9124
+      ],
+      [
+       75.8053,
+       26.9124
+      ],
+      [
+       75.8053,
+       26.924400000000002
+      ],
+      [
+       75.7933,
+       26.924400000000002
+      ],
+      [
+       75.7933,
+       26.9124
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-023",
+    "name": "Ward 4 - Sector 5",
+    "city": "Jaipur",
+    "ward": "Ward 4",
+    "pipe_length_km": 7.38,
+    "population": 21191
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8053,
+       26.9124
+      ],
+      [
+       75.8173,
+       26.9124
+      ],
+      [
+       75.8173,
+       26.924400000000002
+      ],
+      [
+       75.8053,
+       26.924400000000002
+      ],
+      [
+       75.8053,
+       26.9124
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-024",
+    "name": "Ward 4 - Sector 6",
+    "city": "Jaipur",
+    "ward": "Ward 4",
+    "pipe_length_km": 5.85,
+    "population": 17761
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7453,
+       26.924400000000002
+      ],
+      [
+       75.7573,
+       26.924400000000002
+      ],
+      [
+       75.7573,
+       26.936400000000003
+      ],
+      [
+       75.7453,
+       26.936400000000003
+      ],
+      [
+       75.7453,
+       26.924400000000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-025",
+    "name": "Ward 5 - Sector 1",
+    "city": "Jaipur",
+    "ward": "Ward 5",
+    "pipe_length_km": 9.2,
+    "population": 19702
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7573,
+       26.924400000000002
+      ],
+      [
+       75.7693,
+       26.924400000000002
+      ],
+      [
+       75.7693,
+       26.936400000000003
+      ],
+      [
+       75.7573,
+       26.936400000000003
+      ],
+      [
+       75.7573,
+       26.924400000000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-026",
+    "name": "Ward 5 - Sector 2",
+    "city": "Jaipur",
+    "ward": "Ward 5",
+    "pipe_length_km": 8.64,
+    "population": 4831
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7693,
+       26.924400000000002
+      ],
+      [
+       75.7813,
+       26.924400000000002
+      ],
+      [
+       75.7813,
+       26.936400000000003
+      ],
+      [
+       75.7693,
+       26.936400000000003
+      ],
+      [
+       75.7693,
+       26.924400000000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-027",
+    "name": "Ward 5 - Sector 3",
+    "city": "Jaipur",
+    "ward": "Ward 5",
+    "pipe_length_km": 9.33,
+    "population": 8227
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7813,
+       26.924400000000002
+      ],
+      [
+       75.7933,
+       26.924400000000002
+      ],
+      [
+       75.7933,
+       26.936400000000003
+      ],
+      [
+       75.7813,
+       26.936400000000003
+      ],
+      [
+       75.7813,
+       26.924400000000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-028",
+    "name": "Ward 5 - Sector 4",
+    "city": "Jaipur",
+    "ward": "Ward 5",
+    "pipe_length_km": 12.0,
+    "population": 21144
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7933,
+       26.924400000000002
+      ],
+      [
+       75.8053,
+       26.924400000000002
+      ],
+      [
+       75.8053,
+       26.936400000000003
+      ],
+      [
+       75.7933,
+       26.936400000000003
+      ],
+      [
+       75.7933,
+       26.924400000000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-029",
+    "name": "Ward 5 - Sector 5",
+    "city": "Jaipur",
+    "ward": "Ward 5",
+    "pipe_length_km": 12.76,
+    "population": 7361
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8053,
+       26.924400000000002
+      ],
+      [
+       75.8173,
+       26.924400000000002
+      ],
+      [
+       75.8173,
+       26.936400000000003
+      ],
+      [
+       75.8053,
+       26.936400000000003
+      ],
+      [
+       75.8053,
+       26.924400000000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-030",
+    "name": "Ward 5 - Sector 6",
+    "city": "Jaipur",
+    "ward": "Ward 5",
+    "pipe_length_km": 10.89,
+    "population": 18070
+   }
+  }
+ ]
+}
