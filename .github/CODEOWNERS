@@ -9,14 +9,16 @@
 /data/samples/zones.geojson         @OfficialAbhinavSingh
 
 # R2 · Data (Billing / NRW) — Sayali, Saksham
-/backend/pipelines/billing/         @sayali-rathod-07 @Kr0issant @OfficialAbhinavSingh
-/data/samples/billing.csv           @sayali-rathod-07 @Kr0issant @OfficialAbhinavSingh
+# TODO: Saksham has no GitHub handle on this repo yet. Add him as a collaborator and put him
+# on these two lines -- until then GitHub cannot request his review.
+/backend/pipelines/billing/         @sayali-rathod-07 @OfficialAbhinavSingh
+/data/samples/billing.csv           @sayali-rathod-07 @OfficialAbhinavSingh
 
 # R3 · Backend & Fusion — Abhinav, Krishna  (owns the contract)
-/backend/app/                       @OfficialAbhinavSingh @krishnaasinghal
-/backend/tests/                     @OfficialAbhinavSingh @krishnaasinghal
-/backend/seed.py                    @OfficialAbhinavSingh @krishnaasinghal
-/docs/DATA-CONTRACT.md              @OfficialAbhinavSingh @krishnaasinghal
+/backend/app/                       @OfficialAbhinavSingh @Kr0issant
+/backend/tests/                     @OfficialAbhinavSingh @Kr0issant
+/backend/seed.py                    @OfficialAbhinavSingh @Kr0issant
+/docs/DATA-CONTRACT.md              @OfficialAbhinavSingh @Kr0issant
 
 # R4 · Frontend & Dashboard — Abhishek
 /frontend/                          @Abhi1818Singh @OfficialAbhinavSingh
@@ -26,10 +28,10 @@
 /backend/app/routers/reports.py     @PranjaySrivastava @OfficialAbhinavSingh
 
 # R6 · AI Agent, DevOps & Deploy — Krishna
-/render.yaml                        @krishnaasinghal @OfficialAbhinavSingh
-/docker-compose.yml                 @krishnaasinghal @OfficialAbhinavSingh
-/.github/                           @krishnaasinghal @OfficialAbhinavSingh
-/backend/worker.py                  @krishnaasinghal @OfficialAbhinavSingh
+/render.yaml                        @Kr0issant @OfficialAbhinavSingh
+/docker-compose.yml                 @Kr0issant @OfficialAbhinavSingh
+/.github/                           @Kr0issant @OfficialAbhinavSingh
+/backend/worker.py                  @Kr0issant @OfficialAbhinavSingh
 
 # Pitch & demo — Sayali, Pranjay
 /docs/DEMO.md                       @sayali-rathod-07 @PranjaySrivastava @OfficialAbhinavSingh

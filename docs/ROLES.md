@@ -12,11 +12,11 @@ day — a lane can be reassigned on 26 Aug, not on 3 Sep.
 | Role | Person | GitHub | Owns (write access) | Depends on |
 |---|---|---|---|---|
 | **R1 · Satellite & Geo** | Abhinav | @OfficialAbhinavSingh | `backend/pipelines/satellite/`, `data/samples/zones*.geojson` | nothing |
-| **R2 · Data (Billing/NRW)** | Sayali · Saksham | @sayali-rathod-07 · @Kr0issant | `backend/pipelines/billing/`, `data/samples/billing*.csv` | R1's zone IDs |
-| **R3 · Backend & Fusion** | Abhinav · Krishna | @OfficialAbhinavSingh · @krishnaasinghal | `backend/app/` (models, routers, services/fusion.py) | nothing (owns the contract) |
+| **R2 · Data (Billing/NRW)** | Sayali · Saksham | @sayali-rathod-07 · _handle TBD_ | `backend/pipelines/billing/`, `data/samples/billing*.csv` | R1's zone IDs |
+| **R3 · Backend & Fusion** | Abhinav · Krishna | @OfficialAbhinavSingh · @Kr0issant | `backend/app/` (models, routers, services/fusion.py) | nothing (owns the contract) |
 | **R4 · Frontend & Dashboard** | Abhishek | @Abhi1818Singh | `frontend/` | API contract only |
 | **R5 · Automation & Integrations** | Pranjay | @PranjaySrivastava | `automation/n8n/`, `backend/app/routers/reports.py` | `POST /api/reports` |
-| **R6 · AI Agent, DevOps & Deploy** | Krishna | @krishnaasinghal | `render.yaml`, `docker-compose.yml`, `.github/`, Lyzr agent | everyone, at the end |
+| **R6 · AI Agent, DevOps & Deploy** | Krishna | @Kr0issant | `render.yaml`, `docker-compose.yml`, `.github/`, Lyzr agent | everyone, at the end |
 | **Pitch & Deck** | Sayali · Pranjay | @sayali-rathod-07 · @PranjaySrivastava | `docs/DEMO.md`, slide deck, GTM slide | R6's demo, at the end |
 
 ### Split-lane rules (two people on one lane)
