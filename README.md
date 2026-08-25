@@ -2,6 +2,10 @@
 
 **Decode SIH 2026 · Bharat Nirman · PS3 — Smart Water Intelligence System**
 
+[![CI](https://github.com/OfficialAbhinavSingh/Decode-SIH-2026-Team-Zeniths/actions/workflows/ci.yml/badge.svg)](https://github.com/OfficialAbhinavSingh/Decode-SIH-2026-Team-Zeniths/actions/workflows/ci.yml)
+[![PR checks](https://github.com/OfficialAbhinavSingh/Decode-SIH-2026-Team-Zeniths/actions/workflows/pr-checks.yml/badge.svg)](https://github.com/OfficialAbhinavSingh/Decode-SIH-2026-Team-Zeniths/actions/workflows/pr-checks.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Find underground water leaks in Indian cities **without installing any new hardware**, by
 fusing three signals a municipality can already get for free:
 
@@ -21,12 +25,14 @@ Each signal is scored `0–100` per zone. A fusion engine combines them into one
 ## Repo map
 
 ```
-docs/            ← read these first (5 docs, that's it)
-backend/         ← FastAPI API + fusion engine
-backend/pipelines/  ← satellite & billing signal producers
-frontend/        ← React + Leaflet map dashboard
-automation/n8n/  ← WhatsApp intake + scheduled jobs
-data/samples/    ← sample CSVs so nobody is blocked on real data
+CONTRIBUTING.md      ← how work lands here. Compulsory. Read before your first PR.
+docs/                ← read these first (5 docs, that's it)
+backend/             ← FastAPI API + fusion engine
+backend/pipelines/   ← satellite & billing signal producers
+frontend/            ← React + Leaflet map dashboard
+automation/n8n/      ← WhatsApp intake + scheduled jobs
+data/samples/        ← sample CSVs so nobody is blocked on real data
+.github/             ← CI, PR template, CODEOWNERS, issue templates
 ```
 
 ## Start here
@@ -39,7 +45,23 @@ data/samples/    ← sample CSVs so nobody is blocked on real data
 
 ## Working agreement
 
-- Branch per person: `feat/<role>-<thing>` → PR into `main`. No direct pushes to `main`.
-- Do **not** change files outside your folder without telling the owner.
-- `docs/DATA-CONTRACT.md` changes require a heads-up to the whole team — everything else depends on it.
+**Full rules: [`CONTRIBUTING.md`](CONTRIBUTING.md). Compulsory for everyone, every change.**
+
+- **`main` is protected — no direct pushes.** Everything lands through a reviewed PR.
+- Branch `<type>/<lane>-<thing>`, e.g. `feat/r1-ndvi-baseline-composite`.
+- **@OfficialAbhinavSingh reviews and merges every PR.** Nobody self-merges.
+- Fill in **every** section of the PR template. CI rejects a half-filled one.
+- **If an AI agent wrote it, declare it in the PR** ([§7](CONTRIBUTING.md#7-ai-agent-disclosure--compulsory)).
+  Undeclared agent work gets closed unmerged.
+- Do **not** change files outside your lane without the owner's approval ([CODEOWNERS](.github/CODEOWNERS)).
+- `docs/DATA-CONTRACT.md` changes require a heads-up to the whole team first — everything depends on it.
+- Never commit a secret ([`SECURITY.md`](SECURITY.md)).
 - Seed data (`backend/seed.py`) exists so you can build your part before anyone else's part is done.
+
+| | |
+|---|---|
+| Contribution rules | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Who owns what | [docs/ROLES.md](docs/ROLES.md) · [.github/CODEOWNERS](.github/CODEOWNERS) |
+| Security & privacy | [SECURITY.md](SECURITY.md) |
+| Team conduct | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) |
+| License | [MIT](LICENSE) |

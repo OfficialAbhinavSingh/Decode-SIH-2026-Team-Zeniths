@@ -1,0 +1,231 @@
+name: PR checks
+
+# Enforces the rules in CONTRIBUTING.md so a human reviewer never has to.
+# Rules: branch naming (§3), PR title (§5.1), PR body format (§5.2), AI disclosure (§7), secrets (§9).
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  hygiene:
+    name: PR hygiene
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Validate title, branch and body
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          python3 - <<'PY'
+          import os, re, sys
+
+          title  = os.environ.get("PR_TITLE") or ""
+          body   = os.environ.get("PR_BODY") or ""
+          branch = os.environ.get("PR_BRANCH") or ""
+          errors, warnings = [], []
+
+          TYPES = "feat|fix|chore|docs|test|refactor|perf"
+
+          # --- CONTRIBUTING §5.1 : PR title ---------------------------------
+          if not re.match(rf"^(\[agent\] )?({TYPES})(\([a-z0-9._-]+\))?: \S.*", title):
+              errors.append(
+                  f"PR title does not follow CONTRIBUTING §5.1.\n"
+                  f'      got:      "{title}"\n'
+                  f"      expected: <type>(<scope>): <imperative summary>\n"
+                  f"      types:    {TYPES.replace('|', ', ')}\n"
+                  f'      example:  feat(satellite): compute 3-year NDVI baseline per zone\n'
+                  f"      (prefix with [agent] if an AI agent opened this PR)"
+              )
+          if title.rstrip().endswith("."):
+              warnings.append("PR title ends with a period — drop it.")
+
+          # --- CONTRIBUTING §3 : branch name --------------------------------
+          if not re.match(rf"^({TYPES})/(r[1-6]|hotfix)-[a-z0-9]+(-[a-z0-9]+)*$", branch):
+              errors.append(
+                  f"Branch name does not follow CONTRIBUTING §3.\n"
+                  f'      got:      "{branch}"\n'
+                  f"      expected: <type>/<lane>-<short-description>   lane = r1..r6 (or hotfix)\n"
+                  f"      example:  feat/r1-ndvi-baseline-composite"
+              )
+
+          # --- CONTRIBUTING §5.2 : every section present and filled ---------
+          required = [
+              "## Lane", "## What this changes", "## Why", "## How to verify",
+              "## Data contract impact", "## Blast radius", "## Evidence",
+              "## AI agent disclosure", "## Checklist",
+          ]
+          missing = [h for h in required if h.lower() not in body.lower()]
+          if missing:
+              errors.append(
+                  "PR body is missing required section(s): " + ", ".join(missing)
+                  + "\n      Use the template. Do not delete sections — write 'N/A — why' instead."
+              )
+
+          # a section left unfilled. Content counts as: prose, a NON-empty code block,
+          # or at least one TICKED checkbox. Comments and unticked boxes are not content.
+          def section(name, nxt):
+              try:
+                  seg = re.split(re.escape(name), body, flags=re.I)[1]
+              except IndexError:
+                  return ""
+              return re.split(re.escape(nxt), seg, flags=re.I)[0] if nxt else seg
+
+          if not missing:
+              for i, h in enumerate(required[:-1]):
+                  seg = section(h, required[i + 1])
+                  seg = re.sub(r"<!--.*?-->", "", seg, flags=re.S)          # drop template comments
+                  ticked = [c for c in re.findall(r"^\s*[-*]\s*\[([ xX])\]", seg, re.M)
+                            if c.lower() == "x"]
+                  rest = re.sub(r"```[a-zA-Z]*\s*```", "", seg, flags=re.S)  # empty fence != content
+                  rest = re.sub(r"^\s*[-*]\s*\[[ xX]\].*$", "", rest, flags=re.M)
+                  rest = rest.replace("---", "").strip()
+                  if not rest and not ticked:
+                      if re.search(r"^\s*[-*]\s*\[[ xX]\]", seg, re.M):
+                          errors.append(f"Section '{h}': no box is ticked. Tick the one that applies.")
+                      else:
+                          errors.append(f"Section '{h}' is empty. Fill it in, or write 'N/A — <why>'.")
+
+          # sections that are purely checkboxes must actually have a box ticked
+          if not missing:
+              dci = section("## Data contract impact", "## Blast radius")
+              picks = [c for c in re.findall(r"^\s*[-*]\s*\[([ xX])\]", dci, re.M) if c.lower() == "x"]
+              if len(picks) != 1:
+                  errors.append(
+                      "Section 'Data contract impact': tick exactly ONE box "
+                      f"(found {len(picks)}) — either it changes docs/DATA-CONTRACT.md or it doesn't."
+                  )
+              chk = section("## Checklist", "")
+              boxes_all = re.findall(r"^\s*[-*]\s*\[([ xX])\]", chk, re.M)
+              unticked = [c for c in boxes_all if c.lower() != "x"]
+              if boxes_all and unticked:
+                  warnings.append(
+                      f"{len(unticked)} of {len(boxes_all)} checklist items are unticked — "
+                      "the reviewer will ask about each one."
+                  )
+
+          # --- CONTRIBUTING §7 : AI agent disclosure ------------------------
+          boxes = {
+              "hand":      r"-\s*\[([ xX])\]\s*Written entirely by hand",
+              "assisted":  r"-\s*\[([ xX])\]\s*AI-assisted",
+              "generated": r"-\s*\[([ xX])\]\s*\**Substantially agent-generated",
+          }
+          ticked = [k for k, pat in boxes.items()
+                    for m in [re.search(pat, body, re.I)] if m and m.group(1).lower() == "x"]
+
+          if len(ticked) == 0:
+              errors.append(
+                  "AI agent disclosure is missing (CONTRIBUTING §7).\n"
+                  "      Tick exactly ONE box: hand-written / AI-assisted / substantially agent-generated.\n"
+                  "      This is compulsory for every PR. Undeclared agent work gets closed unmerged."
+              )
+          elif len(ticked) > 1:
+              errors.append(f"Tick exactly ONE AI disclosure box — found {len(ticked)}: {', '.join(ticked)}")
+
+          if "generated" in ticked:
+              seg = re.split(r"##\s*AI agent disclosure", body, flags=re.I)[-1]
+              seg = re.split(r"##\s*Checklist", seg, flags=re.I)[0]
+              def same_line(field):
+                  m = re.search(rf"{field}:[ \t]*(?!<!--)(\S[^\n]*)", seg, re.I)
+                  return m and not m.group(1).strip().startswith(("-", "<!--"))
+              agent_m, scope_m = same_line("agent"), same_line("scope")
+              if not agent_m:
+                  errors.append("'Substantially agent-generated' ticked but 'agent:' is blank — "
+                                "name the tool and model, e.g. Claude Code (Opus 5).")
+              if not scope_m:
+                  errors.append("'Substantially agent-generated' ticked but 'scope:' is blank — "
+                                "say what it produced.")
+              if not title.startswith("[agent]"):
+                  warnings.append("Substantially agent-generated: if the agent OPENED this PR, "
+                                  "prefix the title with [agent] (CONTRIBUTING §7.1).")
+
+          # "I confirm I have read and understood every line of this diff"
+          confirm = re.search(r"read and understood every line.*?:?\s*\**\s*(yes|no)\b", body, re.I | re.S)
+          if not confirm:
+              errors.append("Missing the confirmation line: 'I confirm I have read and understood "
+                            "every line of this diff: yes / no' (CONTRIBUTING §7).")
+          elif confirm.group(1).lower() == "no":
+              errors.append("You answered 'no' to understanding your own diff. Close this PR, read it, "
+                            "reopen. A judge will ask you how it works.")
+
+          # --- report --------------------------------------------------------
+          for w in warnings:
+              print(f"::warning::{w}")
+          if errors:
+              print("\nPR does not meet the contribution rules:\n")
+              for e in errors:
+                  print(f"  ✗ {e}\n")
+                  print(f"::error::{e.splitlines()[0]}")
+              print("Full rules: CONTRIBUTING.md")
+              sys.exit(1)
+          print("✓ Title, branch, body and AI disclosure all conform to CONTRIBUTING.md")
+          PY
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Scan the diff for credentials
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git diff --unified=0 "$BASE" "$HEAD" -- . > /tmp/pr.diff || true
+          python3 - <<'PY'
+          import re, sys
+          patterns = {
+              "GitHub token":        r"gh[pousr]_[A-Za-z0-9]{20,}",
+              "GitHub fine-grained": r"github_pat_[A-Za-z0-9_]{30,}",
+              "AWS access key":      r"AKIA[0-9A-Z]{16}",
+              "Google API key":      r"AIza[0-9A-Za-z_\-]{35}",
+              "Private key block":   r"-----BEGIN (RSA |EC |OPENSSH |PGP )?PRIVATE KEY-----",
+              "Slack token":         r"xox[baprs]-[A-Za-z0-9-]{10,}",
+              "Meta/WhatsApp token": r"EAA[A-Za-z0-9]{40,}",
+              "Postgres URL w/ pw":  r"postgres(ql)?://[^\s:@/]+:[^\s:@/]+@",
+              "Generic secret":      r"(?i)(api[_-]?key|secret|passwd|password|token)\s*[:=]\s*['\"][^'\"\s]{12,}['\"]",
+          }
+          added = [l[1:] for l in open("/tmp/pr.diff", errors="ignore").read().splitlines()
+                   if l.startswith("+") and not l.startswith("+++")]
+          hits = []
+          for line in added:
+              if re.search(r"(?i)\b(example|placeholder|dummy|changeme|your[_-]?\w+[_-]?here|xxx+|<[a-z_]+>)\b", line):
+                  continue
+              # local dev creds are fine: docker-compose / .env.example point at localhost or the
+              # compose service name, never at anything real
+              if re.search(r"@(localhost|127\.0\.0\.1|db|postgres|host\.docker\.internal)[:/]", line):
+                  continue
+              for name, pat in patterns.items():
+                  if re.search(pat, line):
+                      hits.append((name, line.strip()[:120]))
+          if hits:
+              print("Possible secrets in this diff — CONTRIBUTING §9 / SECURITY.md:\n")
+              for name, line in hits:
+                  print(f"  ✗ {name}: {line}")
+                  print(f"::error::Possible {name} committed. Remove it AND rotate the credential.")
+              print("\nDeleting it in a later commit does NOT remove it from git history.")
+              print("Rotate the credential and tell @OfficialAbhinavSingh.")
+              sys.exit(1)
+          print("✓ No credential patterns found in the diff")
+          PY
+      - name: Block committed .env files
+        run: |
+          if git diff --name-only "${{ github.event.pull_request.base.sha }}" \
+                                  "${{ github.event.pull_request.head.sha }}" \
+             | grep -E '(^|/)\.env($|\.[^e])' ; then
+            echo "::error::A .env file is in this diff. Only .env.example belongs in the repo (CONTRIBUTING §9)."
+            exit 1
+          fi
+          echo "✓ No .env files committed"
