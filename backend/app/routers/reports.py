@@ -19,11 +19,46 @@ def match_zone(db: Session, lat: float, lon: float) -> str | None:
     return None
 
 
+import sys
+from pathlib import Path
+
+# Add automation folder to Python path so we can import the deduplicator
+sys.path.append(str(Path(__file__).parent.parent.parent.parent / "automation" / "n8n"))
+try:
+    from utils.dedupe import ReportDeduplicator
+except ImportError:
+    ReportDeduplicator = None
+
+deduplicator = ReportDeduplicator() if ReportDeduplicator else None
+
 @router.post("", response_model=ReportOut, status_code=201)
 def create_report(payload: ReportIn, db: Session = Depends(get_db)) -> CitizenReport:
     zone_id = payload.zone_id
     if zone_id is None and payload.lat is not None and payload.lon is not None:
         zone_id = match_zone(db, payload.lat, payload.lon)
+
+    if deduplicator:
+        is_dup, reason, cluster_count = deduplicator.check_and_record(
+            reporter_hash=payload.reporter_hash,
+            lat=payload.lat,
+            lon=payload.lon,
+            zone_id=zone_id,
+            description=payload.description
+        )
+        
+        # If it's a spam duplicate within 6 hours, return without saving to DB
+        if is_dup:
+            print(f"Dropped duplicate report: {reason}")
+            # We return a dummy report so the n8n workflow still succeeds and doesn't crash
+            return CitizenReport(
+                zone_id=zone_id,
+                channel=payload.channel,
+                reporter_hash=payload.reporter_hash,
+                description=payload.description,
+                lat=payload.lat,
+                lon=payload.lon,
+                status="duplicate"
+            )
 
     report = CitizenReport(
         zone_id=zone_id,
