@@ -57,11 +57,11 @@ Use `--dry-run` to parse and print without writing.
 re-running it weekly just slides forward — no dates to keep updating by hand.
 
 ```javascript
-// Current window: median composite over the last 15 days, low cloud.
+// Current window: median composite over the last 30 days, low cloud.
 var current = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')
   .filterDate(START_DATE, END_DATE)
   .filterBounds(zones)
-  .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20))
+  .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 40))
   .map(ndvi).median();
 
 // Baseline: same calendar window, previous 3 years, merged before taking the median.
@@ -102,7 +102,7 @@ Safe to re-run for the same `observed_on` — `/api/ingest/satellite` upserts on
 | Trap | What to do |
 |---|---|
 | Rain makes the whole city green | Score **relative to the city median that same day** — `ndvi.py` already does this. City-wide bumps cancel out. |
-| Clouds | Median composite over 15 days + `CLOUDY_PIXEL_PERCENTAGE < 20`. Never a single scene. |
+| Clouds | Median composite over 30 days + `CLOUDY_PIXEL_PERCENTAGE < 40`. Never a single scene. During Jun-Sep monsoon even 15 days / <20 can find zero scenes over Rajasthan and `.select('ndvi')` throws "Image with no bands" (error code 3) -- that's why the window is wider than it looks like it needs to be. |
 | Farmland / parks look like permanent leaks | Baseline is the same calendar window in prior years, so a park that's always green has ~0 anomaly. |
 | Zone too big | ~1–2 km cells. A 10 km ward averages the leak away. |
 | GEE quota / export slowness | Export to Drive, not `getInfo()`. Start the export and go work on something else. |

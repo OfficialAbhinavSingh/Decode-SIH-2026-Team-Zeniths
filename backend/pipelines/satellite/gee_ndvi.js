@@ -47,11 +47,18 @@ var zones = ee.FeatureCollection([
   ee.Feature(ee.Geometry.Polygon([[[75.8053, 26.924400000000002], [75.8173, 26.924400000000002], [75.8173, 26.936400000000003], [75.8053, 26.936400000000003], [75.8053, 26.924400000000002]]]), {zone_id: 'Z-030'})
 ]);
 
-// Rolling 15-day window ending today. Re-running this script later automatically
+// Rolling 30-day window ending today. Re-running this script later automatically
 // slides the window forward -- no hardcoded dates to go stale.
+//
+// 30 days, not 15: during the Jun-Sep monsoon a 15-day window over Rajasthan can go
+// entirely without a scene under CLOUD_MAX, and .median() of an empty collection is a
+// bandless image -- .select('ndvi') on that throws "Image.select: ... applied to an Image
+// with no bands" (error code 3). Widening the window is the standard GEE fix; CLOUD_MAX
+// is also relaxed for the same reason. "Current" still means "recent," just not
+// razor-recent during monsoon.
 var END_DATE = ee.Date(Date.now());
-var START_DATE = END_DATE.advance(-15, 'day');
-var CLOUD_MAX = 20; // CLOUDY_PIXEL_PERCENTAGE threshold from the README's "known traps"
+var START_DATE = END_DATE.advance(-30, 'day');
+var CLOUD_MAX = 40; // CLOUDY_PIXEL_PERCENTAGE threshold from the README's "known traps"
 
 function withIndices(img) {
   var ndvi = img.normalizedDifference(['B8', 'B4']).rename('ndvi');
