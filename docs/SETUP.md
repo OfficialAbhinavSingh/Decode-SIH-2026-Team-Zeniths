@@ -52,6 +52,7 @@ docker compose up
 | `connection refused` on 5432 | `docker compose up -d db`, wait ~5s for healthcheck |
 | Tables missing | `python -m app.init_db` |
 | Empty map | you skipped `python seed.py` |
+| Ingest fails: `no unique or exclusion constraint matching the ON CONFLICT specification` | your DB predates the natural-key constraints. No migration tool by design — `docker exec neerdrishti-db psql -U neer -d neerdrishti -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"` then `python -m app.init_db && python seed.py` |
 | `npm run dev` proxy 502 | backend isn't running on 8000 |
 | Port 5432 already used | you have a local postgres; change the host port in `docker-compose.yml` |
 

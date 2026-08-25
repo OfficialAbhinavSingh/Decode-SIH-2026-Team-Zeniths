@@ -12,6 +12,23 @@ zones.geojson  →  load_zones.py  →  Earth Engine script  →  CSV export  �
 **MVP deliberately does NOT call GEE at request time.** Export once, import, done — see
 `docs/SCOPE.md`. Live scheduled refresh is Phase 2 (P1).
 
+## Step 0 — rebuild your database (everyone, once)
+
+> **This branch changes the schema.** `satellite_signals` and `billing_signals` gained
+> natural-key unique constraints so ingest can upsert. There is no migration tool by
+> design (see `app/init_db.py`), so a database created before this branch has the tables
+> but not the constraints, and every ingest will fail with
+> `there is no unique or exclusion constraint matching the ON CONFLICT specification`.
+>
+> ```bash
+> cd backend
+> docker compose -f ../docker-compose.yml up -d db
+> docker exec neerdrishti-db psql -U neer -d neerdrishti \
+>   -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+> python -m app.init_db
+> python seed.py          # offline demo data, safe to re-run
+> ```
+
 ## Step 1 — load the zones (once, before anything else)
 
 `zones` must exist in the DB before any signal can be ingested against a `zone_id`.
@@ -22,7 +39,9 @@ python -m pipelines.satellite.load_zones ../data/samples/zones.geojson
 ```
 
 Idempotent — re-run any time the geojson changes (fixed a name, added a real ward
-boundary) and it upserts rather than duplicating rows.
+boundary) and it upserts rather than duplicating rows. Accepts `Polygon` and
+`MultiPolygon` features, so a real ward split by a river or a railway line loads fine.
+Use `--dry-run` to parse and print without writing.
 
 ## Step 2 — Earth Engine setup (do this on day 1, it involves a signup queue)
 
