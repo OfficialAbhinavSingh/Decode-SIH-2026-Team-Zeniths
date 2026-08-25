@@ -21,7 +21,7 @@
         "url": "={{ $env.TELEGRAM_BOT_TOKEN ? 'https://api.telegram.org/bot' + $env.TELEGRAM_BOT_TOKEN + '/sendMessage' : 'https://httpbin.org/post' }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"chat_id\": \"{{ $json.body.chat_id }}\",\n  \"text\": \"🏆 *Congratulations, Water Warrior!* 🏆\\n\\nHi there! Remember the water leak you reported at *{{ $json.body.location }}*?\\n\\nWe are thrilled to tell you that our NeerDrishti field crew has successfully fixed it! 🛠️✅\\n\\nBecause of your quick action, you just helped save approximately *{{ $json.body.liters_saved }} liters* of drinking water for our city. 💧💙\\n\\nYou have been awarded the digital *Water Warrior Badge*! Thank you for being an active, responsible citizen.\",\n  \"parse_mode\": \"Markdown\"\n}",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $json.body.chat_id_from_cache }}\",\n  \"text\": \"🏆 *Congratulations, Water Warrior!* 🏆\\n\\nHi there! Remember the water leak you reported at *{{ $json.body.location }}*?\\n\\nWe are thrilled to tell you that our NeerDrishti field crew has successfully fixed it! 🛠️✅\\n\\nBecause of your quick action, you just helped save approximately *{{ $json.body.liters_saved }} liters* of drinking water for our city. 💧💙\\n\\nYou have been awarded the digital *Water Warrior Badge*! Thank you for being an active, responsible citizen.\",\n  \"parse_mode\": \"Markdown\"\n}",
         "options": {}
       },
       "id": "node-telegram-2",

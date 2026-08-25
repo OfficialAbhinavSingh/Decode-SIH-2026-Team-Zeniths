@@ -8,22 +8,28 @@
         "responseMode": "lastNode",
         "options": {}
       },
-      "id": "node-webhook-1",
+      "id": "d77e4bb4-c840-424e-bbc3-e94c368b2965",
       "name": "1. WhatsApp / Telegram Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [100, 300],
+      "position": [
+        -656,
+        112
+      ],
       "webhookId": "whatsapp-leak-intake"
     },
     {
       "parameters": {
         "jsCode": "// Extract incoming payload safely\nconst raw = $input.first().json;\nconst body = (raw && raw.body) ? raw.body : raw;\nconst rawPhone = String((body && (body.phone || body.from || (body.message && body.message.from ? body.message.from.id : null))) || '9829012345');\nconst text = String((body && (body.text || body.message_text || (body.message ? body.message.text : '') || body.description)) || '');\nconst lat = (body && body.lat) ? Number(body.lat) : 26.9124;\nconst lon = (body && body.lon) ? Number(body.lon) : 75.7873;\nconst channel = (body && (body.channel || (body.message ? 'telegram' : 'whatsapp'))) || 'whatsapp';\nconst chatId = (body && body.message && body.message.chat) ? body.message.chat.id : null;\n\n// Salted Phone Hash (Privacy Compliance)\nconst cleanDigits = rawPhone.replace(/\\D/g, '') || '9829012345';\nlet hashVal = 0;\nconst saltStr = cleanDigits + ':neerdrishti-salt-2026';\nfor (let i = 0; i < saltStr.length; i++) {\n  hashVal = ((hashVal << 5) - hashVal) + saltStr.charCodeAt(i);\n  hashVal |= 0;\n}\nconst hexHash = Math.abs(hashVal).toString(16).padStart(8, '0') + 'f44501f1c43cdee531bfc875';\nconst reporterHash = 'sha256:' + hexHash.substring(0, 32);\n\n// Detect Language Script\nlet detectedLang = 'en';\nlet sarvamCode = 'hi-IN';\nif (/[\\u0900-\\u097F]/.test(text)) { detectedLang = 'hi'; sarvamCode = 'hi-IN'; }\nelse if (/[\\u0B80-\\u0BFF]/.test(text)) { detectedLang = 'ta'; sarvamCode = 'ta-IN'; }\nelse if (/[\\u0C80-\\u0CFF]/.test(text)) { detectedLang = 'kn'; sarvamCode = 'kn-IN'; }\nelse if (/[\\u0C00-\\u0C7F]/.test(text)) { detectedLang = 'te'; sarvamCode = 'te-IN'; }\nelse if (/[\\u0D00-\\u0D7F]/.test(text)) { detectedLang = 'ml'; sarvamCode = 'ml-IN'; }\nelse if (/[\\u0A80-\\u0AFF]/.test(text)) { detectedLang = 'gu'; sarvamCode = 'gu-IN'; }\nelse if (/[\\u0980-\\u09FF]/.test(text)) { detectedLang = 'bn'; sarvamCode = 'bn-IN'; }\n\nreturn [{\n  json: {\n    channel,\n    chat_id: chatId,\n    reporter_hash: reporterHash,\n    incoming_text: text,\n    detected_language: detectedLang,\n    sarvam_language_code: sarvamCode,\n    is_regional: detectedLang !== 'en',\n    lat,\n    lon\n  }\n}];"
       },
-      "id": "node-extract-2",
+      "id": "17940fda-672b-4089-a678-a20875f62149",
       "name": "2. Extract & Hash Phone (SHA-256)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [320, 300]
+      "position": [
+        -448,
+        112
+      ]
     },
     {
       "parameters": {
@@ -36,11 +42,14 @@
           ]
         }
       },
-      "id": "node-if-sarvam-3",
+      "id": "621113af-9cc0-4b8e-a100-017bc43c8fda",
       "name": "3. Need Sarvam AI Translation?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
-      "position": [540, 300]
+      "position": [
+        0,
+        160
+      ]
     },
     {
       "parameters": {
@@ -70,22 +79,28 @@
           }
         }
       },
-      "id": "node-sarvam-api-4",
+      "id": "31d8283b-d329-41bb-bba4-d04a7c9178aa",
       "name": "4. Call Sarvam AI Mayura Translation",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [760, 200],
+      "position": [
+        224,
+        0
+      ],
       "onError": "continueRegularOutput"
     },
     {
       "parameters": {
         "jsCode": "// Standardize description using Sarvam AI result or Domain Fallback Dictionary\nconst prev = $('2. Extract & Hash Phone (SHA-256)').first().json;\nlet englishText = prev.incoming_text;\n\ntry {\n  const apiRes = $input.first().json;\n  if (apiRes && apiRes.translated_text) {\n    englishText = apiRes.translated_text;\n  } else {\n    throw new Error('Using dictionary fallback');\n  }\n} catch (err) {\n  const dict = {\n    'पानी बह रहा है': 'water is flowing',\n    'पानी लीक हो रहा है': 'water is leaking',\n    'पाइप टूट गया': 'pipe is broken',\n    'सड़क पर पानी': 'water on the road',\n    'स्कूल के पास': 'near the school',\n    'தண்ணீர் கசிகிறது': 'water is leaking',\n    'ನೀರು ಸೋರುತ್ತಿದೆ': 'water is leaking'\n  };\n  for (const [k, v] of Object.entries(dict)) {\n    if (englishText.includes(k)) englishText = englishText.replace(k, v);\n  }\n  if (englishText === prev.incoming_text && prev.is_regional) {\n    englishText = '[Citizen Leak Report in ' + prev.detected_language.toUpperCase() + ']: ' + prev.incoming_text;\n  }\n}\n\nreturn [{\n  json: {\n    ...prev,\n    description: englishText\n  }\n}];"
       },
-      "id": "node-format-desc-5",
+      "id": "4c6ea9e5-4503-4571-95aa-63d7a28d69d4",
       "name": "5. Format Standardized Description",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [980, 300]
+      "position": [
+        448,
+        112
+      ]
     },
     {
       "parameters": {
@@ -102,24 +117,104 @@
           }
         }
       },
-      "id": "node-http-backend-6",
+      "id": "b0090ec8-1e3f-41e4-a4be-741b095615e4",
       "name": "6. Ingest into NeerDrishti API",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [1200, 300],
+      "position": [
+        672,
+        112
+      ],
       "onError": "continueRegularOutput"
     },
     {
       "parameters": {
-        "jsCode": "// Generate localized citizen ticket confirmation\nconst prev = $('2. Extract & Hash Phone (SHA-256)').first().json;\nconst lang = prev.detected_language || 'en';\nconst reportId = Math.floor(1000 + Math.random() * 9000);\nconst zoneId = (prev.lat > 26.915) ? 'Z-002 (Ward 2)' : 'Z-001 (Ward 1)';\nconst desc = $('5. Format Standardized Description').first().json.description;\n\nlet message = `💧 *NeerDrishti Smart Water Intelligence*\\n\\n` +\n  `✅ *Water Leak Report Logged Successfully*\\n` +\n  `📍 *Matched Zone:* ${zoneId}\\n` +\n  `📝 *Description:* \"${desc}\"\\n` +\n  `🆔 *Ticket Ref:* #${reportId}\\n` +\n  `⏳ *Status:* Dispatched to Ward Acoustic Detection Crew.`;\n\nif (lang === 'hi') {\n  message = `💧 *नीरदृष्टि स्मार्ट जल खुफिया प्रणाली*\\n\\n` +\n    `✅ *जल रिसाव रिपोर्ट सफलतापूर्वक दर्ज की गई*\\n` +\n    `📍 *जोन:* ${zoneId}\\n` +\n    `📝 *विवरण:* \"${desc}\"\\n` +\n    `🆔 *टिकट संदर्भ:* #${reportId}\\n` +\n    `⏳ *स्थिति:* वार्ड मरम्मत दल को भेज दी गई है।`;\n}\n\nreturn [{\n  json: {\n    status: 'success',\n    ticket_id: reportId,\n    zone_id: zoneId,\n    reporter_hash: prev.reporter_hash,\n    description_english: desc,\n    receipt_message: message\n  }\n}];"
+        "jsCode": "const raw = $('1. WhatsApp / Telegram Webhook').first().json;\nconst body = raw.body || raw;\n\n// Extract exact Telegram Chat ID\nconst chatId = (body.message && body.message.chat) ? body.message.chat.id : \n               (body.chat_id || (body.message && body.message.from ? body.message.from.id : null));\n\nconst lang = $('2. Extract & Hash Phone (SHA-256)').first().json.detected_language || 'en';\nconst reportId = Math.floor(1000 + Math.random() * 9000);\nconst zoneId = 'Z-001 (Ward 1)';\nconst desc = $('5. Format Standardized Description').first().json.description;\n\nlet message = `💧 NeerDrishti Smart Water Intelligence\\n\\n` +\n  `✅ Water Leak Report Logged Successfully\\n` +\n  `📍 Matched Zone: ${zoneId}\\n` +\n  `📝 Description: ${desc}\\n` +\n  `🆔 Ticket Ref: #${reportId}\\n` +\n  `⏳ Status: Dispatched to Ward Repair Crew.`;\n\nif (lang === 'hi') {\n  message = `💧 नीरदृष्टि स्मार्ट जल खुफिया प्रणाली\\n\\n` +\n    `✅ जल रिसाव रिपोर्ट सफलतापूर्वक दर्ज की गई\\n` +\n    `📍 जोन: ${zoneId}\\n` +\n    `📝 विवरण: ${desc}\\n` +\n    `🆔 टिकट संदर्भ: #${reportId}\\n` +\n    `⏳ स्थिति: वार्ड मरम्मत दल को भेज दी गई है।`;\n}\n\nreturn [{\n  json: {\n    status: 'success',\n    chat_id: chatId,\n    ticket_id: reportId,\n    zone_id: zoneId,\n    receipt_message: message\n  }\n}];\n"
       },
-      "id": "node-reply-7",
+      "id": "c61c12d9-4f7a-452f-81be-e22f38b21c3c",
       "name": "7. Citizen Receipt Generator",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1420, 300]
+      "position": [
+        896,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.receipt_message }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        112
+      ],
+      "id": "7add425d-3993-4b87-94b3-5e3e2c6433a5",
+      "name": "Send a text message",
+      "webhookId": "0b614be8-f065-4c92-b707-62bb4b5f5495",
+      "credentials": {
+        "telegramApi": {
+          "id": "TCad6waPZmyRxnzo",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8858893424:AAFEG7CkigNDEco_TI8Zci8D_V5gf5kDAL4/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $json.chat_id }}\",\n  \"text\": \"Welcome to NeerDrishti! 💧\\n\\nTo report a water leak, please send a short description of the problem and your GPS location (attachment).\",\n  \"parse_mode\": \"Markdown\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        16,
+        -80
+      ],
+      "id": "691cebb1-fec7-44de-a548-f844a0a0cf51",
+      "name": "Send Welcome Message"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3b3e5dec-65cf-4a55-936b-753e6c477883",
+              "leftValue": "={{ $json.incoming_text }}",
+              "rightValue": "/^(hi|hello|\\/start|hey|help)$/i",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -224,
+        112
+      ],
+      "id": "af20b223-91a1-4f15-8a32-3ae4057b823f",
+      "name": "Is this a Greeting?"
     }
   ],
+  "pinData": {},
   "connections": {
     "1. WhatsApp / Telegram Webhook": {
       "main": [
@@ -136,7 +231,7 @@
       "main": [
         [
           {
-            "node": "3. Need Sarvam AI Translation?",
+            "node": "Is this a Greeting?",
             "type": "main",
             "index": 0
           }
@@ -193,16 +288,60 @@
           }
         ]
       ]
+    },
+    "7. Citizen Receipt Generator": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is this a Greeting?": {
+      "main": [
+        [
+          {
+            "node": "Send Welcome Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "3. Need Sarvam AI Translation?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
+  "active": true,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "binaryMode": "separate"
   },
+  "versionId": "1d2649b8-474e-4aa0-be26-4f99d00a6990",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06c00398318ea3bbeb3441693a4740aef8882c4a09db097a6d0e0ca013bcfd83"
+  },
+  "nodeGroups": [],
+  "id": "tjvnHuhgr7lOqzFH",
   "tags": [
     {
+      "updatedAt": "2026-08-25T08:59:20.492Z",
+      "createdAt": "2026-08-25T08:59:20.492Z",
+      "id": "HVHgWbdBdT8o1c8f",
       "name": "NeerDrishti"
     },
     {
+      "updatedAt": "2026-08-25T08:59:20.535Z",
+      "createdAt": "2026-08-25T08:59:20.535Z",
+      "id": "kd08PGMgOe2X4LVC",
       "name": "Sarvam-AI"
     }
   ]
