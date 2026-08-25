@@ -17,9 +17,21 @@ from .ndvi import score_batch
 
 
 def read_csv(path: str) -> list[dict]:
+    """Parse the GEE export, skipping zones with no valid pixel this period.
+
+    A zone under cloud for every scene that survived the export's mask across the whole
+    window comes back with blank ndvi_mean/wetness_index -- reduceRegions has nothing to
+    average. That is a genuinely missing reading, not a zero one, so it gets no row here
+    rather than a fabricated 0.0 -- the same "missing signal, not a zero row" rule
+    DATA-CONTRACT.md applies to fusion applies just as much to the pipeline feeding it.
+    """
     with open(path, newline="") as fh:
         rows = []
+        skipped = []
         for raw in csv.DictReader(fh):
+            if not raw.get("ndvi_mean") or not raw.get("ndvi_baseline"):
+                skipped.append(raw["zone_id"])
+                continue
             rows.append(
                 {
                     "zone_id": raw["zone_id"].strip(),
@@ -33,6 +45,8 @@ def read_csv(path: str) -> list[dict]:
                     "source": "sentinel2-gee",
                 }
             )
+    if skipped:
+        print(f"skipped {len(skipped)} zone(s) with no cloud-free pixel this period: {', '.join(skipped)}")
     return rows
 
 
