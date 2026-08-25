@@ -31,11 +31,11 @@ who must approve a change.
 | Lane | Owner(s) | Owns (write freely) |
 |---|---|---|
 | **R1 · Satellite & Geo** | Abhinav — @OfficialAbhinavSingh | `backend/pipelines/satellite/`, `data/samples/zones*.geojson` |
-| **R2 · Data (Billing / NRW)** | Sayali — @sayali-rathod-07 · Saksham — @Kr0issant | `backend/pipelines/billing/`, `data/samples/billing*.csv` |
-| **R3 · Backend & Fusion** | Abhinav — @OfficialAbhinavSingh · Krishna — @krishnaasinghal | `backend/app/` |
+| **R2 · Data (Billing / NRW)** | Sayali — @sayali-rathod-07 · Saksham — @Saksham0423 | `backend/pipelines/billing/`, `data/samples/billing*.csv` |
+| **R3 · Backend & Fusion** | Abhinav — @OfficialAbhinavSingh · Krishna — @Kr0issant | `backend/app/` |
 | **R4 · Frontend & Dashboard** | Abhishek — @Abhi1818Singh | `frontend/` |
 | **R5 · Automation (n8n)** | Pranjay — @PranjaySrivastava | `automation/n8n/`, `backend/app/routers/reports.py` |
-| **R6 · AI Agent, DevOps & Deploy** | Krishna — @krishnaasinghal | `render.yaml`, `docker-compose.yml`, `.github/` |
+| **R6 · AI Agent, DevOps & Deploy** | Krishna — @Kr0issant | `render.yaml`, `docker-compose.yml`, `.github/` |
 | **Pitch & Deck** | Sayali — @sayali-rathod-07 · Pranjay — @PranjaySrivastava | `docs/DEMO.md`, deck assets |
 
 Enforced automatically by [`.github/CODEOWNERS`](.github/CODEOWNERS) — GitHub will request the right
@@ -263,7 +263,7 @@ other lane is written against it.
 **Protocol — in this order:**
 
 1. **Post in the team group first.** State the change and what breaks. Wait for R3 (@OfficialAbhinavSingh
-   / @krishnaasinghal) to ack.
+   / @Kr0issant) to ack.
 2. Open a PR that changes `docs/DATA-CONTRACT.md` **and** `backend/app/models.py` / `schemas.py`
    **and** `backend/seed.py` together. A contract change that leaves seed data stale breaks
    everyone the next morning.
