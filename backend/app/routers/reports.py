@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -8,6 +11,19 @@ from ..schemas import ReportIn, ReportOut
 from ..services.geo import point_in_geojson
 
 router = APIRouter(prefix="/api/reports", tags=["reports"])
+
+# automation/n8n is a sibling of backend/, not a package under it -- reached across the
+# monorepo on purpose so both the live endpoint and the n8n workflow share one
+# deduplication rule. On Render this import always fails: render.yaml sets `rootDir:
+# backend` for this service, so automation/ never ships with the deployed build, and
+# dedup silently no-ops there. Locally and in docker-compose (full checkout) it works.
+sys.path.append(str(Path(__file__).resolve().parents[3] / "automation" / "n8n"))
+try:
+    from utils.dedupe import ReportDeduplicator
+except ImportError:
+    ReportDeduplicator = None
+
+deduplicator = ReportDeduplicator() if ReportDeduplicator else None
 
 
 def match_zone(db: Session, lat: float, lon: float) -> str | None:
@@ -25,6 +41,25 @@ def create_report(payload: ReportIn, db: Session = Depends(get_db)) -> CitizenRe
     if zone_id is None and payload.lat is not None and payload.lon is not None:
         zone_id = match_zone(db, payload.lat, payload.lon)
 
+    status = "new"
+    # Only dedupe reports that carry a real reporter_hash. The web-form fallback
+    # (frontend/src/pages/Report.jsx) never sends one, so every anonymous submission has
+    # reporter_hash=None -- without this guard the deduplicator's `past.reporter_hash ==
+    # reporter_hash` check matches None-against-None and silently drops the second
+    # anonymous report from two different people, which is exactly the path
+    # docs/SCOPE.md calls "must never break."
+    if deduplicator and payload.reporter_hash:
+        is_dup, reason, cluster_count = deduplicator.check_and_record(
+            reporter_hash=payload.reporter_hash,
+            lat=payload.lat,
+            lon=payload.lon,
+            zone_id=zone_id,
+            description=payload.description,
+        )
+        if is_dup:
+            print(f"Dropped duplicate report: {reason}")
+            status = "duplicate"
+
     report = CitizenReport(
         zone_id=zone_id,
         channel=payload.channel,
@@ -33,7 +68,7 @@ def create_report(payload: ReportIn, db: Session = Depends(get_db)) -> CitizenRe
         lat=payload.lat,
         lon=payload.lon,
         media_url=payload.media_url,
-        status="new",
+        status=status,
     )
     db.add(report)
     db.commit()

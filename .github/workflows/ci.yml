@@ -42,6 +42,20 @@ jobs:
         # Fusion and geo tests are pure functions -- no database needed in CI.
         run: python -m pytest tests/ -q
 
+  automation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        working-directory: automation/n8n
+        run: pip install -r ../../backend/requirements.txt
+      - name: Tests
+        working-directory: automation/n8n
+        run: python -m pytest tests/ -q
+
   frontend:
     name: Frontend · build
     runs-on: ubuntu-latest

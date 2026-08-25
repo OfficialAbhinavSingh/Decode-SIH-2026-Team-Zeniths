@@ -1,0 +1,109 @@
+{
+  "name": "NeerDrishti - 12-Day Satellite Cadence Trigger (NISAR & Sentinel-2)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 12
+            }
+          ]
+        }
+      },
+      "id": "node-schedule-1",
+      "name": "12-Day Satellite Orbit Pass Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Compute 12-day composite observation window\nconst now = new Date();\nconst observedDate = now.toISOString().split('T')[0];\n\nreturn [{\n  json: {\n    trigger_type: '12_day_satellite_cadence',\n    satellite: 'NISAR_L_Band_SAR_Sentinel2',\n    observed_on: observedDate,\n    city: $env.CITY_DEFAULT || 'Jaipur'\n  }\n}];"
+      },
+      "id": "node-prep-2",
+      "name": "Compute Cadence Window",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.API_URL || 'http://localhost:8000' }}/api/fusion/run",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "city",
+              "value": "={{ $json.city }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-fusion-3",
+      "name": "Trigger Fusion Recalculation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const res = $input.first().json;\nreturn [{\n  json: {\n    status: 'success',\n    message: `12-day satellite cadence fusion cycle completed. ${res.zones_scored || 'All'} zones scored.`,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-log-4",
+      "name": "Log Cadence Execution",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 300]
+    }
+  ],
+  "connections": {
+    "12-Day Satellite Orbit Pass Trigger": {
+      "main": [
+        [
+          {
+            "node": "Compute Cadence Window",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Cadence Window": {
+      "main": [
+        [
+          {
+            "node": "Trigger Fusion Recalculation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Fusion Recalculation": {
+      "main": [
+        [
+          {
+            "node": "Log Cadence Execution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "NeerDrishti"
+    },
+    {
+      "name": "Satellite"
+    }
+  ]
+}
