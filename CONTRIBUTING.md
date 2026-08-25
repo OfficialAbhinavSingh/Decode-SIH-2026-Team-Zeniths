@@ -31,7 +31,7 @@ who must approve a change.
 | Lane | Owner(s) | Owns (write freely) |
 |---|---|---|
 | **R1 · Satellite & Geo** | Abhinav — @OfficialAbhinavSingh | `backend/pipelines/satellite/`, `data/samples/zones*.geojson` |
-| **R2 · Data (Billing / NRW)** | Sayali — @sayali-rathod-07 · Saksham — _handle TBD_ | `backend/pipelines/billing/`, `data/samples/billing*.csv` |
+| **R2 · Data (Billing / NRW)** | Sayali — @sayali-rathod-07 · Saksham — @Saksham0423 | `backend/pipelines/billing/`, `data/samples/billing*.csv` |
 | **R3 · Backend & Fusion** | Abhinav — @OfficialAbhinavSingh · Krishna — @Kr0issant | `backend/app/` |
 | **R4 · Frontend & Dashboard** | Abhishek — @Abhi1818Singh | `frontend/` |
 | **R5 · Automation (n8n)** | Pranjay — @PranjaySrivastava | `automation/n8n/`, `backend/app/routers/reports.py` |

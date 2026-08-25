@@ -9,10 +9,8 @@
 /data/samples/zones.geojson         @OfficialAbhinavSingh
 
 # R2 · Data (Billing / NRW) — Sayali, Saksham
-# TODO: Saksham has no GitHub handle on this repo yet. Add him as a collaborator and put him
-# on these two lines -- until then GitHub cannot request his review.
-/backend/pipelines/billing/         @sayali-rathod-07 @OfficialAbhinavSingh
-/data/samples/billing.csv           @sayali-rathod-07 @OfficialAbhinavSingh
+/backend/pipelines/billing/         @sayali-rathod-07 @Saksham0423 @OfficialAbhinavSingh
+/data/samples/billing.csv           @sayali-rathod-07 @Saksham0423 @OfficialAbhinavSingh
 
 # R3 · Backend & Fusion — Abhinav, Krishna  (owns the contract)
 /backend/app/                       @OfficialAbhinavSingh @Kr0issant
