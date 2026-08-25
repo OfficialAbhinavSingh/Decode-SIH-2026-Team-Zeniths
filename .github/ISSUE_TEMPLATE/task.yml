@@ -1,0 +1,39 @@
+name: Task
+description: A piece of planned work in your lane
+title: "<type>(<scope>): <imperative summary>"
+labels: ["task"]
+body:
+  - type: dropdown
+    id: lane
+    attributes:
+      label: Lane
+      options:
+        - R1 · Satellite & Geo
+        - R2 · Data (Billing/NRW)
+        - R3 · Backend & Fusion
+        - R4 · Frontend & Dashboard
+        - R5 · Automation (n8n)
+        - R6 · AI Agent, DevOps & Deploy
+        - Pitch & Deck
+    validations: { required: true }
+  - type: input
+    id: milestone
+    attributes:
+      label: Which milestone does this serve?
+      description: M1-M8 (MVP) or P1-P5 (Phase 2), from docs/SCOPE.md. If neither, justify it.
+      placeholder: M2 — satellite NDVI anomaly score per zone
+    validations: { required: true }
+  - type: textarea
+    id: dod
+    attributes:
+      label: Definition of done
+      description: How we will know this is finished. Be concrete and testable.
+      placeholder: |
+        - Every zone has a satellite_signals row with score 0-100
+        - GET /api/zones/Z-014/signals returns it
+    validations: { required: true }
+  - type: textarea
+    id: blocked
+    attributes:
+      label: Blocked by / depends on
+      description: Other issues, other lanes, or external things (GEE approval, Meta approval).

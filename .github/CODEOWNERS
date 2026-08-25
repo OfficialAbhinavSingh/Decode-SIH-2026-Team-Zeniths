@@ -1,0 +1,42 @@
+# CODEOWNERS — who must approve a change to each lane.
+# Rules: CONTRIBUTING.md §1. Last matching pattern wins.
+#
+# Everything needs Abhinav's approval; he is the only person who merges.
+*                                   @OfficialAbhinavSingh
+
+# R1 · Satellite & Geo — Abhinav
+/backend/pipelines/satellite/       @OfficialAbhinavSingh
+/data/samples/zones.geojson         @OfficialAbhinavSingh
+
+# R2 · Data (Billing / NRW) — Sayali, Saksham
+/backend/pipelines/billing/         @sayali-rathod-07 @Kr0issant @OfficialAbhinavSingh
+/data/samples/billing.csv           @sayali-rathod-07 @Kr0issant @OfficialAbhinavSingh
+
+# R3 · Backend & Fusion — Abhinav, Krishna  (owns the contract)
+/backend/app/                       @OfficialAbhinavSingh @krishnaasinghal
+/backend/tests/                     @OfficialAbhinavSingh @krishnaasinghal
+/backend/seed.py                    @OfficialAbhinavSingh @krishnaasinghal
+/docs/DATA-CONTRACT.md              @OfficialAbhinavSingh @krishnaasinghal
+
+# R4 · Frontend & Dashboard — Abhishek
+/frontend/                          @Abhi1818Singh @OfficialAbhinavSingh
+
+# R5 · Automation (n8n) — Pranjay
+/automation/                        @PranjaySrivastava @OfficialAbhinavSingh
+/backend/app/routers/reports.py     @PranjaySrivastava @OfficialAbhinavSingh
+
+# R6 · AI Agent, DevOps & Deploy — Krishna
+/render.yaml                        @krishnaasinghal @OfficialAbhinavSingh
+/docker-compose.yml                 @krishnaasinghal @OfficialAbhinavSingh
+/.github/                           @krishnaasinghal @OfficialAbhinavSingh
+/backend/worker.py                  @krishnaasinghal @OfficialAbhinavSingh
+
+# Pitch & demo — Sayali, Pranjay
+/docs/DEMO.md                       @sayali-rathod-07 @PranjaySrivastava @OfficialAbhinavSingh
+
+# Governance — Abhinav only
+/CONTRIBUTING.md                    @OfficialAbhinavSingh
+/CODE_OF_CONDUCT.md                 @OfficialAbhinavSingh
+/SECURITY.md                        @OfficialAbhinavSingh
+/LICENSE                            @OfficialAbhinavSingh
+/.github/CODEOWNERS                 @OfficialAbhinavSingh
