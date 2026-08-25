@@ -189,6 +189,9 @@ I confirm I have read and understood every line of this diff: **yes / no**
 Aim for **under 400 changed lines**. A 2000-line PR the night before the freeze will not get a
 real review, and that is when bugs ship. Split it.
 
+A `size:` label is applied automatically from the diff, so an oversized PR is visible in the
+PR list before anyone opens it.
+
 Open it as a **Draft** the moment you start pushing — it lets everyone see what's in flight and
 prevents two people building the same thing.
 
@@ -243,7 +246,9 @@ Additionally:
 
 1. **If the PR itself was opened by an agent**, prefix the PR title with `[agent]` and say so in the
    first line of the body. Example: `[agent] feat(billing): generate synthetic NRW dataset`.
-2. **Add the `ai-assisted` label** to the PR.
+2. **The label is applied for you.** Ticking the box adds `ai-assisted` or `agent-generated`
+   automatically, and re-ticking corrects it. You don't add it by hand — but that only works if
+   the box is actually ticked.
 3. **You are still the author.** Answer this honestly: *"I confirm I have read and understood every
    line of this diff: yes / no"*. If the answer is **no**, do not open the PR — go read it first.
    A judge at the finale will ask you how your own code works.
@@ -316,6 +321,26 @@ A change is done when **all** of these are true. Not when it runs on your laptop
 - Check open PRs once a day. A PR waiting on your review is a teammate who cannot start their next task.
 
 ---
+
+## 12. Labels
+
+Applied automatically — you never add these by hand. All advisory: the labelling workflow is not a
+required check, so it can never block a merge.
+
+| Label | Applied when |
+|---|---|
+| `lane:r1-satellite` … `lane:r6-devops` | from the files you touched (mirrors CODEOWNERS) |
+| `contract-change` | you touched `docs/DATA-CONTRACT.md` — **everyone should look at these** |
+| `docs`, `demo` | docs-only / demo-script changes |
+| `ai-assisted` / `agent-generated` | from your AI disclosure box (§7) |
+| `size:XS` … `size:XL` | from the diff size (§5.3) |
+
+Applied by hand when it matters:
+
+| Label | Meaning |
+|---|---|
+| `priority:demo-blocker` | the 5 Sep demo breaks without this — jumps the review queue (§6) |
+| `blocked` | waiting on another lane or an external approval (GEE, Meta) |
 
 ## Quick reference
 
