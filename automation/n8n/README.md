@@ -90,7 +90,7 @@ Citizen sends WhatsApp/Telegram message (any Indian language)
   🛠️ Action Recommended: Deploy acoustic/ground team to pipeline corridor in Z-014.
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   ```
-- Dispatches immediately to Telegram / WhatsApp / Webhook for ward repair leads.
+- Dispatches immediately to Telegram & Webhook for ward repair leads.
 
 ---
 
