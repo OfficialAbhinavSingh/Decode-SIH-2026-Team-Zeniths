@@ -1,5 +1,15 @@
-# Render blueprint -- 4 services. Owner: R6 (DevOps).
+# Render blueprint -- 2 services. Owner: R6 (DevOps).
 # Deploy: Render dashboard -> New -> Blueprint -> point at this repo.
+#
+# Fusion recompute and Postgres both moved off Render (see docs/ARCHITECTURE.md):
+#   - Postgres -> Supabase. Free tier, plain Postgres 15 underneath, no code change --
+#     DATABASE_URL is set below as a plain env var (sync: false, set it per-environment
+#     in the Render dashboard). Supabase's connection string needs the driver swapped to
+#     `postgresql+psycopg://` and `?sslmode=require` appended.
+#   - Fusion cron -> n8n's satellite-trigger workflow already POSTs /api/fusion/run on a
+#     schedule (automation/n8n/README.md); a Render Background Worker doing the same job
+#     was redundant once something external is pinging the API anyway. The same external
+#     pinger keeps the free web service from spinning down after 15 min idle.
 services:
   - type: web
     name: neerdrishti-api
@@ -11,9 +21,7 @@ services:
     healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: neerdrishti-db
-          property: connectionString
+        sync: false
       - key: INGEST_TOKEN
         generateValue: true
       - key: CITY_DEFAULT
@@ -34,18 +42,3 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
-
-  - type: worker
-    name: neerdrishti-fusion
-    runtime: python
-    rootDir: backend
-    plan: free
-    buildCommand: pip install -r requirements.txt
-    # Recompute priority scores every 30 minutes.
-    startCommand: python worker.py
-
-databases:
-  - name: neerdrishti-db
-    plan: free
-    databaseName: neerdrishti
-    user: neer

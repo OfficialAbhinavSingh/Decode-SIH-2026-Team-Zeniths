@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Read the rules first
+    url: https://github.com/OfficialAbhinavSingh/Decode-SIH-2026-Team-Zeniths/blob/main/CONTRIBUTING.md
+    about: Branching, PR format, review policy, AI-agent disclosure. Compulsory reading.
+  - name: What we are and aren't building
+    url: https://github.com/OfficialAbhinavSingh/Decode-SIH-2026-Team-Zeniths/blob/main/docs/SCOPE.md
+    about: MVP milestones M1-M8, Phase 2, and the explicit not-doing list.

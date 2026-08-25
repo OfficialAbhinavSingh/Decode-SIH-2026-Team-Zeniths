@@ -1,0 +1,62 @@
+# Path -> label rules for actions/labeler.
+# The globs mirror .github/CODEOWNERS on purpose: a PR gets labelled with the same lane
+# whose owner is being asked to review it. Keep the two files in step.
+#
+# Labels are advisory. This workflow is NOT a required status check, so a broken rule
+# here can never stop anyone merging.
+
+"lane:r1-satellite":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "backend/pipelines/satellite/**"
+          - "data/samples/zones*.geojson"
+          - "data/samples/ndvi_export.csv"
+
+"lane:r2-data":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "backend/pipelines/billing/**"
+          - "data/samples/billing*.csv"
+
+"lane:r3-backend":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "backend/app/**"
+          - "backend/tests/**"
+          - "backend/seed.py"
+
+"lane:r4-frontend":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "frontend/**"
+
+"lane:r5-automation":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "automation/**"
+          - "backend/app/routers/reports.py"
+
+"lane:r6-devops":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "render.yaml"
+          - "docker-compose.yml"
+          - ".github/**"
+          - "backend/Dockerfile"
+
+# The one everybody must notice. Every lane is written against this file.
+"contract-change":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docs/DATA-CONTRACT.md"
+
+"docs":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docs/**"
+          - "**/*.md"
+
+"demo":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docs/DEMO.md"

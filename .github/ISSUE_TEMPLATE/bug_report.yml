@@ -1,0 +1,49 @@
+name: Bug report
+description: Something is broken
+title: "fix(<scope>): <what is broken>"
+labels: ["bug", "needs-triage"]
+body:
+  - type: dropdown
+    id: lane
+    attributes:
+      label: Lane
+      options:
+        - R1 · Satellite & Geo
+        - R2 · Data (Billing/NRW)
+        - R3 · Backend & Fusion
+        - R4 · Frontend & Dashboard
+        - R5 · Automation (n8n)
+        - R6 · AI Agent, DevOps & Deploy
+        - Unknown
+    validations: { required: true }
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens
+      description: Actual behaviour, with the error text or a screenshot.
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should happen
+    validations: { required: true }
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Exact commands. A reviewer must be able to hit this themselves.
+      render: bash
+    validations: { required: true }
+  - type: dropdown
+    id: blocker
+    attributes:
+      label: Is this a demo blocker?
+      description: Demo blockers jump the queue. Be honest — crying wolf costs us the finale.
+      options: ["No", "Yes — the 5 Sep demo breaks without this"]
+    validations: { required: true }
+  - type: input
+    id: env
+    attributes:
+      label: Where
+      placeholder: local / Render deployed URL / CI
+    validations: { required: true }

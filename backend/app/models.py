@@ -16,6 +16,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -52,6 +53,7 @@ class SatelliteSignal(Base):
     """NDVI / wetness anomaly over a zone. Written by R1's pipeline."""
 
     __tablename__ = "satellite_signals"
+    __table_args__ = (UniqueConstraint("zone_id", "observed_on", name="uq_satellite_zone_day"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     zone_id: Mapped[str] = mapped_column(ForeignKey("zones.id"), index=True)
@@ -72,6 +74,9 @@ class BillingSignal(Base):
     """Non-revenue water gap for a zone over a billing period. Written by R2's pipeline."""
 
     __tablename__ = "billing_signals"
+    __table_args__ = (
+        UniqueConstraint("zone_id", "period_start", "period_end", name="uq_billing_zone_period"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     zone_id: Mapped[str] = mapped_column(ForeignKey("zones.id"), index=True)

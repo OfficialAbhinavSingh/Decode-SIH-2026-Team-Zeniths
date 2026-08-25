@@ -52,6 +52,7 @@ docker compose up
 | `connection refused` on 5432 | `docker compose up -d db`, wait ~5s for healthcheck |
 | Tables missing | `python -m app.init_db` |
 | Empty map | you skipped `python seed.py` |
+| Ingest fails: `no unique or exclusion constraint matching the ON CONFLICT specification` | your DB predates the natural-key constraints. No migration tool by design — `docker exec neerdrishti-db psql -U neer -d neerdrishti -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"` then `python -m app.init_db && python seed.py` |
 | `npm run dev` proxy 502 | backend isn't running on 8000 |
 | Port 5432 already used | you have a local postgres; change the host port in `docker-compose.yml` |
 
@@ -60,11 +61,26 @@ docker compose up
 ```bash
 git checkout -b feat/r3-fusion-weights
 # work
-git commit -S -m "fusion: renormalise weights when a signal is missing"
+git commit -m "fusion: renormalise weights when a signal is missing"
 git push -u origin feat/r3-fusion-weights
 gh pr create --fill
 ```
 
 - One branch per task, PR into `main`, **no direct pushes to `main`**.
-- Commits are GPG-signed (`-S`).
 - Tag the folder owner as reviewer if your PR touches someone else's lane.
+
+### Signing commits (optional)
+
+Not required, and nothing blocks on it. Skip this section unless you already know you want it.
+
+```bash
+ssh-keygen -t ed25519 -C "your-github-email" -f ~/.ssh/id_ed25519_signing
+git config --global gpg.format ssh
+git config --global user.signingkey ~/.ssh/id_ed25519_signing.pub
+git config --global commit.gpgsign true
+gh ssh-key add ~/.ssh/id_ed25519_signing.pub --type signing --title "$(hostname) signing"
+```
+
+The last line is the one people get wrong: `--type signing` matters. GitHub stores authentication
+keys and signing keys in **two separate lists**, and a key in the wrong list produces no error —
+your commits just keep showing "Unverified".
