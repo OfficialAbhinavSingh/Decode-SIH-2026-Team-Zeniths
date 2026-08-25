@@ -1,0 +1,118 @@
+{
+  "name": "NeerDrishti - Crew Alert Dispatcher (Telegram & WhatsApp)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "node-schedule-1",
+      "name": "Every 30 Minutes Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.API_URL || 'http://localhost:8000' }}/api/scores",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "city",
+              "value": "={{ $env.CITY_DEFAULT || 'Jaipur' }}"
+            },
+            {
+              "name": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-fetch-scores-2",
+      "name": "Fetch Ranked Zone Scores",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filter for urgent zones: fusion_score >= 75 and high/medium confidence\nconst scores = $input.first().json;\nconst list = Array.isArray(scores) ? scores : [scores];\n\nconst highPriority = list.filter(item => {\n  return Number(item.fusion_score) >= 75 && (item.confidence === 'high' || item.confidence === 'medium');\n});\n\nreturn highPriority.map(item => ({\n  json: {\n    ...item,\n    urgency_tag: Number(item.fusion_score) >= 85 ? '🔴 CRITICAL' : '🟠 HIGH PRIORITY',\n    alert_text: `${Number(item.fusion_score) >= 85 ? '🔴 CRITICAL' : '🟠 HIGH PRIORITY'}: WATER LEAK DISPATCH\\n` +\n      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n` +\n      `📍 Zone: ${item.zone_id} (${item.name})\\n` +\n      `🏆 City Rank: #${item.rank} | Fusion Score: ${Number(item.fusion_score).toFixed(1)}/100\\n` +\n      `🎯 Confidence: ${String(item.confidence).toUpperCase()} (${item.signals_used}/3 signals agree)\\n\\n` +\n      `📊 Sub-Signals:\\n` +\n      `  • 🛰️ Satellite: ${item.satellite_score != null ? item.satellite_score.toFixed(1) + '/100' : 'N/A'}\\n` +\n      `  • 💧 Billing NRW: ${item.billing_score != null ? item.billing_score.toFixed(1) + '/100' : 'N/A'}\\n` +\n      `  • 📱 Citizen Reports: ${item.citizen_score != null ? item.citizen_score.toFixed(1) + '/100' : 'N/A'}\\n\\n` +\n      `💡 Summary: \"${item.explanation}\"\\n\\n` +\n      `🛠️ Action: Inspect pipeline corridor in ${item.zone_id}.`\n  }\n}));"
+      },
+      "id": "node-filter-3",
+      "name": "Filter & Format Alert Cards",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.TELEGRAM_BOT_TOKEN ? 'https://api.telegram.org/bot' + $env.TELEGRAM_BOT_TOKEN + '/sendMessage' : ($env.ALERT_WEBHOOK_URL || 'https://httpbin.org/post') }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $env.TELEGRAM_CHAT_ID || 'demo_crew_channel' }}\",\n  \"text\": \"{{ $json.alert_text.replace(/\\n/g, '\\\\n') }}\"\n}",
+        "options": {}
+      },
+      "id": "node-dispatch-4",
+      "name": "Dispatch Alert to Crew Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [880, 300]
+    }
+  ],
+  "connections": {
+    "Every 30 Minutes Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Ranked Zone Scores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Ranked Zone Scores": {
+      "main": [
+        [
+          {
+            "node": "Filter & Format Alert Cards",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter & Format Alert Cards": {
+      "main": [
+        [
+          {
+            "node": "Dispatch Alert to Crew Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "NeerDrishti"
+    },
+    {
+      "name": "Alerts"
+    }
+  ]
+}

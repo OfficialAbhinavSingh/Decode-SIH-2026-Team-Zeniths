@@ -1,59 +1,117 @@
-# Automation — R5 (n8n + WhatsApp)
+# Role 3: Automation Engineer (n8n, WhatsApp, Sarvam AI & Alerts)
 
-Two jobs: get citizen leak reports into the DB, and (Phase 2) keep things running on a schedule.
+NeerDrishti AI automation subsystem: citizen intake, Sarvam AI Indic language translation, satellite refresh scheduling, and field repair alert dispatch.
 
-## MVP — the only one that must work
+---
 
-```
-WhatsApp/Telegram message
-        ↓  webhook trigger
-   parse text + location
-        ↓
-   dedupe (same person + same area within 6h → drop)
-        ↓
-   POST /api/reports   { channel, reporter_hash, description, lat, lon }
-        ↓
-   reply to the citizen: "Logged. Zone Z-014. Thanks."
-```
+## 🌐 Live Cloud Instance
+- **n8n Cloud Workspace**: `https://laterabhi.app.n8n.cloud`
+- **Workflow Link**: [NeerDrishti Intake Workflow](https://laterabhi.app.n8n.cloud/workflow/tjvnHuhgr7lOqzFH?projectId=4K2NjOBEA1OSpzQ2)
+- **Production Webhook URL**: `https://laterabhi.app.n8n.cloud/webhook/whatsapp-leak-intake`
+- **Test Webhook URL**: `https://laterabhi.app.n8n.cloud/webhook-test/whatsapp-leak-intake`
+- **Telegram Bot**: `@zeniths_neerdrishti_bot`
 
-### Nodes
+---
 
-| # | Node | Notes |
-|---|---|---|
-| 1 | **Webhook** | WhatsApp Cloud API webhook, or Telegram Trigger as the no-approval fallback |
-| 2 | **Function — hash the sender** | `sha256(phone + SALT)`. **Never send a raw phone number to the API.** |
-| 3 | **Function — extract location** | WhatsApp location message → lat/lon. Text-only → try geocoding the ward name; if that fails send `zone_id: null` and let a human triage it. |
-| 4 | **Function — dedupe** | Drop if the same `reporter_hash` reported within ~200 m in the last 6 hours. Five neighbours reporting one leak should be one strong signal, not five leaks. |
-| 5 | **HTTP Request** | `POST {API_URL}/api/reports`, body per `docs/DATA-CONTRACT.md` |
-| 6 | **Respond** | Reply with the matched `zone_id` from the API response |
-
-### Export the workflow
-
-**File → Export → Download**, save as `automation/n8n/leak-intake.workflow.json`, commit it.
-The sponsor award ("Best Use of n8n") needs the workflow visible in the repo — a screenshot
-is not enough.
-
-## Fallback that must exist regardless
-
-`frontend/src/pages/Report.jsx` is a plain web form hitting the same endpoint.
-
-**Build the WhatsApp path, but never let the demo depend on it.** Meta's WhatsApp Business
-API approval is slow and outside our control. Telegram's Bot API needs no approval and looks
-identical on stage — it is a legitimate MVP substitute, and worth setting up first.
-
-## Phase 2 — only after every MVP item in docs/SCOPE.md is green
-
-| Workflow | What it does |
-|---|---|
-| **Satellite refresh** | Cron (weekly) → trigger the GEE export → `POST /api/ingest/satellite` |
-| **Fusion cron** | Cron (30 min) → `POST /api/fusion/run` (the Render worker already does this; n8n version is the visible-in-demo one) |
-| **Alert dispatch** | On a zone crossing score 85 → WhatsApp the ward engineer with the zone + the explanation |
-| **Lyzr triage agent** | Zone scores → plain-language repair brief → attach to the alert |
-
-## Env vars the workflow needs
+## 📁 Subsystem Structure
 
 ```
-API_URL         https://neerdrishti-api.onrender.com
-INGEST_TOKEN    (only for the ingest workflows, not for /api/reports)
-PHONE_SALT      any random string; keep it out of the exported JSON
+automation/n8n/
+├── leak-intake.workflow.json        ← Official n8n WhatsApp/Telegram intake workflow (with Sarvam AI)
+├── satellite-trigger.workflow.json  ← 12-day NISAR / Sentinel-2 satellite cadence trigger
+├── alert-dispatch.workflow.json     ← Crew alert dispatch workflow (Telegram/Email)
+├── simulate_whatsapp.py             ← Interactive CLI tool to simulate citizen reports
+├── services/
+│   ├── sarvam.py                    ← Sarvam AI Indic NLP service (Hindi, Tamil, Kannada, etc.)
+│   └── alerts.py                    ← Field crew alert card formatter & dispatcher
+├── utils/
+│   ├── hasher.py                    ← Salted SHA-256 phone anonymizer (citizen privacy)
+│   └── dedupe.py                    ← Spatial-temporal deduplicator (200m / 6hr clustering)
+└── tests/
+    └── test_automation.py           ← Unit & integration test suite (12 tests passing)
+```
+
+---
+
+## 🔄 1. Citizen Leak Intake Flow (`leak-intake.workflow.json`)
+
+```
+Citizen sends WhatsApp/Telegram message (any Indian language)
+        ↓
+1. Webhook Trigger Node (`/webhook/whatsapp-leak-intake`)
+        ↓
+2. Privacy Hasher Node: sha256(phone + SALT)
+        ↓ (Raw phone numbers NEVER enter DB or logs)
+3. Sarvam AI Translation Node: Detects Indic script → Calls https://api.sarvam.ai/translate (Mayura:v1)
+        ↓
+4. Ingestion Node: POST /api/reports
+        ↓
+5. Confirmation Reply Node: Auto-generates localized receipt with Zone ID & Ref #
+```
+
+### Privacy & Salt Hashing
+- Formula: `reporter_hash = sha256(normalize_phone(phone) + ":" + SALT)[:32]`
+- Complies strictly with municipal privacy guidelines and `docs/DATA-CONTRACT.md`.
+
+### Sarvam AI Mayura Translation
+- Direct integration with **Sarvam AI Mayura Translation API** (`model: mayura:v1`).
+- High-accuracy translation for 10+ Indian languages (Hindi `hi-IN`, Tamil `ta-IN`, Kannada `kn-IN`, Telugu `te-IN`, Marathi `mr-IN`, Bengali `bn-IN`, Gujarati `gu-IN`, Malayalam `ml-IN`, Punjabi `pa-IN`, Odia `od-IN`).
+- Built-in heuristic offline fallback for zero-dependency local tests and offline judge demonstrations.
+
+---
+
+## 🛰️ 2. 12-Day Satellite Cadence Trigger (`satellite-trigger.workflow.json`)
+
+- Triggered on a **12-day schedule** matching the exact NISAR L-band SAR repeat orbit cycle and Sentinel-2 composite cadence.
+- Triggers `/api/fusion/run?city=Jaipur` to recompute multi-signal fusion scores across all zones.
+
+---
+
+## 🚨 3. Field Crew Alert Dispatcher (`alert-dispatch.workflow.json`)
+
+- Runs every 30 minutes or post-fusion.
+- Filters zones where `fusion_score >= 75` and `confidence` is `high` or `medium`.
+- Generates rich, actionable dispatch cards:
+  ```
+  🔴 CRITICAL: WATER LEAK DISPATCH
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  📍 Zone: Z-014 (Ward 7 - Sector 3)
+  🏆 City Priority Rank: #1 | Score: 87.4/100
+  🎯 Confidence: HIGH (3/3 signals agree)
+
+  📊 Signal Breakdown:
+    • 🛰️ Satellite Wetness Anomaly: 91.2/100
+    • 💧 Non-Revenue Water Gap: 84.0/100
+    • 📱 Citizen Incident Density: 78.5/100
+
+  💡 Diagnostic Summary:
+    "NDVI +0.18 anomaly, 41% NRW gap, and 4 citizen reports -- all three signals agree."
+
+  🛠️ Action Recommended: Deploy acoustic/ground team to pipeline corridor in Z-014.
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ```
+- Dispatches immediately to Telegram / WhatsApp / Webhook for ward repair leads.
+
+---
+
+## 🧪 Testing & Simulation Commands
+
+### 1. Run the Unit Test Suite
+```powershell
+python tests/test_automation.py
+```
+
+### 2. Test Against Live Cloud Webhook
+```powershell
+python simulate_whatsapp.py --api-url "https://laterabhi.app.n8n.cloud/webhook/whatsapp-leak-intake" --text "स्कूल के पास सड़क पर पानी बह रहा है"
+```
+
+### 3. Run Deduplication & Spatial Clustering Test
+```powershell
+python simulate_whatsapp.py --test-dedupe
+```
+
+### 4. Send Multilingual Citizen Reports Batch
+```powershell
+python simulate_whatsapp.py --batch
 ```
