@@ -57,12 +57,15 @@ Use `--dry-run` to parse and print without writing.
 re-running it weekly just slides forward — no dates to keep updating by hand.
 
 ```javascript
-// Current window: median composite over the last 30 days, low cloud.
+// Current window: median composite over the last 30 days. CLOUD_MAX is loose (95) on
+// purpose -- maskClouds() strips actual cloud/shadow pixels per-scene using the SCL band
+// before the median runs, so a scene doesn't need to be clean overall to contribute.
 var current = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')
   .filterDate(START_DATE, END_DATE)
   .filterBounds(zones)
-  .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 40))
-  .map(ndvi).median();
+  .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 95))
+  .map(withIndices)  // includes maskClouds() -- see gee_ndvi.js
+  .median();
 
 // Baseline: same calendar window, previous 3 years, merged before taking the median.
 // This is what makes it an *anomaly* and not just "green area".
@@ -102,7 +105,7 @@ Safe to re-run for the same `observed_on` — `/api/ingest/satellite` upserts on
 | Trap | What to do |
 |---|---|
 | Rain makes the whole city green | Score **relative to the city median that same day** — `ndvi.py` already does this. City-wide bumps cancel out. |
-| Clouds | Median composite over 30 days + `CLOUDY_PIXEL_PERCENTAGE < 40`. Never a single scene. During Jun-Sep monsoon even 15 days / <20 can find zero scenes over Rajasthan and `.select('ndvi')` throws "Image with no bands" (error code 3) -- that's why the window is wider than it looks like it needs to be. |
+| Clouds | Median composite over 30 days, never a single scene. Whole-scene `CLOUDY_PIXEL_PERCENTAGE` filtering alone is not enough during Jun-Sep monsoon -- measured live against this project's zones, the least-cloudy scene in a given window ranged from 3% up to 72% depending on the year, so a strict threshold (e.g. `<40`) leaves some windows with zero scenes and `.select('ndvi')` throws "Image with no bands" (error code 3). Fix is two-part: `CLOUD_MAX=95` (loose, scene-level, just excludes total whiteouts) plus `maskClouds()` in `gee_ndvi.js` (strict, per-pixel, using the SCL band) so an individual cloudy scene can still contribute its clear pixels instead of being rejected outright. |
 | Farmland / parks look like permanent leaks | Baseline is the same calendar window in prior years, so a park that's always green has ~0 anomaly. |
 | Zone too big | ~1–2 km cells. A 10 km ward averages the leak away. |
 | GEE quota / export slowness | Export to Drive, not `getInfo()`. Start the export and go work on something else. |

@@ -53,14 +53,34 @@ var zones = ee.FeatureCollection([
 // 30 days, not 15: during the Jun-Sep monsoon a 15-day window over Rajasthan can go
 // entirely without a scene under CLOUD_MAX, and .median() of an empty collection is a
 // bandless image -- .select('ndvi') on that throws "Image.select: ... applied to an Image
-// with no bands" (error code 3). Widening the window is the standard GEE fix; CLOUD_MAX
-// is also relaxed for the same reason. "Current" still means "recent," just not
-// razor-recent during monsoon.
+// with no bands" (error code 3).
 var END_DATE = ee.Date(Date.now());
 var START_DATE = END_DATE.advance(-30, 'day');
-var CLOUD_MAX = 40; // CLOUDY_PIXEL_PERCENTAGE threshold from the README's "known traps"
+
+// CLOUD_MAX=95 -- measured live against this project's zones on 25 Aug 2026: the
+// LEAST-cloudy scene in the four windows this script actually pulls (current + 1/2/3
+// years ago, same calendar dates) ranged from 2.9% up to 71.7% CLOUDY_PIXEL_PERCENTAGE.
+// A 40% threshold left two of the three baseline years with zero scenes. 95% keeps
+// nearly everything except total whiteouts -- safe ONLY because maskClouds() below
+// throws out the actual cloud/shadow pixels per-image before the median runs, so an
+// individual 70%-cloudy scene still contributes its clear 30% correctly instead of
+// polluting the composite with cloud-top reflectance.
+var CLOUD_MAX = 95;
+
+// Per-pixel cloud/shadow mask using Sentinel-2's Scene Classification Layer (SCL).
+// CLOUDY_PIXEL_PERCENTAGE alone is a whole-scene average -- admitting a scene under that
+// threshold does nothing to stop individual cloud pixels inside it from corrupting the
+// median for whichever zones they happen to sit over. This is what makes a loose
+// CLOUD_MAX safe: bad pixels get masked out here, not filtered out by scene average.
+// SCL classes: 3 = cloud shadow, 8/9 = cloud (medium/high probability), 10 = thin cirrus.
+function maskClouds(img) {
+  var scl = img.select('SCL');
+  var mask = scl.neq(3).and(scl.neq(8)).and(scl.neq(9)).and(scl.neq(10));
+  return img.updateMask(mask);
+}
 
 function withIndices(img) {
+  img = maskClouds(img);
   var ndvi = img.normalizedDifference(['B8', 'B4']).rename('ndvi');
   var ndwi = img.normalizedDifference(['B3', 'B8']).rename('ndwi'); // wetness_index
   return img.addBands([ndvi, ndwi]);
