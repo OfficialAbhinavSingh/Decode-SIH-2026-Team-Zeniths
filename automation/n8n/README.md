@@ -46,7 +46,7 @@ identical on stage — it is a legitimate MVP substitute, and worth setting up f
 | Workflow | What it does |
 |---|---|
 | **Satellite refresh** | Cron (weekly) → trigger the GEE export → `POST /api/ingest/satellite` |
-| **Fusion cron** | Cron (30 min) → `POST /api/fusion/run` (the Render worker already does this; n8n version is the visible-in-demo one) |
+| **Fusion cron** | Cron (30 min) → `POST /api/fusion/run`. This is the only place fusion gets triggered in prod — there is no Render worker anymore, see `docs/ARCHITECTURE.md`. The same n8n host should also ping `GET /health` every 10 min so the free Render web service doesn't spin down. |
 | **Alert dispatch** | On a zone crossing score 85 → WhatsApp the ward engineer with the zone + the explanation |
 | **Lyzr triage agent** | Zone scores → plain-language repair brief → attach to the alert |
 

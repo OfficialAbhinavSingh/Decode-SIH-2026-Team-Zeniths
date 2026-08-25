@@ -43,7 +43,6 @@
           - "docker-compose.yml"
           - ".github/**"
           - "backend/Dockerfile"
-          - "backend/worker.py"
 
 # The one everybody must notice. Every lane is written against this file.
 "contract-change":

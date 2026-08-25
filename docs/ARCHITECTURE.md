@@ -41,7 +41,7 @@
 
 ## Request flow — the demo path
 
-1. `POST /api/fusion/run?city=X` (or the Render background worker cron)
+1. `POST /api/fusion/run?city=X` (or n8n's satellite-trigger cron, see `automation/n8n/README.md`)
 2. Fusion reads latest `satellite_signals`, `billing_signals`, and a rolling 30-day count of
    `citizen_reports` per zone
 3. Writes `zone_scores` with `rank` + `explanation`
@@ -53,21 +53,33 @@
 | Layer | Choice | Note |
 |---|---|---|
 | API | FastAPI (Python 3.11+) | same language as the geo/data pipelines |
-| DB | PostgreSQL 16 | Render managed in prod, docker-compose locally |
+| DB | PostgreSQL 15 | Supabase managed in prod, docker-compose locally |
 | ORM | SQLAlchemy 2 | |
 | Frontend | React + Vite + Leaflet | Leaflet over Mapbox: no API key, no billing |
 | Automation | n8n | WhatsApp intake, cron, alerts — sponsor track |
 | AI assist | Lyzr / Gemini | Phase 2 only: plain-language crew brief |
-| Deploy | Render | Web Service + Postgres + Static Site + Worker |
+| Deploy | Render (2 services) + Supabase (DB) | n8n self-hosted on a VPS drives the fusion cron and keep-alive ping |
 
-## Deployment (Render, 4 services)
+## Deployment (Render, 2 services + Supabase)
 
 ```
-neerdrishti-api      Web Service     backend/     uvicorn app.main:app
-neerdrishti-db       PostgreSQL      —            free tier
+neerdrishti-api      Web Service     backend/     uvicorn app.main:app       DATABASE_URL -> Supabase
 neerdrishti-web      Static Site     frontend/    npm run build → dist/
-neerdrishti-fusion   Background Worker            cron → POST /api/fusion/run
 ```
+
+Postgres and the fusion-recompute cron both moved off Render:
+
+- **DB → Supabase.** Plain Postgres underneath, no code change beyond `DATABASE_URL` — set
+  `postgresql+psycopg://...supabase.co:5432/postgres?sslmode=require` in the Render dashboard
+  (`render.yaml`'s `DATABASE_URL` is `sync: false` on purpose, set it there per environment).
+- **Fusion cron → n8n.** The `neerdrishti-fusion` Background Worker was recomputing the exact
+  same thing n8n's `satellite-trigger.workflow.json` already does by calling
+  `POST /api/fusion/run` on a schedule (see `automation/n8n/README.md`) — once n8n is hosted
+  somewhere 24/7 anyway (a cheap VPS), that duplicate service is gone. The same VPS cron pings
+  `neerdrishti-api` every 10 min so the free web service never spins down before a judge hits it.
+
+This trades the "3+ services = Best Use of Render" prize eligibility (see `docs/ROLES.md`,
+R6) for a simpler, cheaper, more reliable stack. Team call, made 2026-08-25.
 
 ## Security / privacy notes (judges ask this)
 

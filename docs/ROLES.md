@@ -147,8 +147,10 @@ Start: `automation/n8n/README.md`
 
 Deliver:
 1. `docker-compose.yml` working for everyone locally by **26 Aug** (unblocks all 5 others).
-2. Render deploy: Web Service (API) + Postgres + Static Site (frontend) + Background Worker (fusion
-   cron). 3+ services = qualifies for "Best Use of Render."
+2. Render deploy: Web Service (API) + Static Site (frontend). DB is Supabase, not Render
+   Postgres. Fusion cron and the keep-alive ping run from n8n on a VPS, not a Render worker —
+   see `docs/ARCHITECTURE.md` for the reasoning. This is 2 Render services, below the "3+
+   services" threshold for "Best Use of Render" — traded on purpose for a simpler stack.
 3. GitHub Actions: lint + tests on PR.
 4. `docs/DEMO.md` — 4-minute script, who speaks when, plus a recorded video and a fully seeded local
    fallback for when the venue wifi dies. **It will die.**
