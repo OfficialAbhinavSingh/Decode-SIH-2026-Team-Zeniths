@@ -53,13 +53,45 @@ def centroid(geometry: dict) -> tuple[float, float]:
     return lat, lon
 
 
+REQUIRED_PROPS = ("zone_id", "name", "city")
+
+
+def _check_props(props: dict, index: int) -> None:
+    """Fail with the property names, not a bare KeyError.
+
+    Downloaded ward boundaries almost never use our names -- a JMC file calls them
+    WARD_NO / WARD_NAME. Saying which key is missing and what the file actually has
+    turns a stack trace into a two-minute fix.
+    """
+    missing = [key for key in REQUIRED_PROPS if key not in props]
+    if missing:
+        raise ValueError(
+            f"feature {index} is missing {', '.join(missing)}; its properties are "
+            f"{sorted(props)}. Rename them in the geojson before loading."
+        )
+
+
+def dedupe_by_id(zones: list[dict]) -> list[dict]:
+    """Collapse features that repeat a zone_id, last one wins.
+
+    Postgres rejects a batch that hits the same conflict key twice ("ON CONFLICT DO UPDATE
+    command cannot affect row a second time"). A hand-edited ward file repeats an id often
+    enough that surviving it beats crashing on it -- same rule the ingest endpoints use.
+    """
+    collapsed: dict[str, dict] = {}
+    for zone in zones:
+        collapsed[zone["id"]] = zone
+    return list(collapsed.values())
+
+
 def read_zones(path: str) -> list[dict]:
     with open(path) as fh:
         data = json.load(fh)
 
     zones = []
-    for feature in data["features"]:
+    for index, feature in enumerate(data["features"]):
         props = feature["properties"]
+        _check_props(props, index)
         lat, lon = centroid(feature["geometry"])
         zones.append(
             {
@@ -83,10 +115,13 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true", help="parse and print, don't write")
     args = parser.parse_args()
 
-    zones = read_zones(args.geojson_path)
-    if not zones:
+    parsed = read_zones(args.geojson_path)
+    if not parsed:
         print(f"no features in {args.geojson_path} -- nothing to load")
         return 1
+    zones = dedupe_by_id(parsed)
+    if len(zones) != len(parsed):
+        print(f"warning: collapsed {len(parsed) - len(zones)} repeated zone_id(s), last one wins")
     print(f"parsed {len(zones)} zones from {args.geojson_path}")
     for z in zones[:5]:
         print(f"  {z['id']}  {z['name']}  ({z['centroid_lat']:.4f}, {z['centroid_lon']:.4f})")
