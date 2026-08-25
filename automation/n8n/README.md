@@ -64,6 +64,9 @@ Citizen sends WhatsApp/Telegram message (any Indian language)
 
 - Triggered on a **12-day schedule** matching the exact NISAR L-band SAR repeat orbit cycle and Sentinel-2 composite cadence.
 - Triggers `/api/fusion/run?city=Jaipur` to recompute multi-signal fusion scores across all zones.
+- This is the only place fusion gets triggered in prod -- there is no Render background worker
+  anymore, see `docs/ARCHITECTURE.md`. The same n8n host should also ping `GET /health` every
+  10 min so the free Render web service doesn't spin down.
 
 ---
 
@@ -83,12 +86,6 @@ Citizen sends WhatsApp/Telegram message (any Indian language)
     • 🛰️ Satellite Wetness Anomaly: 91.2/100
     • 💧 Non-Revenue Water Gap: 84.0/100
     • 📱 Citizen Incident Density: 78.5/100
-| Workflow | What it does |
-|---|---|
-| **Satellite refresh** | Cron (weekly) → trigger the GEE export → `POST /api/ingest/satellite` |
-| **Fusion cron** | Cron (30 min) → `POST /api/fusion/run`. This is the only place fusion gets triggered in prod — there is no Render worker anymore, see `docs/ARCHITECTURE.md`. The same n8n host should also ping `GET /health` every 10 min so the free Render web service doesn't spin down. |
-| **Alert dispatch** | On a zone crossing score 85 → WhatsApp the ward engineer with the zone + the explanation |
-| **Lyzr triage agent** | Zone scores → plain-language repair brief → attach to the alert |
 
   💡 Diagnostic Summary:
     "NDVI +0.18 anomaly, 41% NRW gap, and 4 citizen reports -- all three signals agree."
