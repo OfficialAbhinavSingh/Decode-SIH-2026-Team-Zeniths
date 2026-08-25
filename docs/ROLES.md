@@ -6,18 +6,37 @@ because `backend/seed.py` fakes every other lane's output.
 Rule: you own your folder. You may *read* anything. You may *write* outside your folder only after
 telling the owner.
 
-| Role | Person | Owns (write access) | Depends on |
-|---|---|---|---|
-| **R1 · Satellite & Geo** | Abhinav | `backend/pipelines/satellite/`, `data/samples/zones*.geojson` | nothing |
-| **R2 · Data (Billing/NRW)** | _tbd_ | `backend/pipelines/billing/`, `data/samples/billing*.csv` | R1's zone IDs |
-| **R3 · Backend & Fusion** | _tbd_ | `backend/app/` (models, routers, services/fusion.py) | nothing (owns the contract) |
-| **R4 · Frontend & Dashboard** | _tbd_ | `frontend/` | API contract only |
-| **R5 · Automation & Integrations** | _tbd_ | `automation/n8n/`, `backend/app/routers/reports.py` | `POST /api/reports` |
-| **R6 · DevOps, Deploy & Demo** | _tbd_ | `render.yaml`, `docker-compose.yml`, `.github/`, `docs/DEMO.md` | everyone, at the end |
+**Roles are final as of 25 Aug 2026.** If your availability changes, say so in the group the same
+day — a lane can be reassigned on 26 Aug, not on 3 Sep.
+
+| Role | Person | GitHub | Owns (write access) | Depends on |
+|---|---|---|---|---|
+| **R1 · Satellite & Geo** | Abhinav | @OfficialAbhinavSingh | `backend/pipelines/satellite/`, `data/samples/zones*.geojson` | nothing |
+| **R2 · Data (Billing/NRW)** | Sayali · Saksham | @sayali-rathod-07 · @Kr0issant | `backend/pipelines/billing/`, `data/samples/billing*.csv` | R1's zone IDs |
+| **R3 · Backend & Fusion** | Abhinav · Krishna | @OfficialAbhinavSingh · @krishnaasinghal | `backend/app/` (models, routers, services/fusion.py) | nothing (owns the contract) |
+| **R4 · Frontend & Dashboard** | Abhishek | @Abhi1818Singh | `frontend/` | API contract only |
+| **R5 · Automation & Integrations** | Pranjay | @PranjaySrivastava | `automation/n8n/`, `backend/app/routers/reports.py` | `POST /api/reports` |
+| **R6 · AI Agent, DevOps & Deploy** | Krishna | @krishnaasinghal | `render.yaml`, `docker-compose.yml`, `.github/`, Lyzr agent | everyone, at the end |
+| **Pitch & Deck** | Sayali · Pranjay | @sayali-rathod-07 · @PranjaySrivastava | `docs/DEMO.md`, slide deck, GTM slide | R6's demo, at the end |
+
+### Split-lane rules (two people on one lane)
+
+R2 and R3 have two owners each. Split by **file**, not by "we'll figure it out":
+
+| Lane | Person A | Person B |
+|---|---|---|
+| **R2 · Data** | Sayali — `generate.py` (the benchmarked generator + source citations) | Saksham — `nrw.py` + `load.py` (scoring and ingest) |
+| **R3 · Backend** | Abhinav — `models.py`, `schemas.py`, routers, DB schema | Krishna — `services/fusion.py` + `backend/tests/` |
+
+Two people editing one file on one afternoon is how you lose an evening to a merge conflict.
+Agree the split before you start, and put it in the issue.
+
+Ownership is enforced by [`.github/CODEOWNERS`](../.github/CODEOWNERS) — GitHub requests the right
+reviewer automatically.
 
 ---
 
-## R1 · Satellite & Geo Data  — *hardest + most important; this is the differentiator*
+## R1 · Satellite & Geo Data — *Abhinav · hardest + most important; this is the differentiator*
 
 **Your job in one line:** turn free satellite imagery into a number 0–100 per zone that says
 "soil here looks abnormally wet/green for this time of year."
@@ -43,7 +62,7 @@ Start: `backend/pipelines/satellite/README.md`
 
 ---
 
-## R2 · Data Engineer (Billing / NRW)
+## R2 · Data Engineer (Billing / NRW) — *Sayali + Saksham*
 
 **Your job in one line:** produce a believable per-zone "how much water went missing" number.
 
@@ -64,7 +83,7 @@ Start: `backend/pipelines/billing/README.md`
 
 ---
 
-## R3 · Backend & Fusion  — *hardest logic*
+## R3 · Backend & Fusion — *Abhinav + Krishna · hardest logic*
 
 **Your job in one line:** own the database, own the API, and turn 3 messy scores into 1 defensible number.
 
@@ -87,7 +106,7 @@ Start: `backend/app/services/fusion.py`
 
 ---
 
-## R4 · Frontend & Dashboard
+## R4 · Frontend & Dashboard — *Abhishek*
 
 **Your job in one line:** make the map that wins the demo.
 
@@ -105,7 +124,7 @@ Start: `frontend/src/pages/Dashboard.jsx`
 
 ---
 
-## R5 · Automation & Integrations (n8n + WhatsApp)
+## R5 · Automation & Integrations (n8n + WhatsApp) — *Pranjay*
 
 **Your job in one line:** let a citizen report a leak from WhatsApp and have it land in our DB.
 
@@ -122,7 +141,7 @@ Start: `automation/n8n/README.md`
 
 ---
 
-## R6 · DevOps, Deploy & Demo
+## R6 · AI Agent, DevOps & Deploy — *Krishna*
 
 **Your job in one line:** it must be live on a URL, and the story must land in 4 minutes.
 
@@ -143,3 +162,13 @@ Start: `docker-compose.yml`, then `docs/DEMO.md`.
 
 - **Daily, 15 min, async in the group:** what I finished / what I'm blocked on. Nothing else.
 - **Contract change?** Post in the group before pushing. Everything downstream breaks otherwise.
+- **Blocked more than 2 hours? Say it.** Two weeks is short.
+
+## How work actually lands
+
+Read [`CONTRIBUTING.md`](../CONTRIBUTING.md) once, properly, before your first PR. Short version:
+
+- Branch `<type>/<lane>-<thing>` off fresh `main` — e.g. `feat/r1-ndvi-baseline-composite`
+- **No direct pushes to `main`.** `main` is protected; the push will be rejected.
+- PR uses the template. Every section filled. **AI-agent use must be declared** (§7).
+- @OfficialAbhinavSingh reviews and is the **only** person who merges.

@@ -5,32 +5,101 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
+# A new push to the same PR cancels the previous run. Saves minutes during crunch week.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   backend:
+    name: Backend · lint + tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
       - name: Install
         working-directory: backend
         run: pip install -r requirements.txt
+
+      # Only the errors that are always real bugs: syntax errors and undefined names.
+      # Deliberately not enforcing style -- we are not spending finale week arguing about line length.
+      - name: Lint (errors only)
+        working-directory: backend
+        run: |
+          pip install ruff
+          ruff check . --select E9,F63,F7,F82,F401 --output-format=github
+
       - name: Tests
         working-directory: backend
         # Fusion and geo tests are pure functions -- no database needed in CI.
         run: python -m pytest tests/ -q
 
   frontend:
+    name: Frontend · build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
       - name: Install
         working-directory: frontend
-        run: npm install
+        run: npm ci || npm install
+
       - name: Build
         working-directory: frontend
         run: npm run build
+
+  demo-fallback:
+    name: Offline demo fallback still works
+    runs-on: ubuntu-latest
+    # seed.py is the finale's no-internet fallback. If it breaks, the demo dies.
+    # This job exists because that is the single most expensive thing that can break.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: neer
+          POSTGRES_PASSWORD: neer
+          POSTGRES_DB: neerdrishti
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+        ports: ["5432:5432"]
+    env:
+      DATABASE_URL: postgresql+psycopg://neer:neer@localhost:5432/neerdrishti
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Create tables and seed
+        working-directory: backend
+        run: |
+          python -m app.init_db
+          python seed.py
+      - name: API serves a ranked list
+        working-directory: backend
+        run: |
+          uvicorn app.main:app --port 8000 &
+          for i in $(seq 1 30); do
+            curl -sf localhost:8000/health && break || sleep 1
+          done
+          curl -sf localhost:8000/health
+          curl -sf "localhost:8000/api/scores?limit=5" | head -c 400
+          test "$(curl -sf localhost:8000/api/scores | python3 -c 'import sys,json;print(len(json.load(sys.stdin)))')" -gt 0

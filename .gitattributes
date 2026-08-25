@@ -1,0 +1,16 @@
+* text=auto eol=lf
+
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.mp4  binary
+*.pdf  binary
+*.pptx binary
+*.tif  binary
+*.tiff binary
+
+# Generated / vendored — collapse in PR diffs so reviews stay readable
+frontend/package-lock.json  linguist-generated=true -diff
+data/samples/*.csv          linguist-generated=true
+automation/n8n/*.json       linguist-generated=true
