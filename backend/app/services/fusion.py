@@ -130,6 +130,14 @@ def _latest(rows: list) -> object | None:
     return rows[0] if rows else None
 
 
+# seed.py writes source="seed"; R1's real pipeline writes source="sentinel2-gee". A real
+# reading must always beat a seeded one even when the seeded row carries a later
+# observed_on -- otherwise `python seed.py` (which the offline-demo fallback and every
+# teammate's local setup run) silently masks real satellite data that ingested fine.
+# False sorts before True in SQL, so non-seed rows come first.
+_REAL_SATELLITE_FIRST = (SatelliteSignal.source == "seed").asc()
+
+
 def run_fusion(db: Session, city: str) -> int:
     """Recompute zone_scores for every zone in `city`. Returns the number scored."""
     zones = db.scalars(select(Zone).where(Zone.city == city)).all()
@@ -145,7 +153,7 @@ def run_fusion(db: Session, city: str) -> int:
             db.scalars(
                 select(SatelliteSignal)
                 .where(SatelliteSignal.zone_id == zone.id)
-                .order_by(SatelliteSignal.observed_on.desc())
+                .order_by(_REAL_SATELLITE_FIRST, SatelliteSignal.observed_on.desc())
                 .limit(1)
             ).all()
         )

@@ -58,7 +58,7 @@
 | Frontend | React + Vite + Leaflet | Leaflet over Mapbox: no API key, no billing |
 | Automation | n8n | WhatsApp intake, cron, alerts — sponsor track |
 | AI assist | Lyzr / Gemini | Phase 2 only: plain-language crew brief |
-| Deploy | Render (2 services) + Supabase (DB) | n8n self-hosted on a VPS drives the fusion cron and keep-alive ping |
+| Deploy | Render (2 services) + Supabase (DB) | n8n Cloud drives the fusion cron and keep-alive ping |
 
 ## Deployment (Render, 2 services + Supabase)
 
@@ -74,9 +74,15 @@ Postgres and the fusion-recompute cron both moved off Render:
   (`render.yaml`'s `DATABASE_URL` is `sync: false` on purpose, set it there per environment).
 - **Fusion cron → n8n.** The `neerdrishti-fusion` Background Worker was recomputing the exact
   same thing n8n's `satellite-trigger.workflow.json` already does by calling
-  `POST /api/fusion/run` on a schedule (see `automation/n8n/README.md`) — once n8n is hosted
-  somewhere 24/7 anyway (a cheap VPS), that duplicate service is gone. The same VPS cron pings
-  `neerdrishti-api` every 10 min so the free web service never spins down before a judge hits it.
+  `POST /api/fusion/run` on a schedule (see `automation/n8n/README.md`) — once n8n is running
+  24/7 anyway, that duplicate service is gone. The same schedule pings `neerdrishti-api` every
+  10 min so the free web service never spins down before a judge hits it.
+
+  n8n runs on **n8n Cloud** (`https://laterabhi.app.n8n.cloud`), not a self-hosted VPS — free
+  tier, nothing for us to operate, and the webhook URL is public and TLS-terminated already,
+  which the WhatsApp/Telegram intake needs. Credentials (`SARVAM_API_KEY`, `PHONE_SALT`,
+  `TELEGRAM_BOT_TOKEN`, `API_URL`) are set as environment variables in the n8n Cloud project,
+  never committed — see `automation/n8n/.env.example`.
 
 This trades the "3+ services = Best Use of Render" prize eligibility (see `docs/ROLES.md`,
 R6) for a simpler, cheaper, more reliable stack. Team call, made 2026-08-25.

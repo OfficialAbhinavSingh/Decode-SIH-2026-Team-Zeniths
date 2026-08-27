@@ -2,34 +2,57 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { submitReport } from '../api.js'
 
+// Web fallback for the WhatsApp intake (R5). WhatsApp Business API approval can be slow,
+// so this form must exist -- the demo can never depend on Meta approving us in time.
+const inRange = (value, limit) => Number.isFinite(value) && Math.abs(value) <= limit
+
 export default function Report() {
   const [description, setDescription] = useState('')
   const [coords, setCoords] = useState(null)
+  const [manual, setManual] = useState({ lat: '', lon: '' })
+  const [showManual, setShowManual] = useState(false)
   const [status, setStatus] = useState(null) // null | 'loading' | 'success' | 'error'
   const [statusMsg, setStatusMsg] = useState('')
   const [locLoading, setLocLoading] = useState(false)
 
+  // Browser geolocation fails often in practice -- denied permission, no HTTPS, a desktop
+  // with no GPS, a venue with no signal. Typing coordinates has to be a real path, not a
+  // suggestion in an error string, or the fallback form has its own fallback missing.
+  const manualLat = Number.parseFloat(manual.lat)
+  const manualLon = Number.parseFloat(manual.lon)
+  const manualValid = inRange(manualLat, 90) && inRange(manualLon, 180)
+  const effective = coords || (manualValid ? { lat: manualLat, lon: manualLon } : null)
+
   const useMyLocation = () => {
+    if (!navigator.geolocation) {
+      setStatusMsg('This browser has no location support — type the coordinates below instead.')
+      setStatus('error')
+      setShowManual(true)
+      return
+    }
     setLocLoading(true)
-    navigator.geolocation?.getCurrentPosition(
+    navigator.geolocation.getCurrentPosition(
       (pos) => {
         setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude })
         setLocLoading(false)
+        setStatus(null)
       },
       () => {
-        setStatusMsg('Could not read your location.')
+        setStatusMsg('Could not read your location — type the coordinates below instead.')
         setStatus('error')
         setLocLoading(false)
+        setShowManual(true)
       },
     )
   }
 
   const submit = async (e) => {
     e.preventDefault()
+    if (!effective) return
     setStatus('loading')
     setStatusMsg('')
     try {
-      const res = await submitReport({ channel: 'web', description, ...coords })
+      const res = await submitReport({ channel: 'web', description, ...effective })
       setStatusMsg(
         res.zone_id
           ? `Logged against zone ${res.zone_id}`
@@ -110,14 +133,25 @@ export default function Report() {
                   <span>Pin your location</span>
                 </div>
 
-                {coords ? (
+                {effective ? (
                   <div className="loc-confirmed">
                     <span className="loc-dot" />
                     <div>
-                      <p className="loc-text">Location captured</p>
-                      <p className="loc-coords">{coords.lat.toFixed(5)}, {coords.lon.toFixed(5)}</p>
+                      <p className="loc-text">
+                        Location {coords ? 'captured' : 'set'}
+                      </p>
+                      <p className="loc-coords">{effective.lat.toFixed(5)}, {effective.lon.toFixed(5)}</p>
                     </div>
-                    <button type="button" className="loc-change" onClick={useMyLocation}>Change</button>
+                    <button
+                      type="button"
+                      className="loc-change"
+                      onClick={() => {
+                        setCoords(null)
+                        setManual({ lat: '', lon: '' })
+                      }}
+                    >
+                      Change
+                    </button>
                   </div>
                 ) : (
                   <button
@@ -135,6 +169,43 @@ export default function Report() {
                   </button>
                 )}
                 <p className="field-hint">We match your GPS to the nearest monitoring zone.</p>
+
+                {!coords && (
+                  <details
+                    className="manual"
+                    open={showManual}
+                    onToggle={(e) => setShowManual(e.target.open)}
+                  >
+                    <summary>Or type coordinates</summary>
+                    <div className="coord-grid">
+                      <div>
+                        <label htmlFor="lat">Latitude</label>
+                        <input
+                          id="lat"
+                          inputMode="decimal"
+                          placeholder="26.91240"
+                          value={manual.lat}
+                          onChange={(e) => setManual((m) => ({ ...m, lat: e.target.value }))}
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="lon">Longitude</label>
+                        <input
+                          id="lon"
+                          inputMode="decimal"
+                          placeholder="75.78730"
+                          value={manual.lon}
+                          onChange={(e) => setManual((m) => ({ ...m, lon: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+                    {manual.lat && manual.lon && !manualValid && (
+                      <p className="field-hint warn">
+                        Latitude must be between -90 and 90, longitude between -180 and 180.
+                      </p>
+                    )}
+                  </details>
+                )}
               </div>
 
               {/* Error */}
@@ -146,7 +217,7 @@ export default function Report() {
               <button
                 type="submit"
                 className="btn-submit"
-                disabled={!coords || status === 'loading'}
+                disabled={!effective || status === 'loading'}
               >
                 {status === 'loading' ? (
                   <><span className="spinner" /> Sending…</>

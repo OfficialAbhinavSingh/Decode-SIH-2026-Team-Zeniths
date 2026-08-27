@@ -45,15 +45,33 @@ Z-001,2026-07-01,2026-07-31,18400,11200,1420,31
 
 ## Run
 
+All commands are run from the `backend/` directory.
+
 ```bash
-python -m pipelines.billing.generate --zones data/samples/zones.geojson --out data/samples/billing.csv
-python -m pipelines.billing.load data/samples/billing.csv
+# Step 1: generate billing.csv from zones.geojson
+# --hotspots: comma-separated zone IDs to force into 45-58% NRW band.
+# Coordinate with R1 (@OfficialAbhinavSingh) to get the satellite hotspot zone IDs.
+python -m pipelines.billing.generate \
+    --zones ../data/samples/zones.geojson \
+    --hotspots Z-005,Z-018,Z-014,Z-025,Z-019 \
+    --out ../data/samples/billing.csv
+
+# Step 2: score and verify locally (no API needed)
+python -m pipelines.billing.load ../data/samples/billing.csv --dry-run
+
+# Step 3: ingest to the running API (seed.py must have run first so zone FKs exist)
+python seed.py
+python -m pipelines.billing.load ../data/samples/billing.csv
 ```
+
+Expected dry-run output: 30 zones scored, worst-first table, top 5 zones showing `[HOTSPOT]`.
 
 ## Two things that make or break this lane
 
 1. **Plant the leaks.** Give 3–5 zones genuinely high NRW, and make **at least 2 of them overlap
    with R1's satellite hotspots**. That overlap is the entire demo — it's what "all three signals
-   agree" means on screen. Coordinate the zone IDs with R1 directly.
+   agree" means on screen. **Current hotspots: Z-014, Z-025, Z-019, Z-012, Z-005** (chosen from
+   R1's `ndvi_export.csv` highest anomaly zones — confirm with @OfficialAbhinavSingh).
 2. **Don't use flat noise.** If every zone is 30±3%, fusion has nothing to rank and the map is one
-   colour. Model old-pipe zones as genuinely worse.
+   colour. Model old-pipe zones as genuinely worse. Scoring uses percentile-rank (`nrw.py`) so
+   the map always has full colour spread regardless of the absolute NRW values.

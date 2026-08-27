@@ -38,9 +38,15 @@ export default function MapView({ geojson, selectedId, onSelect, center, flyTarg
 
   return (
     <MapContainer className="map" center={center} zoom={13} scrollWheelZoom zoomControl={false}>
+      {/* The CARTO dark_all tiles this PR shipped with rendered as a tiled "API KEY
+          REQUIRED" watermark live -- CARTO's per-tile key requirement isn't consistent
+          across zoom/coverage, so it can look fine in a quick check and still break on
+          the exact area used at demo time. Plain OSM has no such gate. If a CARTO dark
+          basemap is worth the visual upgrade, it needs a real key wired through an env
+          var first, verified against the actual demo city/zoom. */}
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       {geojson && (
         // key forces a re-render when scores change; Leaflet caches styles otherwise.
