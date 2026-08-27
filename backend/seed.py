@@ -34,6 +34,24 @@ CITY_CENTRES = {
 CELL = 0.012  # ~1.3 km per zone side
 
 
+def billing_period(today: date | None = None) -> tuple[date, date]:
+    """The billing period seeded rows use: the last full calendar month.
+
+    This MUST stay identical to backend/pipelines/billing/generate.py, because
+    BillingSignal's natural key is (zone_id, period_start, period_end). Matching it means
+    R2's real pipeline *upserts over* the seeded row rather than inserting a second,
+    competing one.
+
+    Do not "improve" this into a rolling window. It used to be observed-33d..observed-3d,
+    whose period_end is later than anything the real generator produces -- so fusion's
+    "latest billing row per zone" lookup kept picking the seeded figures forever, and every
+    zone showed fake NRW even after real data had ingested successfully.
+    """
+    today = today or date.today()
+    end = today.replace(day=1) - timedelta(days=1)
+    return end.replace(day=1), end
+
+
 def make_polygon(lat: float, lon: float) -> dict:
     half = CELL / 2
     ring = [
@@ -89,6 +107,8 @@ def seed(city: str, zone_count: int) -> None:
         observed = date.today() - timedelta(days=3)
         now = datetime.now(timezone.utc)
 
+        billing_start, billing_end = billing_period()
+
         for zone in zones:
             hot = zone.id in hotspots
 
@@ -117,8 +137,8 @@ def seed(city: str, zone_count: int) -> None:
             db.add(
                 BillingSignal(
                     zone_id=zone.id,
-                    period_start=observed - timedelta(days=33),
-                    period_end=observed - timedelta(days=3),
+                    period_start=billing_start,
+                    period_end=billing_end,
                     supplied_kl=supplied,
                     billed_kl=billed,
                     nrw_pct=round(nrw, 2),
