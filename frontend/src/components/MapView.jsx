@@ -20,12 +20,15 @@ function FlyTo({ zone }) {
 }
 
 export default function MapView({ geojson, selectedId, onSelect, center, flyTarget }) {
-  const style = (feature) => ({
-    color: '#0d1117',
-    weight: feature.properties.zone_id === selectedId ? 2.5 : 0.8,
-    fillColor: scoreColor(feature.properties.fusion_score),
-    fillOpacity: feature.properties.zone_id === selectedId ? 0.85 : 0.6,
-  })
+  const style = (feature) => {
+    const isSelected = feature.properties.zone_id === selectedId;
+    return {
+      color: isSelected ? '#00f3ff' : 'transparent',
+      weight: isSelected ? 3 : 0,
+      fillColor: scoreColor(feature.properties.fusion_score),
+      fillOpacity: isSelected ? 1 : 0.85,
+    };
+  }
 
   const onEachFeature = (feature, layer) => {
     const p = feature.properties
@@ -34,10 +37,10 @@ export default function MapView({ geojson, selectedId, onSelect, center, flyTarg
   }
 
   return (
-    <MapContainer className="map" center={center} zoom={13} scrollWheelZoom>
+    <MapContainer className="map" center={center} zoom={13} scrollWheelZoom zoomControl={false}>
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
+        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
       />
       {geojson && (
         // key forces a re-render when scores change; Leaflet caches styles otherwise.

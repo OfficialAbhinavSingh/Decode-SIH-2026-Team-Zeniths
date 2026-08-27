@@ -38,43 +38,7 @@ export default function Dashboard() {
 
   return (
     <div className="app">
-      <header className="topbar">
-        <h1>NeerDrishti AI</h1>
-        <span className="tag">Water leak intelligence · Team Zeniths</span>
-        <span className="spacer" />
-        <Link to="/report" className="tag">Report a leak →</Link>
-      </header>
-
-      <aside className="sidebar">
-        <h2>Inspect first</h2>
-        {error && <p className="empty">Could not reach the API ({error}).<br />Is the backend running on :8000?</p>}
-        {!error && scores.length === 0 && (
-          <p className="empty">
-            No scores yet. Run <code>python seed.py</code> in <code>backend/</code>, then reload.
-          </p>
-        )}
-        {scores.map((s) => (
-          <div
-            key={s.zone_id}
-            className={`zone-card${s.zone_id === selectedId ? ' selected' : ''}`}
-            onClick={() => setSelectedId(s.zone_id)}
-          >
-            <div className="row">
-              <span className="name">#{s.rank} {s.name}</span>
-              <span className="score" style={{ color: scoreColor(s.fusion_score) }}>
-                {s.fusion_score.toFixed(0)}
-              </span>
-            </div>
-            <div className="row" style={{ marginTop: 6 }}>
-              <span className={`badge ${s.confidence}`}>{s.confidence}</span>
-              <span className="badge">{s.signals_used}/3 signals</span>
-            </div>
-            <div className="why">{s.explanation}</div>
-          </div>
-        ))}
-      </aside>
-
-      <main style={{ position: 'relative' }}>
+      <div className="map-container">
         <MapView
           geojson={geojson}
           selectedId={selectedId}
@@ -82,8 +46,53 @@ export default function Dashboard() {
           center={center}
           flyTarget={flyTarget}
         />
+      </div>
+
+      <div className="ui-layer">
+        <header className="topbar">
+          <nav className="navbar-pill">
+            <div className="navbar-logo">
+              <span className="navbar-logo-icon">💧</span>
+            </div>
+            <span className="navbar-brand">NeerDrishti AI</span>
+            <div className="navbar-divider" />
+            {/* <span className="navbar-link active">Dashboard</span> */}
+            {/* <span className="navbar-link">Analytics</span> */}
+            {/* <span className="navbar-link">Zones</span> */}
+            <Link to="/report" className="navbar-cta">Report a Leak →</Link>
+          </nav>
+        </header>
+        <aside className="sidebar" style={{ display: selectedId && window.innerWidth <= 820 ? 'none' : 'flex', flexDirection: 'column' }}>
+          <h2>Inspect first</h2>
+          {error && <p className="empty">Could not reach the API ({error}).<br />Is the backend running on :8000?</p>}
+          {!error && scores.length === 0 && (
+            <p className="empty">
+              No scores yet. Run <code>python seed.py</code> in <code>backend/</code>, then reload.
+            </p>
+          )}
+          {scores.map((s) => (
+            <div
+              key={s.zone_id}
+              className={`zone-card${s.zone_id === selectedId ? ' selected' : ''}`}
+              onClick={() => setSelectedId(s.zone_id)}
+            >
+              <div className="row">
+                <span className="name">#{s.rank} {s.name}</span>
+                <span className="score" style={{ color: scoreColor(s.fusion_score) }}>
+                  {s.fusion_score.toFixed(0)}
+                </span>
+              </div>
+              <div className="row" style={{ marginTop: 6 }}>
+                <span className={`badge ${s.confidence}`}>{s.confidence}</span>
+                <span className="badge">{s.signals_used}/3 signals</span>
+              </div>
+              <div className="why">{s.explanation}</div>
+            </div>
+          ))}
+        </aside>
+
         <ZoneDetail score={selected} onClose={() => setSelectedId(null)} />
-      </main>
+      </div>
     </div>
   )
 }

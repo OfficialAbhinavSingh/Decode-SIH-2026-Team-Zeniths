@@ -34,14 +34,15 @@ export default function ZoneDetail({ score, onClose }) {
 
       {signals?.citizen?.length > 0 && (
         <>
-          <h2 style={{ fontSize: 12, color: 'var(--muted)', marginTop: 16 }}>
+          <h2 style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 16, textTransform: 'uppercase', letterSpacing: '1px' }}>
             Citizen reports ({signals.citizen.length})
           </h2>
-          <ul className="reports" style={{ paddingLeft: 16, margin: 0 }}>
+          <ul className="reports" style={{ margin: 0 }}>
             {signals.citizen.slice(0, 6).map((r) => (
               <li key={r.id}>
-                <strong>{r.channel}</strong> · {new Date(r.reported_at).toLocaleDateString()} —{' '}
-                {r.description}
+                <strong>{r.channel === 'Twitter' ? '🐦' : '📞'} {r.channel}</strong> · {new Date(r.reported_at).toLocaleDateString()}
+                <br/>
+                <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>{r.description}</span>
               </li>
             ))}
           </ul>
