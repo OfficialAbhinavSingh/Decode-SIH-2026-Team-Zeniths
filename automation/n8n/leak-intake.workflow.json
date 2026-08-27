@@ -20,7 +20,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Extract incoming payload safely\nconst raw = $input.first().json;\nconst body = (raw && raw.body) ? raw.body : raw;\nconst rawPhone = String((body && (body.phone || body.from || (body.message && body.message.from ? body.message.from.id : null))) || '9829012345');\nconst text = String((body && (body.text || body.message_text || (body.message ? body.message.text : '') || body.description)) || '');\nconst lat = (body && body.lat) ? Number(body.lat) : 26.9124;\nconst lon = (body && body.lon) ? Number(body.lon) : 75.7873;\nconst channel = (body && (body.channel || (body.message ? 'telegram' : 'whatsapp'))) || 'whatsapp';\nconst chatId = (body && body.message && body.message.chat) ? body.message.chat.id : null;\n\n// Salted Phone Hash (Privacy Compliance)\nlet cleanDigits = rawPhone.replace(/\\D/g, '') || '9829012345';\nif (cleanDigits.length === 12 && cleanDigits.startsWith('91')) { cleanDigits = cleanDigits.substring(2); } else if (cleanDigits.length === 11 && cleanDigits.startsWith('0')) { cleanDigits = cleanDigits.substring(1); }\nconst saltStr = cleanDigits + ':' + ($env.PHONE_SALT || 'neerdrishti-default-salt-2026');\nconst crypto = require('crypto');\nconst hexHash = crypto.createHash('sha256').update(saltStr).digest('hex');\nconst reporterHash = 'sha256:' + hexHash.substring(0, 32);\n\n// Detect Language Script\nlet detectedLang = 'en';\nlet sarvamCode = 'hi-IN';\nif (/[\\u0900-\\u097F]/.test(text)) { detectedLang = 'hi'; sarvamCode = 'hi-IN'; }\nelse if (/[\\u0B80-\\u0BFF]/.test(text)) { detectedLang = 'ta'; sarvamCode = 'ta-IN'; }\nelse if (/[\\u0C80-\\u0CFF]/.test(text)) { detectedLang = 'kn'; sarvamCode = 'kn-IN'; }\nelse if (/[\\u0C00-\\u0C7F]/.test(text)) { detectedLang = 'te'; sarvamCode = 'te-IN'; }\nelse if (/[\\u0D00-\\u0D7F]/.test(text)) { detectedLang = 'ml'; sarvamCode = 'ml-IN'; }\nelse if (/[\\u0A80-\\u0AFF]/.test(text)) { detectedLang = 'gu'; sarvamCode = 'gu-IN'; }\nelse if (/[\\u0980-\\u09FF]/.test(text)) { detectedLang = 'bn'; sarvamCode = 'bn-IN'; }\n\nreturn [{\n  json: {\n    channel,\n    chat_id: chatId,\n    reporter_hash: reporterHash,\n    incoming_text: text,\n    detected_language: detectedLang,\n    sarvam_language_code: sarvamCode,\n    is_regional: detectedLang !== 'en',\n    lat,\n    lon\n  }\n}];"
+        "jsCode": "// Extract incoming payload safely\nconst raw = $input.first().json;\nconst body = (raw && raw.body) ? raw.body : raw;\nconst rawPhone = String((body && (body.phone || body.from || (body.message && body.message.from ? body.message.from.id : null))) || '9829012345');\nconst text = String((body && (body.text || body.message_text || (body.message ? body.message.text : '') || body.description)) || '');\nconst lat = (body && body.lat) ? Number(body.lat) : 26.9124;\nconst lon = (body && body.lon) ? Number(body.lon) : 75.7873;\nconst channel = (body && (body.channel || (body.message ? 'telegram' : 'whatsapp'))) || 'whatsapp';\nconst chatId = (body && body.message && body.message.chat) ? body.message.chat.id : null;\n\n// Salted Phone Hash (Privacy Compliance)\nlet cleanDigits = rawPhone.replace(/\\D/g, '') || '9829012345';\nif (cleanDigits.length === 12 && cleanDigits.startsWith('91')) { cleanDigits = cleanDigits.substring(2); } else if (cleanDigits.length === 11 && cleanDigits.startsWith('0')) { cleanDigits = cleanDigits.substring(1); }\n// n8n Cloud forces N8N_BLOCK_ENV_ACCESS_IN_NODE=true and will not let you change it,\n// so $env throws 'access to env vars denied' in a Code node here. $vars is the\n// Cloud-native replacement but only exists on Pro/Enterprise plans, so read it\n// defensively and fall back. Keep the fallback in step with utils/hasher.py, which\n// reads PHONE_SALT from the environment on the Python side, where env access works.\nlet phoneSalt = 'neerdrishti-default-salt-2026';\ntry {\n  if (typeof $vars !== 'undefined' && $vars && $vars.PHONE_SALT) { phoneSalt = $vars.PHONE_SALT; }\n} catch (e) { /* Variables not available on this plan -- keep the fallback */ }\nconst saltStr = cleanDigits + ':' + phoneSalt;\nconst crypto = require('crypto');\nconst hexHash = crypto.createHash('sha256').update(saltStr).digest('hex');\nconst reporterHash = 'sha256:' + hexHash.substring(0, 32);\n\n// Detect Language Script\nlet detectedLang = 'en';\nlet sarvamCode = 'hi-IN';\nif (/[\\u0900-\\u097F]/.test(text)) { detectedLang = 'hi'; sarvamCode = 'hi-IN'; }\nelse if (/[\\u0B80-\\u0BFF]/.test(text)) { detectedLang = 'ta'; sarvamCode = 'ta-IN'; }\nelse if (/[\\u0C80-\\u0CFF]/.test(text)) { detectedLang = 'kn'; sarvamCode = 'kn-IN'; }\nelse if (/[\\u0C00-\\u0C7F]/.test(text)) { detectedLang = 'te'; sarvamCode = 'te-IN'; }\nelse if (/[\\u0D00-\\u0D7F]/.test(text)) { detectedLang = 'ml'; sarvamCode = 'ml-IN'; }\nelse if (/[\\u0A80-\\u0AFF]/.test(text)) { detectedLang = 'gu'; sarvamCode = 'gu-IN'; }\nelse if (/[\\u0980-\\u09FF]/.test(text)) { detectedLang = 'bn'; sarvamCode = 'bn-IN'; }\n\nreturn [{\n  json: {\n    channel,\n    chat_id: chatId,\n    reporter_hash: reporterHash,\n    incoming_text: text,\n    detected_language: detectedLang,\n    sarvam_language_code: sarvamCode,\n    is_regional: detectedLang !== 'en',\n    lat,\n    lon\n  }\n}];"
       },
       "id": "17940fda-672b-4089-a678-a20875f62149",
       "name": "2. Extract & Hash Phone (SHA-256)",
@@ -164,21 +164,24 @@
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"chat_id\": \"{{ $json.chat_id }}\",\n  \"text\": \"Welcome to NeerDrishti! 💧\\n\\nTo report a water leak, please send a short description of the problem and your GPS location (attachment).\",\n  \"parse_mode\": \"Markdown\"\n}\n",
-        "options": {}
+        "chatId": "={{ $json.chat_id }}",
+        "text": "Welcome to NeerDrishti! 💧\n\nTo report a water leak, please send a short description of the problem and your GPS location (attachment).",
+        "additionalFields": {}
       },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.5,
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
       "position": [
         16,
         -80
       ],
       "id": "691cebb1-fec7-44de-a548-f844a0a0cf51",
-      "name": "Send Welcome Message"
+      "name": "Send Welcome Message",
+      "credentials": {
+        "telegramApi": {
+          "id": "TCad6waPZmyRxnzo",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {

@@ -88,7 +88,10 @@ def build_zones(city: str, count: int) -> list[Zone]:
     return zones
 
 
-def seed(city: str, zone_count: int) -> None:
+SIGNALS = ("satellite", "billing", "citizen")
+
+
+def seed(city: str, zone_count: int, skip: frozenset[str] = frozenset()) -> None:
     Base.metadata.create_all(engine)
     db = SessionLocal()
     try:
@@ -112,68 +115,82 @@ def seed(city: str, zone_count: int) -> None:
         for zone in zones:
             hot = zone.id in hotspots
 
+            # Every value below is drawn whether or not its signal is skipped. Skipping
+            # the RNG calls instead would shift the stream and silently change the other
+            # signals' numbers, so `--skip satellite` would also move every billing
+            # figure -- and the whole point of the fixed seed is a reproducible demo.
+            # Only the inserts are conditional.
+
             # --- satellite: NDVI above a 3-year baseline over the pipe corridor
             baseline = round(RNG.uniform(0.24, 0.38), 3)
             anomaly = round(RNG.uniform(0.10, 0.22) if hot else RNG.gauss(0.01, 0.035), 3)
             sat_score = max(0.0, min(100.0, round(anomaly / 0.22 * 100, 2)))
-            db.add(
-                SatelliteSignal(
-                    zone_id=zone.id,
-                    observed_on=observed,
-                    ndvi_mean=round(baseline + anomaly, 3),
-                    ndvi_baseline=baseline,
-                    ndvi_anomaly=anomaly,
-                    wetness_index=round(RNG.uniform(0.1, 0.6), 3),
-                    cloud_pct=round(RNG.uniform(0, 15), 1),
-                    score=sat_score,
-                    source="seed",
+            wetness = round(RNG.uniform(0.1, 0.6), 3)
+            cloud = round(RNG.uniform(0, 15), 1)
+            if "satellite" not in skip:
+                db.add(
+                    SatelliteSignal(
+                        zone_id=zone.id,
+                        observed_on=observed,
+                        ndvi_mean=round(baseline + anomaly, 3),
+                        ndvi_baseline=baseline,
+                        ndvi_anomaly=anomaly,
+                        wetness_index=wetness,
+                        cloud_pct=cloud,
+                        score=sat_score,
+                        source="seed",
+                    )
                 )
-            )
 
             # --- billing: non-revenue water. National average sits around 30-40%.
             nrw = RNG.uniform(42, 58) if hot else RNG.uniform(12, 38)
             supplied = round(RNG.uniform(9_000, 40_000), 1)
             billed = round(supplied * (1 - nrw / 100), 1)
-            db.add(
-                BillingSignal(
-                    zone_id=zone.id,
-                    period_start=billing_start,
-                    period_end=billing_end,
-                    supplied_kl=supplied,
-                    billed_kl=billed,
-                    nrw_pct=round(nrw, 2),
-                    # 0% NRW -> 0, 60%+ NRW -> 100
-                    score=round(max(0.0, min(100.0, nrw / 60 * 100)), 2),
-                    is_synthetic=True,
+            if "billing" not in skip:
+                db.add(
+                    BillingSignal(
+                        zone_id=zone.id,
+                        period_start=billing_start,
+                        period_end=billing_end,
+                        supplied_kl=supplied,
+                        billed_kl=billed,
+                        nrw_pct=round(nrw, 2),
+                        # 0% NRW -> 0, 60%+ NRW -> 100
+                        score=round(max(0.0, min(100.0, nrw / 60 * 100)), 2),
+                        is_synthetic=True,
+                    )
                 )
-            )
 
             # --- citizen: hotspots get several reports, most zones get none
             report_count = RNG.randint(2, 6) if hot else RNG.choices([0, 1], [0.8, 0.2])[0]
             for n in range(report_count):
-                db.add(
-                    CitizenReport(
-                        zone_id=zone.id,
-                        reported_at=now - timedelta(days=RNG.randint(0, 25), hours=n),
-                        channel=RNG.choice(["whatsapp", "web"]),
-                        reporter_hash=f"sha256:seed{RNG.randint(10**6, 10**7)}",
-                        description=RNG.choice(
-                            [
-                                "Water flowing on the road since morning",
-                                "Road is always wet near the corner, no rain here",
-                                "Low pressure for a week and water on the street",
-                                "Pipeline leaking beside the school gate",
-                            ]
-                        ),
-                        lat=zone.centroid_lat + RNG.uniform(-CELL / 3, CELL / 3),
-                        lon=zone.centroid_lon + RNG.uniform(-CELL / 3, CELL / 3),
-                        status="new",
-                    )
+                report = CitizenReport(
+                    zone_id=zone.id,
+                    reported_at=now - timedelta(days=RNG.randint(0, 25), hours=n),
+                    channel=RNG.choice(["whatsapp", "web"]),
+                    reporter_hash=f"sha256:seed{RNG.randint(10**6, 10**7)}",
+                    description=RNG.choice(
+                        [
+                            "Water flowing on the road since morning",
+                            "Road is always wet near the corner, no rain here",
+                            "Low pressure for a week and water on the street",
+                            "Pipeline leaking beside the school gate",
+                        ]
+                    ),
+                    lat=zone.centroid_lat + RNG.uniform(-CELL / 3, CELL / 3),
+                    lon=zone.centroid_lon + RNG.uniform(-CELL / 3, CELL / 3),
+                    status="new",
                 )
+                if "citizen" not in skip:
+                    db.add(report)
 
         db.commit()
         scored = run_fusion(db, city)
+        seeded = ", ".join(s for s in SIGNALS if s not in skip) or "no signals"
         print(f"seeded {len(zones)} zones in {city}, planted {len(hotspots)} leak hotspots")
+        print(f"signals seeded: {seeded}")
+        if skip:
+            print(f"skipped: {', '.join(sorted(skip))} -- real pipelines own these now")
         print(f"fusion scored {scored} zones -- try: curl localhost:8000/api/scores | head")
     finally:
         db.close()
@@ -183,5 +200,20 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--city", default=settings.city_default)
     parser.add_argument("--zones", type=int, default=30)
+    parser.add_argument(
+        "--skip",
+        default="",
+        help=(
+            "comma-separated signals NOT to seed (satellite,billing,citizen). Use this when a "
+            "real pipeline owns that signal: seeding it anyway invents readings for zones that "
+            "genuinely have none, e.g. the zones with no cloud-free satellite pixel."
+        ),
+    )
     args = parser.parse_args()
-    seed(args.city, args.zones)
+
+    skip = frozenset(s.strip().lower() for s in args.skip.split(",") if s.strip())
+    unknown = skip - set(SIGNALS)
+    if unknown:
+        parser.error(f"unknown signal(s) {', '.join(sorted(unknown))}; pick from {', '.join(SIGNALS)}")
+
+    seed(args.city, args.zones, skip)
