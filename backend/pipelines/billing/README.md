@@ -53,7 +53,7 @@ All commands are run from the `backend/` directory.
 # Coordinate with R1 (@OfficialAbhinavSingh) to get the satellite hotspot zone IDs.
 python -m pipelines.billing.generate \
     --zones ../data/samples/zones.geojson \
-    --hotspots Z-014,Z-025,Z-019,Z-012,Z-005 \
+    --hotspots Z-005,Z-018,Z-014,Z-025,Z-019 \
     --out ../data/samples/billing.csv
 
 # Step 2: score and verify locally (no API needed)

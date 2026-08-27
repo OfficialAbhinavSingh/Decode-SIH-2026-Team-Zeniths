@@ -34,12 +34,18 @@ MODEL PARAMETERS (all derived from sources above):
   - Hard clamp [6%, 65%] to stay in physically plausible range.
 
 HOTSPOT ZONES — coordinate with R1 (@OfficialAbhinavSingh):
-  Pass --hotspots Z-014,Z-025,Z-019,Z-012,Z-005 (or whichever zone IDs R1 marks as
+  Pass --hotspots Z-005,Z-018,Z-014,Z-025,Z-019 (or whichever zone IDs R1 marks as
   satellite hotspots). This forces those zones into the 45–58% NRW band so that billing
   and satellite signals agree, which is the entire fusion demo story.
 
+  Re-picked 2026-08-27 against the real GEE export (data/samples/ndvi_export.csv):
+  only Z-005 and Z-018 show a genuine positive NDVI anomaly. Z-014/Z-025/Z-019 are kept
+  as billing-only high-loss zones (no satellite agreement, still a valid "found it from
+  billing alone" story). Z-012 was dropped — it has no cloud-free satellite reading this
+  period, so there is nothing for a planted billing hotspot there to agree *with*.
+
     python -m pipelines.billing.generate --zones ../data/samples/zones.geojson \\
-        --hotspots Z-014,Z-025,Z-019,Z-012,Z-005 --out ../data/samples/billing.csv
+        --hotspots Z-005,Z-018,Z-014,Z-025,Z-019 --out ../data/samples/billing.csv
 """
 
 import argparse
