@@ -102,13 +102,17 @@ def percentile_rank_scores(rows: list[dict]) -> list[dict]:
         return rows
 
     n = len(rows)
+    if n == 1:
+        rows[0]["score"] = 50.0
+        return rows
+
     nrw_values = [r["nrw_pct"] for r in rows]
     sorted_vals = sorted(nrw_values)
 
     for row in rows:
         v = row["nrw_pct"]
         below = sum(1 for x in sorted_vals if x < v)
-        row["score"] = round(below / max(n - 1, 1) * 100, 2)
+        row["score"] = round(below / (n - 1) * 100, 2)
     return rows
 
 
