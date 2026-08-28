@@ -17,7 +17,7 @@ This is the **only** list that counts. If something here is not done, nothing be
 | # | Thing | Owner role | Definition of done |
 |---|---|---|---|
 | M1 | One city, ~30 zones, loaded in DB with polygons | R1 Satellite/Geo | `GET /api/zones` returns 30 zones with geojson |
-| M2 | Satellite NDVI anomaly score per zone | R1 Satellite/Geo | Every zone has a `satellite_signals` row with `score` 0–100 |
+| M2 | Satellite NDVI anomaly score per zone | R1 Satellite/Geo | Every zone **with a cloud-free observation** has a `satellite_signals` row with `score` 0–100. Zones without one carry **no satellite signal** rather than a placeholder — 21 of 30 on the 25 Aug 2026 export. See the cloud-cover note below. |
 | M3 | Billing/NRW gap score per zone | R2 Data | Every zone has a `billing_signals` row with `nrw_pct` + `score` |
 | M4 | Citizen report intake → DB | R5 Automation | A WhatsApp message (or web form fallback) creates a `citizen_reports` row |
 | M5 | Fusion engine → one priority score + rank | R3 Backend/Fusion | `POST /api/fusion/run` fills `zone_scores`; `GET /api/scores` returns ranked list |
@@ -26,6 +26,26 @@ This is the **only** list that counts. If something here is not done, nothing be
 | M8 | 4-minute demo script that survives no-internet | R6 DevOps/Demo | Recorded video + seeded local fallback |
 
 **Satellite is the differentiator — it does not get cut.** But see the shortcut in M2 below.
+
+### Cloud cover is a real limit, and we state it rather than paper over it
+
+M2 originally read *"every zone has a `satellite_signals` row"*. That is not achievable and
+was never going to be. On the 25 Aug 2026 export, **9 of 30 zones** came back with an empty
+`ndvi_mean` — monsoon cloud, masked per-pixel by Sentinel-2's scene classification layer
+across the whole 30-day composite window:
+
+```
+Z-006  Z-011  Z-012  Z-016  Z-017  Z-021  Z-022  Z-023  Z-026
+```
+
+Those zones now show **no satellite signal at all**, and the fusion engine treats the signal
+as absent rather than zero. `python seed.py --skip satellite` is what keeps that honest:
+seeding a placeholder row for every zone invented readings for zones that had none, and the
+top-ranked zone in the demo was one of them.
+
+Widening the window past 30 days would trade "current condition" for coverage, and
+Sentinel-1 SAR sees through cloud but is Phase 2. **A zone running on two signals with a
+label saying so is a better answer than a zone running on three where one is fabricated.**
 
 ### MVP shortcuts we are taking on purpose
 
