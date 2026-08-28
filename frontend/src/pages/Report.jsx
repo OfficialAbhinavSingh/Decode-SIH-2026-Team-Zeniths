@@ -89,9 +89,7 @@ export default function Report() {
           /* ── Report form ── */
           <div className="report-card">
             <div className="report-header">
-              <div className="report-icon-wrap">
-                <span style={{ fontSize: 28 }}>💧</span>
-              </div>
+              <img className="report-icon-wrap" src="/logo.png" alt="" width="48" height="48" />
               <div>
                 <h1 className="report-title">Report a water leak</h1>
                 <p className="report-sub">Help us detect leaks faster. Your report feeds directly into our AI scoring system.</p>

@@ -95,11 +95,10 @@ button { font: inherit; }
 }
 
 .brand-mark {
-  width: 26px;
-  height: 26px;
-  display: grid;
-  place-items: center;
-  color: var(--accent);
+  width: 30px;
+  height: 30px;
+  flex: none;
+  object-fit: contain;
 }
 
 .brand-name {
@@ -618,14 +617,13 @@ code {
 
 .report-header { display: flex; gap: 15px; align-items: flex-start; }
 
+/* The mark carries its own colour and its own white rim, so a tinted plate behind it
+   just muddies both. It sits on the card directly. */
 .report-icon-wrap {
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   flex: none;
-  display: grid;
-  place-items: center;
-  background: var(--accent-weak);
-  border-radius: 12px;
+  object-fit: contain;
 }
 
 .report-title {

@@ -142,11 +142,7 @@ export default function Dashboard() {
     <div className="app">
       <header className="topbar">
         <Link to="/" className="brand">
-          <span className="brand-mark" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2.6c3.9 4.6 6.4 8 6.4 11a6.4 6.4 0 1 1-12.8 0c0-3 2.5-6.4 6.4-11Z" />
-            </svg>
-          </span>
+          <img className="brand-mark" src="/logo.png" alt="" width="30" height="30" />
           <span className="brand-name">NeerDrishti</span>
         </Link>
 
