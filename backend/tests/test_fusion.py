@@ -4,7 +4,13 @@
 
 import pytest
 
-from app.services.fusion import WEIGHTS, citizen_score, fuse, percentile_rank
+from app.services.fusion import (
+    COVERAGE_FACTOR,
+    WEIGHTS,
+    citizen_score,
+    fuse,
+    percentile_rank,
+)
 
 
 def test_all_three_signals_agree_is_high_confidence():
@@ -24,21 +30,55 @@ def test_three_signals_that_disagree_drop_to_medium():
 
 
 def test_missing_signal_renormalises_instead_of_scoring_zero():
-    """A zone with only satellite data must not be punished for data nobody collected."""
+    """A zone with only satellite data must not be punished for data nobody collected.
+
+    Refusing to renormalise would score this zone 36 -- 40% of its own reading, purely for
+    billing the city never digitised. It keeps its 90 through renormalisation, then takes
+    the single-signal coverage discount.
+    """
     score, confidence, used = fuse(90.0, None, None)
     assert used == 1
     assert confidence == "low"
-    assert score == pytest.approx(90.0)
+    assert score == pytest.approx(90.0 * COVERAGE_FACTOR[1], abs=0.01)
+    assert score > WEIGHTS["satellite"] * 90
 
 
 def test_two_signals_use_only_their_own_weights():
     score, confidence, used = fuse(80.0, 60.0, None)
     assert used == 2
     assert confidence == "medium"
-    expected = (WEIGHTS["satellite"] * 80 + WEIGHTS["billing"] * 60) / (
-        WEIGHTS["satellite"] + WEIGHTS["billing"]
+    expected = (
+        (WEIGHTS["satellite"] * 80 + WEIGHTS["billing"] * 60)
+        / (WEIGHTS["satellite"] + WEIGHTS["billing"])
+        * COVERAGE_FACTOR[2]
     )
     assert score == pytest.approx(expected, abs=0.01)
+
+
+def test_corroborated_zone_outranks_a_stronger_single_signal_lead():
+    """The bug this discount exists for.
+
+    Before the coverage factor, a lone billing reading of 86 scored 86 -- the same as three
+    sources agreeing at 86 -- so percentile-ranking could put an unverified single number at
+    the top of the repair list. With the real satellite export loaded, that is exactly what
+    happened: three of the top six zones were single-signal leads.
+    """
+    lead, _, lead_used = fuse(None, 86.0, None)
+    corroborated, _, corr_used = fuse(70.0, 70.0, 70.0)
+    assert lead_used == 1 and corr_used == 3
+    assert corroborated > lead
+
+
+def test_coverage_discount_never_reorders_zones_with_equal_coverage():
+    """Within one coverage level the discount is a constant, so ordering is untouched."""
+    a, _, _ = fuse(80.0, 60.0, None)
+    b, _, _ = fuse(70.0, 60.0, None)
+    assert a > b
+
+
+def test_a_single_signal_lead_is_discounted_not_discarded():
+    score, _, _ = fuse(None, None, 100.0)
+    assert 0 < score < 100.0
 
 
 def test_no_signals_at_all():
