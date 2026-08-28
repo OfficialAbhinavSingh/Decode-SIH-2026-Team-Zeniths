@@ -1,6 +1,8 @@
 <div align="center">
 
-# 💧 NeerDrishti AI
+<img src="docs/assets/logo.png" alt="NeerDrishti AI" width="132" height="132" />
+
+# NeerDrishti AI
 
 ### Find underground water leaks without burying a single sensor
 
@@ -31,6 +33,21 @@ Team Zeniths
 <br/>
 
 ![NeerDrishti AI dashboard — ranked zone list beside a live map of Jaipur, with the selected zone's satellite, billing and citizen evidence expanded inline](docs/assets/dashboard.png)
+
+<div align="center">
+<sub>The real app against real data. Rank #3 expanded: its Sentinel-2, billing and citizen
+scores, and the engine's own sentence about how much they agree.</sub>
+</div>
+
+<details>
+<summary><b>On a phone</b> — the two panes become one view at a time</summary>
+
+<br/>
+<div align="center">
+<img src="docs/assets/dashboard-mobile.png" alt="NeerDrishti AI on a phone — the ranked list with a zone expanded, and a floating List/Map switch" width="320" />
+</div>
+
+</details>
 
 ---
 
