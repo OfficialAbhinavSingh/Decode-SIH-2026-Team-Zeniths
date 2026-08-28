@@ -529,6 +529,26 @@ code {
   100% { stroke-width: 15; opacity: 0; }
 }
 
+/* Shown only when live tiles could not be fetched and the map fell back to the bundled
+   basemap. The presenter needs to know which one they are looking at. */
+.offline-badge {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 500;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--warn);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+}
+
 .legend {
   position: absolute;
   left: 16px;

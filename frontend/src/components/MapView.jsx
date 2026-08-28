@@ -1,6 +1,19 @@
-import { useEffect } from 'react'
-import { CircleMarker, GeoJSON, MapContainer, TileLayer, useMap } from 'react-leaflet'
+import { useEffect, useState } from 'react'
+import {
+  CircleMarker,
+  GeoJSON,
+  ImageOverlay,
+  MapContainer,
+  TileLayer,
+  useMap,
+} from 'react-leaflet'
 import { centroidOf, scoreColor } from '../lib/zones.js'
+import basemap from '../basemap-bounds.json'
+
+// How many tile requests have to fail before we accept that there is no network and swap
+// to the offline basemap. One or two failures happen on a flaky connection and recover on
+// their own; a venue with no wifi produces them by the dozen immediately.
+const TILE_FAILURES_BEFORE_FALLBACK = 4
 
 // Leaflet measures its container once and caches the result. Two things follow from that,
 // and they have to be handled together:
@@ -31,6 +44,12 @@ function MapSync({ zone, showToken }) {
 }
 
 export default function MapView({ geojson, selectedId, onSelect, center, flyTarget, matchIds, resizeToken }) {
+  // The map is the demo. If the venue wifi dies, live OSM tiles never arrive and the map
+  // renders as a blank grey box with the zone polygons floating on nothing. This falls back
+  // to a pre-built image of the same area (tools/build_offline_basemap.py), georeferenced
+  // to real bounds so it pans and zooms correctly underneath the polygons.
+  const [tileFailures, setTileFailures] = useState(0)
+  const offline = tileFailures >= TILE_FAILURES_BEFORE_FALLBACK
   // A filter narrows which zones get a pin, but every polygon stays on the map. Hiding
   // the rest would hide the city, and "this zone is bad" only means something next to the
   // zones that are not. Non-matching polygons fade instead.
@@ -61,15 +80,33 @@ export default function MapView({ geojson, selectedId, onSelect, center, flyTarg
     .filter((p) => p.at)
 
   return (
+    <>
+    {offline && (
+      <div className="offline-badge" role="status">
+        Offline basemap — no tile connection
+      </div>
+    )}
     <MapContainer className="map" center={center} zoom={13} scrollWheelZoom zoomControl={false}>
       {/* Plain OpenStreetMap. A CARTO basemap was tried and rendered as a tiled "API KEY
           REQUIRED" watermark -- their per-tile key requirement is not consistent across
           zoom levels, so it can look fine in a quick check and still break on the exact
           area used at demo time. Swapping basemap needs a real key in an env var first. */}
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+      {offline ? (
+        // pane="tilePane" keeps it underneath the polygons and pins, which live in the
+        // overlay pane. In the default pane it would cover them.
+        <ImageOverlay
+          url="/basemap.jpg"
+          bounds={basemap.bounds}
+          pane="tilePane"
+          attribution={basemap.attribution}
+        />
+      ) : (
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          eventHandlers={{ tileerror: () => setTileFailures((n) => n + 1) }}
+        />
+      )}
 
       {geojson && (
         // key forces a re-render when the selection or filter changes; Leaflet caches
@@ -117,5 +154,6 @@ export default function MapView({ geojson, selectedId, onSelect, center, flyTarg
 
       <MapSync zone={flyTarget} showToken={resizeToken} />
     </MapContainer>
+    </>
   )
 }
