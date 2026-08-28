@@ -196,7 +196,7 @@
             {
               "id": "3b3e5dec-65cf-4a55-936b-753e6c477883",
               "leftValue": "={{ $json.incoming_text }}",
-              "rightValue": "/^(hi|hello|\\/start|hey|help)$/i",
+              "rightValue": "/^\\s*[\\/!]?(hi|hey|hello|hola|namaste|help|start|menu|test|ok|thanks)[\\s!?.,]*$/i",
               "operator": {
                 "type": "string",
                 "operation": "regex"

@@ -9,6 +9,7 @@ from ..db import get_db
 from ..models import CitizenReport, Zone
 from ..schemas import ReportIn, ReportOut
 from ..services.geo import point_in_geojson
+from ..services.relevance import classify
 
 router = APIRouter(prefix="/api/reports", tags=["reports"])
 
@@ -41,7 +42,15 @@ def create_report(payload: ReportIn, db: Session = Depends(get_db)) -> CitizenRe
     if zone_id is None and payload.lat is not None and payload.lon is not None:
         zone_id = match_zone(db, payload.lat, payload.lon)
 
-    status = "new"
+    # A greeting or an unrelated civic complaint is stored, not rejected -- the resident
+    # still gets a receipt and we keep the audit trail -- but it must not score as leak
+    # evidence. Production had `/help`, `Hello?`, `Pothole` and `Pothole damage` all
+    # counting toward one zone's citizen score, which carried it to rank 6 of 30.
+    # `dismissed` is the status fusion already excludes, so this needs no scoring change.
+    relevance = classify(payload.description)
+    status = "new" if relevance == "actionable" else "dismissed"
+    if status == "dismissed":
+        print(f"Report stored but not scored ({relevance}): {payload.description!r}")
     # Only dedupe reports that carry a real reporter_hash. The web-form fallback
     # (frontend/src/pages/Report.jsx) never sends one, so every anonymous submission has
     # reporter_hash=None -- without this guard the deduplicator's `past.reporter_hash ==
@@ -56,7 +65,7 @@ def create_report(payload: ReportIn, db: Session = Depends(get_db)) -> CitizenRe
             zone_id=zone_id,
             description=payload.description,
         )
-        if is_dup:
+        if is_dup and status == "new":
             print(f"Dropped duplicate report: {reason}")
             status = "duplicate"
 
