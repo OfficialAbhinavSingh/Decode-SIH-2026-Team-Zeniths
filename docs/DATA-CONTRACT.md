@@ -139,14 +139,23 @@ matches it to a zone.
 ## Fusion rule (R3 owns; written here so everyone can defend it on stage)
 
 ```
-weights = {satellite: 0.40, billing: 0.35, citizen: 0.25}
+weights  = {satellite: 0.40, billing: 0.35, citizen: 0.25}
+coverage = {1 signal: 0.70, 2 signals: 0.90, 3 signals: 1.00}
 
 present = signals that actually have a row for this zone
-fusion_score = sum(w[s] * score[s] for s in present) / sum(w[s] for s in present)
+mean         = sum(w[s] * score[s] for s in present) / sum(w[s] for s in present)
+fusion_score = mean * coverage[len(present)]
 ```
 
 Missing signal ⇒ **weights renormalise**. A zone with only a satellite signal is scored on satellite
 alone, not penalised to 40% of its score.
+
+Then ⇒ **coverage discount**. Renormalising alone made one unverified reading of 86 score exactly
+what three sources agreeing at 86 score, and percentile-ranking pushed whichever was highest to 100.
+With the real Sentinel-2 export loaded, three of the top six zones were single-signal leads and the
+only zone carrying all three signals sat at rank 5. Coverage is a multiplier, not a veto: a lone
+satellite reading of 90 lands at **63** — not 36, which is what refusing to renormalise would give
+it, and not 90. A lead stays on the list; it just cannot outrank corroboration.
 
 ```
 confidence = high   if signals_used == 3 and max-min spread <= 25

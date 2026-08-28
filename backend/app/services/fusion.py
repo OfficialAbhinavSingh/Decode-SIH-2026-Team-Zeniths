@@ -27,6 +27,20 @@ CITIZEN_SATURATION = 5
 # Sub-scores this far apart mean the signals disagree, so confidence drops.
 AGREEMENT_SPREAD = 25.0
 
+# How much a zone's score is discounted for the signals it does *not* have.
+#
+# Renormalising alone is not enough. It divides by the weight of the signals present, so a
+# zone with one billing reading of 86 scores 86 -- exactly what a zone with three sources
+# agreeing at 86 scores. Percentile-ranking then pushes whichever is highest to 100, and a
+# single unverified number can top the repair list. That is not a hypothetical: with the
+# real Sentinel-2 export loaded, three of the top six zones were single-signal leads, and
+# the only zone with all three signals sat at rank 5.
+#
+# So coverage is a multiplier, not a veto. One signal is still a lead worth showing -- it
+# just cannot outrank corroboration. A lone satellite score of 90 lands at 63, not at 36
+# (which is what refusing to renormalise would give it) and not at 90.
+COVERAGE_FACTOR = {0: 0.0, 1: 0.70, 2: 0.90, 3: 1.0}
+
 
 def fuse(
     satellite: float | None,
@@ -36,8 +50,9 @@ def fuse(
     """Combine present signals into (fusion_score, confidence, signals_used).
 
     A missing signal is *absent*, not zero: the weights of the signals that are present
-    are renormalised. A zone with only a strong satellite signal scores high, instead of
-    being punished down to 40% for data the municipality never collected.
+    are renormalised, so a zone is never punished down to 40% of its score for data the
+    municipality never collected. The result is then scaled by COVERAGE_FACTOR, so a zone
+    resting on one signal cannot outrank one where three independent sources corroborate.
     """
     present = {
         "satellite": satellite,
@@ -51,6 +66,7 @@ def fuse(
 
     weight_sum = sum(WEIGHTS[k] for k in present)
     score = sum(WEIGHTS[k] * v for k, v in present.items()) / weight_sum
+    score *= COVERAGE_FACTOR[len(present)]
 
     values = list(present.values())
     spread = max(values) - min(values)
