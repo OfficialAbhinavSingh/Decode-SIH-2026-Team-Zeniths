@@ -180,12 +180,24 @@ Confirm before you walk on:
 
 - [ ] Screen-recorded 4-minute run-through, on a phone **and** a laptop
 - [ ] Local stack runs with no internet: `docker compose up` plus the block above
-- [ ] **Map tiles are the weak point.** OpenStreetMap tiles are fetched live. Either warm the
-      browser cache by panning the demo area beforehand and do not clear it, or have a
-      full-screen screenshot to fall back to. Test this with wifi actually switched off.
+- [ ] Google Fonts is the remaining live dependency — `index.html` pulls Outfit from
+      fonts.googleapis.com. With no network the page falls back to the system sans stack, so
+      it stays readable but does not look like the screenshots. Check you are happy with that
+- [x] ~~**Map tiles are the weak point.**~~ **Handled in code.** The map counts failed tile
+      requests and swaps to a bundled georeferenced basemap of the demo area, with a badge
+      saying so. No warm-cache ritual to remember. Verified by aborting every OSM tile
+      request: polygons, pins, fly-to and the detail panel all keep working.
+      **Still confirm it yourself with wifi genuinely off** — that is the one thing the
+      automated check cannot stand in for.
 - [ ] Slides exported to PDF and stored locally, not on Google Slides
 - [ ] The Telegram bot needs internet. If wifi is down, demo `/report` against the local
       backend — rehearse that path too
+- [ ] **Hit the API once before the judges reach you.** `neerdrishti-api` is a free Render
+      web service and those spin down after ~15 minutes idle. Measured 28 Aug: after 19
+      minutes of no traffic the first request still came back in **0.77s**, so it had not
+      slept — but nothing in this repo explains why, and `render.yaml` claims a keep-alive
+      that does not exist (see below). Treat the fast number as luck, not a guarantee, and
+      warm it yourself. The frontend is a static site and is never affected.
 
 ---
 
