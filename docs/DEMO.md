@@ -1,34 +1,193 @@
-# Demo — R6 owns, everyone rehearses
+# Demo script — 4 minutes
 
-Fill this in properly by **3 Sep**. The structure below is the target; the content is yours.
+**Owner:** R6 · **Everyone rehearses.** Final run-through by **3 Sep**.
+
+Every number, zone name and behaviour on this page was read out of a running instance on
+**28 Aug 2026** — real Postgres, the real Sentinel-2 export, the current billing generator.
+Nothing here is written from memory. If the data changes, re-run
+[Verify before you present](#verify-before-you-present) and update this file. A figure on
+this page that no longer matches the screen is worse than no figure at all.
+
+> **The ranks below assume PR #11 (fusion coverage discount) is merged.** Before it, the top
+> of the repair list was a single-signal zone whose own explanation read *"treat as a lead,
+> not a finding"*. Every figure on this page was re-verified against `main` with #11 merged.
+
+---
+
+## ⛔ Blocker — the deployment is not showing our real data
+
+`https://neerdrishti-api.onrender.com` currently returns, for its top zone:
+
+```
+Z-016  Ward 3 - Sector 4  ·  high confidence  ·  "all three signals agree"  ·  46% NRW
+```
+
+A local instance loaded with the **real** Sentinel-2 export and the current billing
+generator returns, for the same zone:
+
+```
+Z-016  Ward 3 - Sector 4  ·  medium confidence  ·  "two of three signals available"  ·  44% NRW
+```
+
+The production database has never had the real NDVI export ingested and its billing rows
+predate the hotspot replant. Its satellite scores come from `seed.py` — they are invented.
+
+**Do not open the deployed URL and describe it as real satellite data.** Fix before the
+demo by running the load sequence below against production, then `POST /api/fusion/run`.
+Owner: R6.
+
+### Why nine zones have no satellite score at all
+
+The Sentinel-2 export has an **empty `ndvi_mean`** for nine zones — they were fully
+cloud-masked on 25 Aug 2026, so there was no usable observation:
+
+```
+Z-006  Z-011  Z-012  Z-016  Z-017  Z-021  Z-022  Z-023  Z-026
+```
+
+That is correct behaviour, and `seed.py --skip satellite` is what keeps it correct: those
+zones honestly run on two signals instead of being handed a fabricated one. **Say this
+before a judge finds it.** It is a much better answer than being caught.
+
+---
 
 ## The 4-minute script
 
-| Time | Who | Screen | Line |
+| Time | Who | Screen | Beat |
 |---|---|---|---|
-| 0:00–0:30 | Pitch | Slide 1 | India loses a huge share of treated water before it reaches a tap. Finding the leak normally means burying sensors — which most cities cannot afford. |
-| 0:30–1:00 | Pitch | Slide 2 | We use three things a city already has for free: satellite imagery, its own billing records, and its residents. |
-| 1:00–2:00 | Demo | Dashboard | Here's the city. Red = inspect first. This ranking came from fusing three signals. |
-| 2:00–3:00 | Demo | Zone detail | Click the top zone: NDVI is 0.2 above its own 3-year baseline, 46% of water in this zone is unbilled, and 5 residents reported it. **All three agree.** That's a crew dispatch. |
-| 3:00–3:30 | Demo | WhatsApp/form | A resident reports a leak, it lands in the zone, the score moves. |
-| 3:30–4:00 | Close | Slide 3 | Zero new hardware. Free data. What we'd build next: rain adjustment, live refresh, water quality. |
+| 0:00–0:30 | Pitch | Slide 1 | India loses a large share of treated water before it reaches a tap. Finding the leak normally means burying acoustic sensors — which most municipal budgets cannot carry. |
+| 0:30–1:00 | Pitch | Slide 2 | We use three things a city already has for free: satellite imagery, its own billing records, and its residents. No new hardware. |
+| 1:00–1:40 | Demo | Dashboard | 30 zones across Jaipur, ranked. Red is inspect-first. Every row says how many of the three signals it actually had. |
+| 1:40–2:40 | Demo | **Ward 1 - Sector 5** | The main beat — [below](#1402240--main-beat--ward-1---sector-5-z-005-rank-3). |
+| 2:40–3:05 | Demo | **Ward 5 - Sector 1** | The honest conflict — [below](#2403305--the-honest-conflict--ward-5---sector-1-z-025-rank-6). |
+| 3:05–3:35 | Demo | Telegram / `/report` | A resident reports a leak, it lands in a zone, the score moves. |
+| 3:35–4:00 | Close | Slide 3 | Zero new hardware, public data, explainable score. Next: rainfall adjustment, live refresh, repair-outcome feedback. |
+
+---
+
+### 1:40–2:40 · Main beat · Ward 1 - Sector 5 (`Z-005`, rank #3)
+
+Open **this** zone, not the #1. It is the highest-ranked zone that carries all three signals
+*and* a real Sentinel-2 observation. The #1 and #2 zones are two-signal zones — perfectly
+honest, but they cannot carry the "three independent sources" line.
+
+> "Ward 1 - Sector 5. Priority 93 out of 100, rank 3 of 30.
+>
+> **Satellite.** Sentinel-2 measured NDVI 0.265 over this polygon on 25 August. Its own
+> three-year baseline for the same calendar window is 0.191 — this ground is 0.07 greener
+> than it has any business being. After we subtract the city-wide median anomaly, it scores
+> 57.
+>
+> **Billing.** 52% of the water supplied to this zone was never billed.
+>
+> **Residents.** Two reports in the last 30 days.
+>
+> Now read what the system says about itself — **medium** confidence: *'all three signals
+> present but they disagree, verify before digging.'* It is not claiming certainty. The
+> three numbers are 57, 93 and 40. They point the same direction, not the same distance.
+> That sentence is the difference between a tool an engineer trusts and one they stop
+> opening after the first wasted dig."
+
+**The confidence contrast**, if you have the seconds. Search `Ward 5 - Sector 4` (`Z-028`,
+rank #27):
+
+> "This one is **high** confidence — all three signals agree. And it is 27th of 30. High
+> confidence does not mean high priority. It means the sources told the same story. Here
+> they agreed that nothing is wrong."
+
+**The coverage contrast**, if a judge is already leaning in. Scroll to `Ward 4 - Sector 5`
+(`Z-023`, rank #4):
+
+> "This is our fourth priority and it is **low** confidence — one signal, billing only, no
+> satellite observation and nobody has reported it. The system says *'treat as a lead, not
+> a finding.'* It is discounted for that, so it sits below the corroborated zones — but we
+> do not delete it, because 51% unbilled water is still worth a look."
+
+### 2:40–3:05 · The honest conflict · Ward 5 - Sector 1 (`Z-025`, rank #6)
+
+> "Ward 5 - Sector 1 is 6th, and its satellite score is **zero**. Sentinel-2 says this
+> ground is 0.18 NDVI *drier* than its own baseline. But 57% of the water supplied here is
+> unbilled — the worst in the city.
+>
+> So it ranks on billing alone, and that is the point. A leak under tarmac will never green
+> anything, and a metering fault looks identical from orbit. If we had shipped satellite
+> alone, we would have missed the worst-billing zone in Jaipur."
+
+### 3:05–3:35 · The citizen loop
+
+Send a message to the Telegram bot **@zeniths_neerdrishti_bot**, or open `/report` in the
+dashboard and submit with coordinates. Then `POST /api/fusion/run` and reload.
+
+> "Any resident, any Indian language — Sarvam AI translates it, we hash the phone number so
+> we never store it, the report lands in the right zone by its coordinates, and the score
+> moves."
+
+**Rehearse the channel you will actually use.** Telegram is the one wired to a live
+credential today. WhatsApp Business API approval is not something to gamble a demo on. The
+web form at `/report` depends on nobody's approval and was verified end to end — a
+submission at `26.9124, 75.7873` returns *"Logged against zone Z-022"*.
+
+---
 
 ## Rehearse the hard questions
 
 | Question | Answer |
 |---|---|
-| "Is the billing data real?" | No — it's synthetic, generated from published CPHEEO/AMRUT NRW benchmarks, and every row is flagged `is_synthetic`. The generator is in the repo. Point at it. |
-| "What if it rained?" | Scores are computed relative to the city median that same day, so a city-wide green-up cancels out. Explicit rainfall adjustment is our next build. |
-| "How do you know it's a leak and not a park?" | The baseline is the same calendar window in prior years. A park that's always green has near-zero anomaly. |
-| "Why not ML?" | No labelled leak dataset exists at this scale. A weighted rule is explainable and tunable live — watch. (Then tune a weight on stage.) |
-| "What if a city has no billing data?" | The weights renormalise over whatever signals exist. Show a zone with `1/3 signals` and `low confidence`. |
+| **"Is the billing data real?"** | No. Synthetic, generated from published CPHEEO / AMRUT / Jal Jeevan Mission non-revenue-water benchmarks. Every row carries `is_synthetic = true`, the dashboard says so on screen unprompted, and the generator is at `backend/pipelines/billing/generate.py`. Offer to open it. |
+| **"Is the satellite data real?"** | Yes — a real Sentinel-2 L2A export via Google Earth Engine, for **21 of our 30 zones**, observed 25 Aug 2026. The other nine were fully cloud-masked that day and carry no satellite signal at all. Volunteer this. |
+| **"What if it just rained?"** | `city_relative_anomaly()` subtracts the city-wide median anomaly from every zone. A city that greens up together cancels out; what survives is a zone wet for a reason its neighbours are not. Explicit rainfall data is the next build, not a claim we make today. |
+| **"How do you know it's a leak and not a park?"** | The baseline is not a city average — it is *that same polygon*, same calendar window, median of the previous three years (`gee_ndvi.js`). A park that is always green has an anomaly near zero. |
+| **"Why not machine learning?"** | No labelled leak dataset exists at this scale, and a model we cannot explain is one a municipal engineer will not dig on. The rule is three weights — satellite 0.40, billing 0.35, citizen 0.25, in `fusion.py` — auditable and tunable. |
+| **"Can you change the weights right now?"** | Yes: edit `WEIGHTS` in `backend/app/services/fusion.py`, then `POST /api/fusion/run`. About 15 seconds. **Rehearse it or do not offer it.** Never improvise this on stage. |
+| **"What if a city has no billing data?"** | Weights renormalise over whatever signals exist, so a missing signal is *absent*, not zero — a zone is never punished to 40% of its score for data nobody collected. The score is then discounted for coverage (0.70 on one signal, 0.90 on two) so a lone reading cannot outrank corroboration. Show `Z-023` at rank #4: `1/3 signals · low confidence`. |
+| **"What does 'confidence' mean?"** | Three signals present and within 25 points of each other = high. Two or more = medium. One = low. It describes agreement between sources, not probability of a leak. `Z-028` is high confidence *and* rank 27. |
+| **"Why is your #1 only two signals?"** | Because the third does not exist for that zone — it was under cloud on the observation date. We show two real signals rather than inventing a third. It still outranks the one-signal leads below it, which is exactly what the coverage discount is for. |
+| **"Only 30 zones?"** | The grid is a demonstration boundary set, not a claim about Jaipur's real ward geometry. The pipeline takes any polygon set — swap the GeoJSON and re-run. |
 
-## Offline fallback — set this up, the venue wifi will fail
+---
 
-- [ ] Screen-recorded 4-minute run-through on a phone and a laptop
-- [ ] Local stack runnable with no internet: `docker compose up` + `python seed.py`
-- [ ] Map tiles cached, or a static screenshot fallback if OSM tiles won't load
-- [ ] Slides exported to PDF locally, not on Google Slides
+## Verify before you present
+
+Run this and check the output against what you are about to say.
+
+```bash
+docker compose up -d db
+cd backend
+python -m app.init_db
+uvicorn app.main:app --reload &                    # loaders POST to the API — start it FIRST
+python seed.py --skip satellite                    # keep real NDVI, drop the placeholder rows
+python -m pipelines.satellite.load ../data/samples/ndvi_export.csv
+python -m pipelines.billing.load  ../data/samples/billing.csv
+curl -s -X POST localhost:8000/api/fusion/run
+curl -s "localhost:8000/api/scores?limit=6" | python -m json.tool
+```
+
+> The loaders use relative imports — they must be run with `python -m`, not
+> `python pipelines/satellite/load.py`. The latter fails with `ImportError`.
+
+Confirm before you walk on:
+
+- [ ] `Z-005` (Ward 1 - Sector 5) is rank #3 with `3/3 signals`, and its satellite row's `source` is `sentinel2-gee`
+- [ ] `Z-025` (Ward 5 - Sector 1) still shows satellite 0 and the highest NRW in the city
+- [ ] `Z-028` (Ward 5 - Sector 4) still reads `high` confidence at a low rank
+- [ ] `Z-023` (Ward 4 - Sector 5) still reads `1/3 signals · low confidence` **below** the corroborated zones
+- [ ] The explanation sentence on your demo zone matches what you plan to read aloud
+- [ ] The deployed URL tells the same story as your local instance
+
+---
+
+## Offline fallback — the venue wifi will fail
+
+- [ ] Screen-recorded 4-minute run-through, on a phone **and** a laptop
+- [ ] Local stack runs with no internet: `docker compose up` plus the block above
+- [ ] **Map tiles are the weak point.** OpenStreetMap tiles are fetched live. Either warm the
+      browser cache by panning the demo area beforehand and do not clear it, or have a
+      full-screen screenshot to fall back to. Test this with wifi actually switched off.
+- [ ] Slides exported to PDF and stored locally, not on Google Slides
+- [ ] The Telegram bot needs internet. If wifi is down, demo `/report` against the local
+      backend — rehearse that path too
+
+---
 
 ## Rehearsal log
 
