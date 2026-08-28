@@ -62,6 +62,10 @@ def scores_geojson(
                 "zone_id": zone.id,
                 "name": zone.name,
                 "ward": zone.ward,
+                # R4 labels the list "N zones in <city>, ranked". Carrying the city here
+                # keeps that label truthful for any city instead of hardcoding Jaipur in
+                # the frontend. Additive -- no existing consumer reads it.
+                "city": zone.city,
                 "rank": score.rank,
                 "fusion_score": score.fusion_score,
                 "confidence": score.confidence,

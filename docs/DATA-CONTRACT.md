@@ -96,7 +96,7 @@ Base: `/api`. All responses JSON. Errors: `{"detail": "..."}` with the right HTT
 | `GET` | `/api/zones/{zone_id}` | R4 | `Zone` |
 | `GET` | `/api/zones/{zone_id}/signals` | R4 | `{satellite:[], billing:[], citizen:[]}` |
 | `GET` | `/api/scores?city=&limit=` | R4 | `ZoneScore[]`, sorted by `rank` |
-| `GET` | `/api/scores/geojson?city=` | R4 | FeatureCollection, each feature has `fusion_score` in properties — **map draws straight from this** |
+| `GET` | `/api/scores/geojson?city=` | R4 | FeatureCollection; each feature's `properties` carries `zone_id`, `name`, `ward`, `city`, `rank`, `fusion_score`, `confidence`, `signals_used`, `explanation` — **map draws straight from this** |
 | `POST` | `/api/reports` | R5 | creates a `citizen_reports` row |
 | `POST` | `/api/ingest/satellite` | R1 | bulk upsert `SatelliteSignal[]` |
 | `POST` | `/api/ingest/billing` | R2 | bulk upsert `BillingSignal[]` |

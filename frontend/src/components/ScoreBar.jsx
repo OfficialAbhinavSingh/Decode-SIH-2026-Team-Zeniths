@@ -6,9 +6,13 @@ export default function ScoreBar({ label, value, color }) {
     <div className="bar-row">
       <div className="label">
         <span>{label}</span>
-        <span>{missing ? 'no data' : value.toFixed(1)}</span>
+        {missing ? <span className="absent">no data</span> : <b>{value.toFixed(1)}</b>}
       </div>
-      <div className="bar">
+      <div
+        className="bar"
+        role="img"
+        aria-label={missing ? `${label}: no data` : `${label}: ${value.toFixed(1)} of 100`}
+      >
         <span style={{ width: `${missing ? 0 : value}%`, background: color }} />
       </div>
     </div>
