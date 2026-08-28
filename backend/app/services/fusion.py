@@ -24,6 +24,16 @@ WEIGHTS = {"satellite": 0.40, "billing": 0.35, "citizen": 0.25}
 CITIZEN_WINDOW_DAYS = 30
 CITIZEN_SATURATION = 5
 
+# Report statuses that must not contribute to the citizen score.
+#
+# `duplicate` is set by the intake dedupe in routers/reports.py, which logs "Dropped
+# duplicate report" as it does so -- the intent there is unmistakable. Counting those rows
+# anyway defeated the 200m/6hr clustering completely: one person messaging the bot four
+# times about the same puddle saturated the zone's citizen score exactly as four separate
+# residents would. Production had 8 such rows, all on one zone, and they carried it to
+# rank 6.
+UNCOUNTED_REPORT_STATUSES = ("dismissed", "duplicate")
+
 # Sub-scores this far apart mean the signals disagree, so confidence drops.
 AGREEMENT_SPREAD = 25.0
 
@@ -185,7 +195,7 @@ def run_fusion(db: Session, city: str) -> int:
             select(CitizenReport).where(
                 CitizenReport.zone_id == zone.id,
                 CitizenReport.reported_at >= since,
-                CitizenReport.status != "dismissed",
+                CitizenReport.status.notin_(UNCOUNTED_REPORT_STATUSES),
             )
         ).all()
 
