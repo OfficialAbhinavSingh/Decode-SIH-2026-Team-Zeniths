@@ -68,16 +68,8 @@ export default function Report() {
 
   return (
     <div className="report-page">
-      {/* animated water ripple bg */}
-      <div className="report-bg">
-        <div className="ripple r1" />
-        <div className="ripple r2" />
-        <div className="ripple r3" />
-      </div>
-
-      {/* Back nav */}
       <Link to="/" className="report-back">
-        <span>←</span> Back to Dashboard
+        <span aria-hidden="true">←</span> Back to dashboard
       </Link>
 
       <div className="report-center">
@@ -85,7 +77,7 @@ export default function Report() {
           /* ── Success state ── */
           <div className="report-card success-card">
             <div className="success-icon">✓</div>
-            <h2>Report Submitted!</h2>
+            <h2>Report submitted</h2>
             <p className="report-sub">{statusMsg}</p>
             <p className="report-sub">Our AI will factor your report into zone risk scoring within the next analysis cycle.</p>
             <div className="report-actions" style={{ marginTop: 32 }}>
@@ -101,7 +93,7 @@ export default function Report() {
                 <span style={{ fontSize: 28 }}>💧</span>
               </div>
               <div>
-                <h1 className="report-title">Report a Water Leak</h1>
+                <h1 className="report-title">Report a water leak</h1>
                 <p className="report-sub">Help us detect leaks faster. Your report feeds directly into our AI scoring system.</p>
               </div>
             </div>
@@ -222,7 +214,7 @@ export default function Report() {
                 {status === 'loading' ? (
                   <><span className="spinner" /> Sending…</>
                 ) : (
-                  'Send Report →'
+                  'Send report'
                 )}
               </button>
 
