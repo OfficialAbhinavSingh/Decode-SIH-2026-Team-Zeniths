@@ -8,9 +8,9 @@ Nothing here is written from memory. If the data changes, re-run
 [Verify before you present](#verify-before-you-present) and update this file. A figure on
 this page that no longer matches the screen is worse than no figure at all.
 
-> **This script assumes PR #10 (dashboard) and PR #11 (fusion coverage discount) are
-> merged.** The ranks below are the post-#11 ranks. Before #11, the top of the repair list
-> was a single-signal zone whose own explanation read *"treat as a lead, not a finding"*.
+> **The ranks below assume PR #11 (fusion coverage discount) is merged.** Before it, the top
+> of the repair list was a single-signal zone whose own explanation read *"treat as a lead,
+> not a finding"*. Every figure on this page was re-verified against `main` with #11 merged.
 
 ---
 
