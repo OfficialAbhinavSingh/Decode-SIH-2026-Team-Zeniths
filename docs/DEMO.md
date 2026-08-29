@@ -165,6 +165,11 @@ curl -s "localhost:8000/api/scores?limit=6" | python -m json.tool
 > The loaders use relative imports — they must be run with `python -m`, not
 > `python pipelines/satellite/load.py`. The latter fails with `ImportError`.
 
+> **Check port 8000 is free before you start.** If anything else on the demo laptop
+> already owns it (Docker desktop tooling, a local proxy), both `uvicorn` and
+> `docker compose up` fail to bind and the API never comes up. Stop the other process,
+> or run the API elsewhere and set `API_PROXY_TARGET` for the frontend.
+
 Confirm before you walk on:
 
 - [ ] `Z-005` (Ward 1 - Sector 5) is rank #3 with `3/3 signals`, and its satellite row's `source` is `sentinel2-gee`
@@ -179,16 +184,20 @@ Confirm before you walk on:
 ## Offline fallback — the venue wifi will fail
 
 - [ ] Screen-recorded 4-minute run-through, on a phone **and** a laptop
-- [ ] Local stack runs with no internet: `docker compose up` plus the block above
+- [x] Local stack runs with no internet: `docker compose up` plus the block above
+      — verified 29 Aug with the wifi radio off: cold `down` + `up` in 6s, API healthy,
+      30 zones scored, and a citizen report POSTed against the local API
 - [ ] Google Fonts is the remaining live dependency — `index.html` pulls Outfit from
       fonts.googleapis.com. With no network the page falls back to the system sans stack, so
-      it stays readable but does not look like the screenshots. Check you are happy with that
+      it stays readable but does not look like the screenshots. Confirmed 29 Aug with wifi
+      off: layout holds, nothing overflows, but the type is visibly not Outfit. Check you
+      are happy with that
 - [x] ~~**Map tiles are the weak point.**~~ **Handled in code.** The map counts failed tile
       requests and swaps to a bundled georeferenced basemap of the demo area, with a badge
       saying so. No warm-cache ritual to remember. Verified by aborting every OSM tile
       request: polygons, pins, fly-to and the detail panel all keep working.
-      **Still confirm it yourself with wifi genuinely off** — that is the one thing the
-      automated check cannot stand in for.
+      Re-confirmed 29 Aug with wifi genuinely off: badge shown, bundled basemap rendered,
+      all 30 zone polygons drawn, 0 live tiles loaded.
 - [ ] Slides exported to PDF and stored locally, not on Google Slides
 - [ ] The Telegram bot needs internet. If wifi is down, demo `/report` against the local
       backend — rehearse that path too
@@ -205,4 +214,4 @@ Confirm before you walk on:
 
 | Date | Run | Time | What broke |
 |---|---|---|---|
-| | | | |
+| 29 Aug | Offline stack test — wifi radio off, cold `docker compose up`, API + dashboard + report POST | 06:49 UTC | Nothing at run time. Two problems found in prep: the API image had never been built, so `docker compose up` offline would have hit PyPI and failed — built and cached it. Port 8000 was already taken on the demo laptop, so the API could not bind. |
