@@ -108,7 +108,7 @@
         "url": "={{ $vars.API_URL || 'https://neerdrishti-api.onrender.com' }}/api/reports",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "=={\n  \"channel\": \"{{ $json.channel }}\",\n  \"reporter_hash\": {{ $json.reporter_hash ? '\"' + $json.reporter_hash + '\"' : 'null' }},\n  \"description\": \"{{ $json.description }}\",\n  \"lat\": {{ $json.lat != null ? $json.lat : 'null' }},\n  \"lon\": {{ $json.lon != null ? $json.lon : 'null' }},\n  \"zone_id\": null,\n  \"media_url\": null\n}\n",
+        "jsonBody": "={\n  \"channel\": \"{{ $json.channel }}\",\n  \"reporter_hash\": {{ $json.reporter_hash ? '\"' + $json.reporter_hash + '\"' : 'null' }},\n  \"description\": \"{{ $json.description }}\",\n  \"lat\": {{ $json.lat != null ? $json.lat : 'null' }},\n  \"lon\": {{ $json.lon != null ? $json.lon : 'null' }},\n  \"zone_id\": null,\n  \"media_url\": null\n}\n",
         "options": {
           "response": {
             "response": {

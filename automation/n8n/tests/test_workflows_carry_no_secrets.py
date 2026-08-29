@@ -82,3 +82,41 @@ class TestIntakeIsNotFabricated(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestExpressionsAreWellFormed(unittest.TestCase):
+    """A doubled '=' silently breaks an n8n expression field.
+
+    n8n strips one leading '=' as the expression marker. A value stored as '==...' therefore
+    renders to a string that still starts with '=', so a JSON body becomes invalid JSON and
+    the request is never sent -- n8n reports "The value in the 'JSON Body' field is not valid
+    JSON" and, with onError: continueRegularOutput, the workflow carries on as if it had
+    worked. This shipped in two places at once: the ingest body and the Sarvam auth header.
+    """
+
+    def _expression_fields(self, workflow):
+        for node in workflow["nodes"]:
+            params = node.get("parameters", {})
+            for key in ("jsonBody", "url"):
+                if isinstance(params.get(key), str):
+                    yield node["name"], key, params[key]
+            headers = params.get("headerParameters", {}).get("parameters", [])
+            for header in headers:
+                if isinstance(header.get("value"), str):
+                    yield node["name"], f"header {header.get('name')}", header["value"]
+
+    def test_no_doubled_equals_prefix(self):
+        for wf in WORKFLOWS:
+            workflow = json.loads(wf.read_text(encoding="utf-8"))
+            for name, key, value in self._expression_fields(workflow):
+                with self.subTest(f"{wf.name}:{name}:{key}"):
+                    self.assertFalse(value.startswith("=="), f"{value[:40]!r} starts with '=='")
+
+    def test_ingest_body_is_valid_json_once_expressions_are_stripped(self):
+        wf = json.loads((N8N_DIR / "leak-intake.workflow.json").read_text(encoding="utf-8"))
+        body = next(n["parameters"]["jsonBody"] for n in wf["nodes"] if n["name"].startswith("6."))
+        self.assertTrue(body.startswith("={"), f"body should start with a single '=': {body[:5]!r}")
+        # Substitute every {{ ... }} with a placeholder literal and the rest must parse.
+        skeleton = re.sub(r"\{\{.*?\}\}", "0", body[1:])
+        skeleton = re.sub(r'"0"', '"x"', skeleton)
+        json.loads(skeleton)
