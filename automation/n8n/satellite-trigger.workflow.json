@@ -6,32 +6,37 @@
         "rule": {
           "interval": [
             {
-              "field": "days",
               "daysInterval": 12
             }
           ]
         }
       },
-      "id": "node-schedule-1",
+      "id": "464c2c06-5ab0-479f-92a7-e52b5b57b980",
       "name": "12-Day Satellite Orbit Pass Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [220, 300]
+      "position": [
+        0,
+        0
+      ]
     },
     {
       "parameters": {
         "jsCode": "// Compute 12-day composite observation window\nconst now = new Date();\nconst observedDate = now.toISOString().split('T')[0];\n\nreturn [{\n  json: {\n    trigger_type: '12_day_satellite_cadence',\n    satellite: 'NISAR_L_Band_SAR_Sentinel2',\n    observed_on: observedDate,\n    city: $env.CITY_DEFAULT || 'Jaipur'\n  }\n}];"
       },
-      "id": "node-prep-2",
+      "id": "c158b476-9d42-49ea-9b6c-83e01563278b",
       "name": "Compute Cadence Window",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 300]
+      "position": [
+        224,
+        0
+      ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.API_URL || 'http://localhost:8000' }}/api/fusion/run",
+        "url": "={{ $vars.API_URL || 'https://neerdrishti-api.onrender.com' }}/api/fusion/run",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -43,23 +48,30 @@
         },
         "options": {}
       },
-      "id": "node-fusion-3",
+      "id": "b8458f42-568e-4aa9-84f4-88b1980314f6",
       "name": "Trigger Fusion Recalculation",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [660, 300]
+      "position": [
+        448,
+        0
+      ]
     },
     {
       "parameters": {
         "jsCode": "const res = $input.first().json;\nreturn [{\n  json: {\n    status: 'success',\n    message: `12-day satellite cadence fusion cycle completed. ${res.zones_scored || 'All'} zones scored.`,\n    timestamp: new Date().toISOString()\n  }\n}];"
       },
-      "id": "node-log-4",
+      "id": "a88314e5-db36-4780-a212-71cbf1e026b2",
       "name": "Log Cadence Execution",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [880, 300]
+      "position": [
+        672,
+        0
+      ]
     }
   ],
+  "pinData": {},
   "connections": {
     "12-Day Satellite Orbit Pass Trigger": {
       "main": [
@@ -95,15 +107,29 @@
       ]
     }
   },
+  "active": true,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "binaryMode": "separate"
   },
+  "versionId": "07114472-04c8-4e54-9e41-5e3bcf2b5b61",
+  "meta": {
+    "instanceId": "06c00398318ea3bbeb3441693a4740aef8882c4a09db097a6d0e0ca013bcfd83"
+  },
+  "nodeGroups": [],
+  "id": "QHPHAudWc6qY8Gdq",
   "tags": [
     {
-      "name": "NeerDrishti"
+      "updatedAt": "2026-08-25T09:28:10.244Z",
+      "createdAt": "2026-08-25T09:28:10.244Z",
+      "id": "DwXZbIM987nawlUR",
+      "name": "Satellite"
     },
     {
-      "name": "Satellite"
+      "updatedAt": "2026-08-25T08:59:20.492Z",
+      "createdAt": "2026-08-25T08:59:20.492Z",
+      "id": "HVHgWbdBdT8o1c8f",
+      "name": "NeerDrishti"
     }
   ]
 }

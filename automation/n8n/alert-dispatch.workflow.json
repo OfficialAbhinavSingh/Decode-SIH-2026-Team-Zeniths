@@ -12,22 +12,24 @@
           ]
         }
       },
-      "id": "node-schedule-1",
+      "id": "532dd760-3f76-4c23-a114-51b7f6bec975",
       "name": "Every 30 Minutes Trigger",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [220, 300]
+      "position": [
+        0,
+        0
+      ]
     },
     {
       "parameters": {
-        "method": "GET",
-        "url": "={{ $env.API_URL || 'http://localhost:8000' }}/api/scores",
+        "url": "={{ $vars.API_URL || 'https://neerdrishti-api.onrender.com' }}/api/scores",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
             {
               "name": "city",
-              "value": "={{ $env.CITY_DEFAULT || 'Jaipur' }}"
+              "value": "={{ (typeof $vars !== 'undefined' && $vars && $vars.CITY_DEFAULT) ? $vars.CITY_DEFAULT : 'Jaipur' }}"
             },
             {
               "name": "limit",
@@ -35,40 +37,51 @@
             }
           ]
         },
-        "options": {}
+        "options": {},
+        "method": "GET"
       },
-      "id": "node-fetch-scores-2",
+      "id": "dfd64ed4-585f-402d-89ce-6a710084fff0",
       "name": "Fetch Ranked Zone Scores",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [440, 300]
+      "position": [
+        224,
+        0
+      ]
     },
     {
       "parameters": {
         "jsCode": "// Filter for urgent zones: fusion_score >= 75 and high/medium confidence\nconst scores = $input.first().json;\nconst list = Array.isArray(scores) ? scores : [scores];\n\nconst highPriority = list.filter(item => {\n  return Number(item.fusion_score) >= 75 && (item.confidence === 'high' || item.confidence === 'medium');\n});\n\nreturn highPriority.map(item => ({\n  json: {\n    ...item,\n    urgency_tag: Number(item.fusion_score) >= 85 ? '🔴 CRITICAL' : '🟠 HIGH PRIORITY',\n    alert_text: `${Number(item.fusion_score) >= 85 ? '🔴 CRITICAL' : '🟠 HIGH PRIORITY'}: WATER LEAK DISPATCH\\n` +\n      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n` +\n      `📍 Zone: ${item.zone_id} (${item.name})\\n` +\n      `🏆 City Rank: #${item.rank} | Fusion Score: ${Number(item.fusion_score).toFixed(1)}/100\\n` +\n      `🎯 Confidence: ${String(item.confidence).toUpperCase()} (${item.signals_used}/3 signals agree)\\n\\n` +\n      `📊 Sub-Signals:\\n` +\n      `  • 🛰️ Satellite: ${item.satellite_score != null ? item.satellite_score.toFixed(1) + '/100' : 'N/A'}\\n` +\n      `  • 💧 Billing NRW: ${item.billing_score != null ? item.billing_score.toFixed(1) + '/100' : 'N/A'}\\n` +\n      `  • 📱 Citizen Reports: ${item.citizen_score != null ? item.citizen_score.toFixed(1) + '/100' : 'N/A'}\\n\\n` +\n      `💡 Summary: \"${item.explanation}\"\\n\\n` +\n      `🛠️ Action: Inspect pipeline corridor in ${item.zone_id}.`\n  }\n}));"
       },
-      "id": "node-filter-3",
+      "id": "0cc3667b-0bf6-4eaa-bfdc-458e35ef61c9",
       "name": "Filter & Format Alert Cards",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [660, 300]
+      "position": [
+        448,
+        0
+      ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.TELEGRAM_BOT_TOKEN ? 'https://api.telegram.org/bot' + $env.TELEGRAM_BOT_TOKEN + '/sendMessage' : ($env.ALERT_WEBHOOK_URL || 'https://httpbin.org/post') }}",
+        "url": "={{ 'https://api.telegram.org/bot' + $vars.TELEGRAM_BOT_TOKEN + '/sendMessage' }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"chat_id\": \"{{ $env.TELEGRAM_CHAT_ID || 'demo_crew_channel' }}\",\n  \"text\": \"{{ $json.alert_text.replace(/\\n/g, '\\\\n') }}\"\n}",
+        "jsonBody": "={\n  \"chat_id\": \"{{ (typeof $vars !== 'undefined' && $vars && $vars.TELEGRAM_CHAT_ID) ? $vars.TELEGRAM_CHAT_ID : 'demo_crew_channel' }}\",\n  \"text\": \"{{ $json.alert_text.replace(/\\n/g, '\\\\n') }}\"\n}",
         "options": {}
       },
-      "id": "node-dispatch-4",
+      "id": "e362509a-80e4-46e0-9685-6efc78dbdf2a",
       "name": "Dispatch Alert to Crew Lead",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [880, 300]
+      "position": [
+        672,
+        0
+      ]
     }
   ],
+  "pinData": {},
   "connections": {
     "Every 30 Minutes Trigger": {
       "main": [
@@ -104,14 +117,28 @@
       ]
     }
   },
+  "active": false,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "binaryMode": "separate"
   },
+  "versionId": "21ba4761-fee0-4807-9bb9-7e198c1f7ea8",
+  "meta": {
+    "instanceId": "06c00398318ea3bbeb3441693a4740aef8882c4a09db097a6d0e0ca013bcfd83"
+  },
+  "nodeGroups": [],
+  "id": "fzuQ6SPt4QE9bRFC",
   "tags": [
     {
+      "updatedAt": "2026-08-25T08:59:20.492Z",
+      "createdAt": "2026-08-25T08:59:20.492Z",
+      "id": "HVHgWbdBdT8o1c8f",
       "name": "NeerDrishti"
     },
     {
+      "updatedAt": "2026-08-25T09:29:16.387Z",
+      "createdAt": "2026-08-25T09:29:16.387Z",
+      "id": "RXwjxKWqOupzayKS",
       "name": "Alerts"
     }
   ]

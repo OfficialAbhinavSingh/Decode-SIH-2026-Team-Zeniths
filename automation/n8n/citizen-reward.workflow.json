@@ -8,29 +8,36 @@
         "responseMode": "lastNode",
         "options": {}
       },
-      "id": "node-webhook-1",
+      "id": "26289cb4-7ab3-478d-9ab0-053e50712dbb",
       "name": "Backend Triggers Reward",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [200, 300],
+      "position": [
+        0,
+        0
+      ],
       "webhookId": "reward-webhook-id"
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.TELEGRAM_BOT_TOKEN ? 'https://api.telegram.org/bot' + $env.TELEGRAM_BOT_TOKEN + '/sendMessage' : 'https://httpbin.org/post' }}",
+        "url": "={{ 'https://api.telegram.org/bot' + $vars.TELEGRAM_BOT_TOKEN + '/sendMessage' }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"chat_id\": \"{{ $json.body.chat_id_from_cache }}\",\n  \"text\": \"🏆 *Congratulations, Water Warrior!* 🏆\\n\\nHi there! Remember the water leak you reported at *{{ $json.body.location }}*?\\n\\nWe are thrilled to tell you that our NeerDrishti field crew has successfully fixed it! 🛠️✅\\n\\nBecause of your quick action, you just helped save approximately *{{ $json.body.liters_saved }} liters* of drinking water for our city. 💧💙\\n\\nYou have been awarded the digital *Water Warrior Badge*! Thank you for being an active, responsible citizen.\",\n  \"parse_mode\": \"Markdown\"\n}",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $json.body.chat_id }}\",\n  \"text\": \"🏆 *Congratulations, Water Warrior!* 🏆\\n\\nHi there! Remember the water leak you reported at *{{ $json.body.location }}*?\\n\\nWe are thrilled to tell you that our NeerDrishti field crew has successfully fixed it! 🛠️✅\\n\\nBecause of your quick action, you just helped save approximately *{{ $json.body.liters_saved }} liters* of drinking water for our city. 💧💙\\n\\nYou have been awarded the digital *Water Warrior Badge*! Thank you for being an active, responsible citizen.\",\n  \"parse_mode\": \"Markdown\"\n}",
         "options": {}
       },
-      "id": "node-telegram-2",
+      "id": "df4cebb1-3508-4a7c-9df6-a98b13f06941",
       "name": "Send 'Water Warrior' Telegram Message",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [500, 300]
+      "position": [
+        304,
+        0
+      ]
     }
   ],
+  "pinData": {},
   "connections": {
     "Backend Triggers Reward": {
       "main": [
@@ -44,14 +51,28 @@
       ]
     }
   },
+  "active": true,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "binaryMode": "separate"
   },
+  "versionId": "0946abab-a2a3-4197-9913-8730f45dd9a7",
+  "meta": {
+    "instanceId": "06c00398318ea3bbeb3441693a4740aef8882c4a09db097a6d0e0ca013bcfd83"
+  },
+  "nodeGroups": [],
+  "id": "BT3NlIqCQ3vvwndm",
   "tags": [
     {
+      "updatedAt": "2026-08-25T08:59:20.492Z",
+      "createdAt": "2026-08-25T08:59:20.492Z",
+      "id": "HVHgWbdBdT8o1c8f",
       "name": "NeerDrishti"
     },
     {
+      "updatedAt": "2026-08-25T09:57:20.170Z",
+      "createdAt": "2026-08-25T09:57:20.170Z",
+      "id": "JK3DFyKLSLVgvGwE",
       "name": "Gamification"
     }
   ]

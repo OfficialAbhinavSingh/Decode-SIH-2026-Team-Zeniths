@@ -20,7 +20,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Extract incoming payload safely\nconst raw = $input.first().json;\nconst body = (raw && raw.body) ? raw.body : raw;\nconst rawPhone = String((body && (body.phone || body.from || (body.message && body.message.from ? body.message.from.id : null))) || '9829012345');\nconst text = String((body && (body.text || body.message_text || (body.message ? body.message.text : '') || body.description)) || '');\nconst lat = (body && body.lat) ? Number(body.lat) : 26.9124;\nconst lon = (body && body.lon) ? Number(body.lon) : 75.7873;\nconst channel = (body && (body.channel || (body.message ? 'telegram' : 'whatsapp'))) || 'whatsapp';\nconst chatId = (body && body.message && body.message.chat) ? body.message.chat.id : null;\n\n// Salted Phone Hash (Privacy Compliance)\nlet cleanDigits = rawPhone.replace(/\\D/g, '') || '9829012345';\nif (cleanDigits.length === 12 && cleanDigits.startsWith('91')) { cleanDigits = cleanDigits.substring(2); } else if (cleanDigits.length === 11 && cleanDigits.startsWith('0')) { cleanDigits = cleanDigits.substring(1); }\n// n8n Cloud forces N8N_BLOCK_ENV_ACCESS_IN_NODE=true and will not let you change it,\n// so $env throws 'access to env vars denied' in a Code node here. $vars is the\n// Cloud-native replacement but only exists on Pro/Enterprise plans, so read it\n// defensively and fall back. Keep the fallback in step with utils/hasher.py, which\n// reads PHONE_SALT from the environment on the Python side, where env access works.\nlet phoneSalt = 'neerdrishti-default-salt-2026';\ntry {\n  if (typeof $vars !== 'undefined' && $vars && $vars.PHONE_SALT) { phoneSalt = $vars.PHONE_SALT; }\n} catch (e) { /* Variables not available on this plan -- keep the fallback */ }\nconst saltStr = cleanDigits + ':' + phoneSalt;\nconst crypto = require('crypto');\nconst hexHash = crypto.createHash('sha256').update(saltStr).digest('hex');\nconst reporterHash = 'sha256:' + hexHash.substring(0, 32);\n\n// Detect Language Script\nlet detectedLang = 'en';\nlet sarvamCode = 'hi-IN';\nif (/[\\u0900-\\u097F]/.test(text)) { detectedLang = 'hi'; sarvamCode = 'hi-IN'; }\nelse if (/[\\u0B80-\\u0BFF]/.test(text)) { detectedLang = 'ta'; sarvamCode = 'ta-IN'; }\nelse if (/[\\u0C80-\\u0CFF]/.test(text)) { detectedLang = 'kn'; sarvamCode = 'kn-IN'; }\nelse if (/[\\u0C00-\\u0C7F]/.test(text)) { detectedLang = 'te'; sarvamCode = 'te-IN'; }\nelse if (/[\\u0D00-\\u0D7F]/.test(text)) { detectedLang = 'ml'; sarvamCode = 'ml-IN'; }\nelse if (/[\\u0A80-\\u0AFF]/.test(text)) { detectedLang = 'gu'; sarvamCode = 'gu-IN'; }\nelse if (/[\\u0980-\\u09FF]/.test(text)) { detectedLang = 'bn'; sarvamCode = 'bn-IN'; }\n\nreturn [{\n  json: {\n    channel,\n    chat_id: chatId,\n    reporter_hash: reporterHash,\n    incoming_text: text,\n    detected_language: detectedLang,\n    sarvam_language_code: sarvamCode,\n    is_regional: detectedLang !== 'en',\n    lat,\n    lon\n  }\n}];"
+        "jsCode": "// Extract incoming payload safely\nconst raw = $input.first().json;\nconst body = (raw && raw.body) ? raw.body : raw;\nconst rawPhone = String((body && (body.phone || body.from || (body.message && body.message.from ? body.message.from.id : null))) || '9829012345');\nconst text = String((body && (body.text || body.message_text || (body.message ? body.message.text : '') || body.description)) || '');\n\n// Location stays null when the resident sent no GPS pin. Do NOT substitute a city-centre\n// default -- that invents a location the citizen never reported and pins every locationless\n// message to the same zone. The API rejects a report with no location, and node 7 tells the\n// resident to resend with one.\nlet lat = null;\nlet lon = null;\nif (body && body.message && body.message.location) {\n  // Real Telegram GPS attachment pin\n  lat = Number(body.message.location.latitude);\n  lon = Number(body.message.location.longitude);\n} else if (body && body.lat != null && body.lon != null) {\n  // Real coordinates passed via payload\n  lat = Number(body.lat);\n  lon = Number(body.lon);\n}\n\nconst channel = (body && (body.channel || (body.message ? 'telegram' : 'whatsapp'))) || 'whatsapp';\nconst chatId = (body && body.message && body.message.chat) ? body.message.chat.id : null;\n\n// Pure-JS SHA-256. Used only when require('crypto') is unavailable, which is the case on\n// some n8n Cloud plans -- that restriction is why this node previously shipped a 32-bit\n// loop hash with 24 constant characters glued on to look like a digest.\nfunction sha256Hex(ascii) {\n  function rr(n, x) { return (x >>> n) | (x << (32 - n)); }\n  const K = [];\n  const H = [];\n  let p = 2, i = 0;\n  while (i < 64) {\n    let isPrime = true;\n    for (let f = 2; f * f <= p; f++) if (p % f === 0) { isPrime = false; break; }\n    if (isPrime) {\n      const c = Math.pow(p, 1 / 3);\n      K[i] = ((c - Math.floor(c)) * Math.pow(2, 32)) | 0;\n      if (i < 8) { const s = Math.pow(p, 1 / 2); H[i] = ((s - Math.floor(s)) * Math.pow(2, 32)) | 0; }\n      i++;\n    }\n    p++;\n  }\n  // UTF-8 encode\n  const bytes = [];\n  for (let j = 0; j < ascii.length; j++) {\n    let c = ascii.charCodeAt(j);\n    if (c < 0x80) bytes.push(c);\n    else if (c < 0x800) { bytes.push(0xc0 | (c >> 6), 0x80 | (c & 63)); }\n    else if (c < 0xd800 || c >= 0xe000) { bytes.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63)); }\n    else { j++; c = 0x10000 + (((c & 0x3ff) << 10) | (ascii.charCodeAt(j) & 0x3ff));\n           bytes.push(0xf0 | (c >> 18), 0x80 | ((c >> 12) & 63), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63)); }\n  }\n  const bitLen = bytes.length * 8;\n  bytes.push(0x80);\n  while (bytes.length % 64 !== 56) bytes.push(0);\n  const hi = Math.floor(bitLen / 4294967296), lo = bitLen >>> 0;\n  bytes.push((hi >>> 24) & 255, (hi >>> 16) & 255, (hi >>> 8) & 255, hi & 255,\n             (lo >>> 24) & 255, (lo >>> 16) & 255, (lo >>> 8) & 255, lo & 255);\n  const w = new Array(64);\n  for (let b = 0; b < bytes.length; b += 64) {\n    for (let t = 0; t < 16; t++) {\n      w[t] = (bytes[b + t * 4] << 24) | (bytes[b + t * 4 + 1] << 16) | (bytes[b + t * 4 + 2] << 8) | bytes[b + t * 4 + 3];\n    }\n    for (let t = 16; t < 64; t++) {\n      const s0 = rr(7, w[t - 15]) ^ rr(18, w[t - 15]) ^ (w[t - 15] >>> 3);\n      const s1 = rr(17, w[t - 2]) ^ rr(19, w[t - 2]) ^ (w[t - 2] >>> 10);\n      w[t] = (w[t - 16] + s0 + w[t - 7] + s1) | 0;\n    }\n    let [a, bb, c, d, e, f, g, h] = H;\n    for (let t = 0; t < 64; t++) {\n      const S1 = rr(6, e) ^ rr(11, e) ^ rr(25, e);\n      const ch = (e & f) ^ (~e & g);\n      const t1 = (h + S1 + ch + K[t] + w[t]) | 0;\n      const S0 = rr(2, a) ^ rr(13, a) ^ rr(22, a);\n      const mj = (a & bb) ^ (a & c) ^ (bb & c);\n      const t2 = (S0 + mj) | 0;\n      h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = bb; bb = a; a = (t1 + t2) | 0;\n    }\n    H[0] = (H[0] + a) | 0; H[1] = (H[1] + bb) | 0; H[2] = (H[2] + c) | 0; H[3] = (H[3] + d) | 0;\n    H[4] = (H[4] + e) | 0; H[5] = (H[5] + f) | 0; H[6] = (H[6] + g) | 0; H[7] = (H[7] + h) | 0;\n  }\n  return H.map(x => (x >>> 0).toString(16).padStart(8, '0')).join('');\n}\n\n// Salted phone hash (privacy). This node is named SHA-256 and must actually be SHA-256:\n// a previous version used a 32-bit loop hash with 24 constant characters appended to look\n// like a digest, which is reversible for a 10-digit number and collides into the 6-hour\n// deduplicator, silently marking distinct reporters as duplicates of each other.\nlet cleanDigits = rawPhone.replace(/\\D/g, '') || '9829012345';\nif (cleanDigits.length === 12 && cleanDigits.startsWith('91')) { cleanDigits = cleanDigits.substring(2); }\nelse if (cleanDigits.length === 11 && cleanDigits.startsWith('0')) { cleanDigits = cleanDigits.substring(1); }\n\n// n8n Cloud forces N8N_BLOCK_ENV_ACCESS_IN_NODE=true, so $env throws in a Code node here.\n// $vars is the Cloud replacement but only exists on some plans -- read it defensively.\n// Keep this fallback in step with utils/hasher.py on the Python side.\nlet phoneSalt = 'neerdrishti-default-salt-2026';\ntry {\n  if (typeof $vars !== 'undefined' && $vars && $vars.PHONE_SALT) { phoneSalt = $vars.PHONE_SALT; }\n} catch (e) { /* Variables not available on this plan -- keep the fallback */ }\n\nconst saltStr = cleanDigits + ':' + phoneSalt;\n// require('crypto') is blocked on some n8n Cloud plans, so fall back to the pure-JS\n// implementation above. Both produce identical digests -- verified against hashlib.\nlet hexHash;\ntry {\n  hexHash = require('crypto').createHash('sha256').update(saltStr).digest('hex');\n} catch (e) {\n  hexHash = sha256Hex(saltStr);\n}\nconst reporterHash = 'sha256:' + hexHash.substring(0, 32);\n\n// Detect Language Script\nlet detectedLang = 'en';\nlet sarvamCode = 'hi-IN';\nif (/[\\u0900-\\u097F]/.test(text)) { detectedLang = 'hi'; sarvamCode = 'hi-IN'; }\nelse if (/[\\u0B80-\\u0BFF]/.test(text)) { detectedLang = 'ta'; sarvamCode = 'ta-IN'; }\nelse if (/[\\u0C80-\\u0CFF]/.test(text)) { detectedLang = 'kn'; sarvamCode = 'kn-IN'; }\nelse if (/[\\u0C00-\\u0C7F]/.test(text)) { detectedLang = 'te'; sarvamCode = 'te-IN'; }\nelse if (/[\\u0D00-\\u0D7F]/.test(text)) { detectedLang = 'ml'; sarvamCode = 'ml-IN'; }\nelse if (/[\\u0A80-\\u0AFF]/.test(text)) { detectedLang = 'gu'; sarvamCode = 'gu-IN'; }\nelse if (/[\\u0980-\\u09FF]/.test(text)) { detectedLang = 'bn'; sarvamCode = 'bn-IN'; }\n\nreturn [{\n  json: {\n    channel,\n    chat_id: chatId,\n    reporter_hash: reporterHash,\n    incoming_text: text,\n    detected_language: detectedLang,\n    sarvam_language_code: sarvamCode,\n    is_regional: detectedLang !== 'en',\n    lat,\n    lon\n  }\n}];"
       },
       "id": "17940fda-672b-4089-a678-a20875f62149",
       "name": "2. Extract & Hash Phone (SHA-256)",
@@ -60,7 +60,7 @@
           "parameters": [
             {
               "name": "api-subscription-key",
-              "value": "={{ $env.SARVAM_API_KEY }}"
+              "value": "={{ (typeof $vars !== 'undefined' && $vars && $vars.SARVAM_API_KEY) ? $vars.SARVAM_API_KEY : '' }}"
             },
             {
               "name": "Content-Type",
@@ -105,10 +105,10 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.API_URL || 'https://httpbin.org/post' }}",
+        "url": "={{ $vars.API_URL || 'https://neerdrishti-api.onrender.com' }}/api/reports",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"channel\": \"{{ $json.channel }}\",\n  \"reporter_hash\": \"{{ $json.reporter_hash }}\",\n  \"description\": \"{{ $json.description }}\",\n  \"lat\": {{ $json.lat }},\n  \"lon\": {{ $json.lon }},\n  \"zone_id\": null,\n  \"media_url\": null\n}",
+        "jsonBody": "=={\n  \"channel\": \"{{ $json.channel }}\",\n  \"reporter_hash\": {{ $json.reporter_hash ? '\"' + $json.reporter_hash + '\"' : 'null' }},\n  \"description\": \"{{ $json.description }}\",\n  \"lat\": {{ $json.lat != null ? $json.lat : 'null' }},\n  \"lon\": {{ $json.lon != null ? $json.lon : 'null' }},\n  \"zone_id\": null,\n  \"media_url\": null\n}\n",
         "options": {
           "response": {
             "response": {
@@ -129,7 +129,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const raw = $('1. WhatsApp / Telegram Webhook').first().json;\nconst body = raw.body || raw;\n\n// Extract exact Telegram Chat ID\nconst chatId = (body.message && body.message.chat) ? body.message.chat.id : \n               (body.chat_id || (body.message && body.message.from ? body.message.from.id : null));\n\nconst lang = $('2. Extract & Hash Phone (SHA-256)').first().json.detected_language || 'en';\n// Node 6's response carries the real report id and the zone the coordinates actually\n// matched. Inventing a ticket number and hardcoding one ward told every resident the\n// same untrue thing, and contradicted the zone shown on the dashboard.\nconst api = $('6. Ingest into NeerDrishti API').first().json;\nconst reportId = api.id;\nconst zoneId = api.zone_id || null;\nconst zoneLabel = zoneId || 'not matched to a mapped ward';\n// The API stores off-topic messages as 'dismissed'. Saying 'logged successfully'\n// for one of those is the same class of lie as the fake ticket number.\nconst scored = api.status === 'new';\nconst desc = $('5. Format Standardized Description').first().json.description;\n\nlet message = `💧 NeerDrishti Smart Water Intelligence\\n\\n` +\n  `${scored ? '✅ Water Leak Report Logged' : '⚠️ Message Recorded'}\\n` +\n  `📍 Matched Zone: ${zoneLabel}\\n` +\n  `📝 Description: ${desc}\\n` +\n  `🆔 Ticket Ref: #${reportId}\\n` +\n  `⏳ Status: ${scored ? 'Queued for ward review.' : 'Not read as a leak report -- reply describing the problem and we will log it.'}`;\n\nif (lang === 'hi') {\n  message = `💧 नीरदृष्टि स्मार्ट जल खुफिया प्रणाली\\n\\n` +\n    `${scored ? '✅ जल रिसाव रिपोर्ट दर्ज की गई' : '⚠️ संदेश दर्ज किया गया'}\\n` +\n    `📍 जोन: ${zoneLabel}\\n` +\n    `📝 विवरण: ${desc}\\n` +\n    `🆔 टिकट संदर्भ: #${reportId}\\n` +\n    `⏳ स्थिति: ${scored ? 'वार्ड समीक्षा के लिए दर्ज।' : 'इसे रिसाव रिपोर्ट के रूप में नहीं पढ़ा गया — कृपया समस्या का विवरण भेजें।'}`;\n}\n\nreturn [{\n  json: {\n    status: 'success',\n    chat_id: chatId,\n    ticket_id: reportId,\n    zone_id: zoneId,\n    receipt_message: message\n  }\n}];\n"
+        "jsCode": "const raw = $('1. WhatsApp / Telegram Webhook').first().json;\nconst body = raw.body || raw;\n\n// Extract exact Telegram Chat ID\nconst chatId = (body.message && body.message.chat) ? body.message.chat.id :\n               (body.chat_id || (body.message && body.message.from ? body.message.from.id : null));\n\nconst lang = $('2. Extract & Hash Phone (SHA-256)').first().json.detected_language || 'en';\nconst src = $('5. Format Standardized Description').first().json;\nconst desc = src.description;\n\n// Node 6 runs with onError: continueRegularOutput, so a rejected POST still reaches this\n// node. Without this check the resident is told their leak was logged when nothing was\n// stored at all -- the API returns 422 for a report with no location, and the old receipt\n// answered that with a green tick and an invented ticket number.\nconst api = $('6. Ingest into NeerDrishti API').first().json;\nconst stored = Number.isInteger(api.id);\n// Decide *why* it failed from what the API actually said, not from what we assume node 5\n// holds. The 422 body is: \"provide zone_id, or both lat and lon\". Falling back to the\n// lat/lon check alone got this wrong in testing.\nconst apiSaid = JSON.stringify(api.detail || api.message || api.error || '');\nconst blamesLocation = /zone_id|\\blat\\b|\\blon\\b|location/i.test(apiSaid);\nconst hasLocation = Number.isFinite(Number(src.lat)) && Number.isFinite(Number(src.lon))\n                    && src.lat !== null && src.lon !== null;\nconst missingLocation = blamesLocation || !hasLocation;\nconst scored = stored && api.status === 'new';\nconst zoneLabel = stored ? (api.zone_id || 'outside the mapped municipal zones') : null;\n\nlet message;\nif (!stored && missingLocation) {\n  // The common case: a description typed with no GPS attachment.\n  message = lang === 'hi'\n    ? `💧 नीरदृष्टि स्मार्ट जल खुफिया प्रणाली\\n\\n` +\n      `⚠️ रिपोर्ट दर्ज नहीं हुई — स्थान नहीं मिला\\n` +\n      `📝 आपका संदेश: ${desc}\\n\\n` +\n      `कृपया वही विवरण दोबारा भेजें और साथ में अपना GPS स्थान संलग्न करें ` +\n      `(📎 → Location)। स्थान के बिना हम रिसाव को किसी वार्ड से नहीं जोड़ सकते।`\n    : `💧 NeerDrishti Smart Water Intelligence\\n\\n` +\n      `⚠️ Not logged — no location received\\n` +\n      `📝 Your message: ${desc}\\n\\n` +\n      `Please send the same description again with your GPS location attached ` +\n      `(📎 → Location). Without it we cannot match the leak to a ward.`;\n} else if (!stored) {\n  // Location was present, so this is an API or network failure, not the resident's doing.\n  message = lang === 'hi'\n    ? `💧 नीरदृष्टि स्मार्ट जल खुफिया प्रणाली\\n\\n` +\n      `⚠️ रिपोर्ट दर्ज नहीं हो सकी — तकनीकी समस्या\\n` +\n      `📝 आपका संदेश: ${desc}\\n\\n` +\n      `आपकी गलती नहीं है। कृपया कुछ मिनट बाद दोबारा भेजें।`\n    : `💧 NeerDrishti Smart Water Intelligence\\n\\n` +\n      `⚠️ Could not log this report — technical problem\\n` +\n      `📝 Your message: ${desc}\\n\\n` +\n      `Nothing you did wrong. Please send it again in a few minutes.`;\n} else {\n  message = lang === 'hi'\n    ? `💧 नीरदृष्टि स्मार्ट जल खुफिया प्रणाली\\n\\n` +\n      `${scored ? '✅ जल रिसाव रिपोर्ट दर्ज की गई' : '⚠️ संदेश दर्ज किया गया'}\\n` +\n      `📍 जोन: ${zoneLabel}\\n` +\n      `📝 विवरण: ${desc}\\n` +\n      `🆔 टिकट संदर्भ: #${api.id}\\n` +\n      `⏳ स्थिति: ${scored ? 'वार्ड समीक्षा के लिए दर्ज।' : 'इसे रिसाव रिपोर्ट के रूप में नहीं पढ़ा गया — कृपया समस्या का विवरण भेजें।'}`\n    : `💧 NeerDrishti Smart Water Intelligence\\n\\n` +\n      `${scored ? '✅ Water Leak Report Logged' : '⚠️ Message Recorded'}\\n` +\n      `📍 Matched Zone: ${zoneLabel}\\n` +\n      `📝 Description: ${desc}\\n` +\n      `🆔 Ticket Ref: #${api.id}\\n` +\n      `⏳ Status: ${scored ? 'Queued for ward review.' : 'Not read as a leak report -- reply describing the problem and we will log it.'}`;\n}\n\nreturn [{\n  json: {\n    status: stored ? 'success' : 'not_stored',\n    chat_id: chatId,\n    ticket_id: stored ? api.id : null,\n    zone_id: stored ? (api.zone_id || null) : null,\n    receipt_message: message\n  }\n}];\n"
       },
       "id": "c61c12d9-4f7a-452f-81be-e22f38b21c3c",
       "name": "7. Citizen Receipt Generator",
@@ -142,46 +142,21 @@
     },
     {
       "parameters": {
-        "chatId": "={{ $json.chat_id }}",
-        "text": "={{ $json.receipt_message }}",
-        "additionalFields": {}
+        "method": "POST",
+        "url": "={{ 'https://api.telegram.org/bot' + $vars.TELEGRAM_BOT_TOKEN + '/sendMessage' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $json.chat_id }}\",\n  \"text\": \"Welcome to NeerDrishti! 💧\\n\\nTo report a water leak, please send a short description of the problem and your GPS location (attachment).\",\n  \"parse_mode\": \"Markdown\"\n}\n",
+        "options": {}
       },
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [
-        1120,
-        112
-      ],
-      "id": "7add425d-3993-4b87-94b3-5e3e2c6433a5",
-      "name": "Send a text message",
-      "webhookId": "0b614be8-f065-4c92-b707-62bb4b5f5495",
-      "credentials": {
-        "telegramApi": {
-          "id": "TCad6waPZmyRxnzo",
-          "name": "Telegram account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "chatId": "={{ $json.chat_id }}",
-        "text": "Welcome to NeerDrishti! 💧\n\nTo report a water leak, please send a short description of the problem and your GPS location (attachment).",
-        "additionalFields": {}
-      },
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
       "position": [
         16,
         -80
       ],
       "id": "691cebb1-fec7-44de-a548-f844a0a0cf51",
-      "name": "Send Welcome Message",
-      "credentials": {
-        "telegramApi": {
-          "id": "TCad6waPZmyRxnzo",
-          "name": "Telegram account"
-        }
-      }
+      "name": "Send Welcome Message"
     },
     {
       "parameters": {
@@ -215,6 +190,28 @@
       ],
       "id": "af20b223-91a1-4f15-8a32-3ae4057b823f",
       "name": "Is this a Greeting?"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.receipt_message }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        112
+      ],
+      "id": "41de0e81-465f-46a2-bd84-187dec2c405c",
+      "name": "Send a text message",
+      "webhookId": "d491acc2-c536-49ff-9d1c-6b50348b1476",
+      "credentials": {
+        "telegramApi": {
+          "id": "TCad6waPZmyRxnzo",
+          "name": "Telegram account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -327,7 +324,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "1d2649b8-474e-4aa0-be26-4f99d00a6990",
+  "versionId": "e6918e6a-26c5-4695-a4d0-7ccc80d8653d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "06c00398318ea3bbeb3441693a4740aef8882c4a09db097a6d0e0ca013bcfd83"

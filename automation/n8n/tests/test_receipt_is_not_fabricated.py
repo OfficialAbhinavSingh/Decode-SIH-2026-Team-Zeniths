@@ -48,9 +48,15 @@ class TestReceiptIsNotFabricated(unittest.TestCase):
         self.assertNotIn("Dispatched to Ward Repair Crew", self.code)
 
     def test_distinguishes_a_dismissed_report(self):
-        # The API stores off-topic messages as 'dismissed'. Telling that sender their
-        # leak was "logged successfully" is the same lie as the fake ticket number.
-        self.assertIn("dismissed", self.code.lower())
+        # The API stores off-topic messages as 'dismissed' and scoring ones as 'new'.
+        # Telling a dismissed sender their leak was "logged successfully" is the same lie
+        # as the fake ticket number, so the receipt must consult the stored status.
+        self.assertIn("api.status", self.code)
+
+    def test_does_not_claim_success_when_nothing_was_stored(self):
+        # Node 6 runs with onError: continueRegularOutput, so a rejected POST still reaches
+        # node 7. The receipt must check that an id came back before claiming anything.
+        self.assertIn("Number.isInteger(api.id)", self.code)
 
 
 if __name__ == "__main__":
