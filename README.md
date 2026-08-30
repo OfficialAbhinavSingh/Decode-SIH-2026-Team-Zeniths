@@ -240,7 +240,7 @@ the dashboard comes up fully populated. Full guide: [`docs/SETUP.md`](docs/SETUP
 <br/>
 
 ```bash
-cd backend            && python -m pytest tests/ -q      # 70 passed, 11 skipped
+cd backend            && python -m pytest tests/ -q      # 73 passed, 11 skipped
 cd automation/n8n     && python -m pytest tests/ -q      # 31 passed
 cd frontend           && npm run build                   # must be clean
 ```

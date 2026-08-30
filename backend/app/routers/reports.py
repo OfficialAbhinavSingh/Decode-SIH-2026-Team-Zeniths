@@ -15,9 +15,17 @@ router = APIRouter(prefix="/api/reports", tags=["reports"])
 
 # automation/n8n is a sibling of backend/, not a package under it -- reached across the
 # monorepo on purpose so both the live endpoint and the n8n workflow share one
-# deduplication rule. On Render this import always fails: render.yaml sets `rootDir:
-# backend` for this service, so automation/ never ships with the deployed build, and
-# dedup silently no-ops there. Locally and in docker-compose (full checkout) it works.
+# deduplication rule. render.yaml sets `rootDir: backend`, but that only changes the
+# working directory: Render still checks out the whole repository, so parents[3] resolves
+# to the repo root and this import succeeds there too. Confirmed against production on
+# 30 Aug 2026 -- citizen_reports id 39 carries status "duplicate", and nothing except this
+# deduplicator ever writes that value.
+#
+# An earlier version of this comment asserted the opposite: that the import "always fails"
+# on Render and dedup "silently no-ops there". That was never tested and it was wrong. It
+# is corrected in place rather than deleted because a wrong comment is how a real bug gets
+# talked past -- anyone reading it would have stopped investigating duplicate reports in
+# production. test_dedupe_is_wired_up.py now fails if the import ever really does break.
 sys.path.append(str(Path(__file__).resolve().parents[3] / "automation" / "n8n"))
 try:
     from utils.dedupe import ReportDeduplicator
