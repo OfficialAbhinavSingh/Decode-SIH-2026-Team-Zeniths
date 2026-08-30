@@ -144,8 +144,50 @@ overstating is worse than the gap.
 | Satellite NDVI | 🟢 **Real** | Sentinel-2 L2A via Google Earth Engine. **21 of 30 zones** have a usable observation for 25 Aug 2026 — the other nine were fully cloud-masked and carry no satellite signal at all, rather than an invented one. |
 | Zone polygons | 🟡 **Demonstration set** | A 30-cell grid over Jaipur, not real ward geometry. The pipeline accepts any polygon set. |
 | Billing / NRW | 🔴 **Synthetic** | Generated from published CPHEEO / AMRUT / Jal Jeevan Mission benchmarks. Every row carries `is_synthetic = true`. Generator: [`backend/pipelines/billing/generate.py`](backend/pipelines/billing/generate.py). |
-| Citizen reports | 🟡 **Mixed** | The intake path is live end to end. The reports currently in the demo database are seeded. |
-| Deployment | ⚠️ **Stale** | The hosted instance is still serving seeded satellite data and pre-replant billing. See the blocker at the top of [`docs/DEMO.md`](docs/DEMO.md). |
+| Citizen reports | 🟡 **Mixed** | The intake path is live end to end and was verified against production on 29 Aug 2026 — a Telegram message in Hindi, translated by Sarvam AI, reaching the API as a real `citizen_reports` row, with the ticket number in the resident's reply equal to that row's database id. The reports sitting in the demo database are seeded. |
+| Deployment | 🟢 **Live, on the real data** | Re-verified 30 Aug 2026. `GET /api/zones/Z-005/signals` on the hosted API returns `"source": "sentinel2-gee"` with a real NDVI mean and baseline, and every billing row carries `is_synthetic: true`. Cloud-masked zones return `"satellite_score": null` rather than a filler number — you can check that yourself on the live API without cloning anything. |
+
+---
+
+## 🧯 What we caught in our own system
+
+Every one of these was **our code confidently reporting something untrue**, found by testing
+against a running instance rather than by reading the code. They are listed here on purpose:
+the failure mode this project has to defend against is not "the score was 3 points off", it
+is "the system stated a fact it had not earned".
+
+| What it claimed | What was actually happening | Fix |
+|---|---|---|
+| Every zone had a satellite reading | `seed.py` handed all 30 zones an invented NDVI row, so the nine zones that were **fully cloud-masked** on 25 Aug looked identical to the 21 that were really observed — and one of them sat at the top of the repair list | `seed.py --skip satellite`; fusion treats a missing signal as *absent*, not zero |
+| Priority **100/100** | A single unverified billing reading scored exactly what three agreeing sources scored, so one number could top the list on its own | Coverage discount — 1 signal × 0.70, 2 × 0.90, 3 × 1.00 ([#11](https://github.com/OfficialAbhinavSingh/Decode-SIH-2026-Team-Zeniths/pull/11)) |
+| A zone was 6th-highest priority in the city | `/help`, `Hello?`, `Pothole` and `Pothole damage` were all counting as leak evidence, carrying that zone to **rank 6 of 30** ahead of zones with real satellite data | A deliberately **fail-open** relevance filter — anything it cannot confidently categorise still counts, including languages it has no keywords for ([#14](https://github.com/OfficialAbhinavSingh/Decode-SIH-2026-Team-Zeniths/pull/14)) |
+| Two independent reports | The same resident messaging twice was scored twice | 6-hour per-reporter dedup window; `duplicate` rows are stored for audit but excluded from scoring ([#13](https://github.com/OfficialAbhinavSingh/Decode-SIH-2026-Team-Zeniths/pull/13)) |
+| *"✅ Ticket #6621 · Zone Z-001 (Ward 1) · Dispatched to Ward Repair Crew"* | The bot's reply was **entirely invented** — `Math.random()` for the ticket, a hardcoded zone, a crew that was never dispatched — and it was sent even when the API call had failed and nothing was stored at all | The receipt now reads the real API response: real row id, real matched zone, real status, and an explicit *"we could not log this"* when the write failed |
+| Phone numbers were SHA-256 hashed | The hash was a 32-bit rolling loop with **24 constant hex characters** glued on the end, so every hash shared the same tail | Real SHA-256, salted from an n8n variable |
+| A report from a resident with no GPS | Missing coordinates silently defaulted to Jaipur city centre, turning "somewhere" into a specific zone | Coordinates stay `null`; the bot replies asking the resident to resend with a location pin |
+
+**These are held in place by tests, not by memory.** `automation/n8n/tests/` parses the
+*committed workflow JSON itself* — so if a workflow is re-exported from n8n Cloud and quietly
+reintroduces a random ticket number, a hardcoded zone, a fake hash or a plaintext bot token,
+CI fails on the pull request.
+
+<details>
+<summary><b>It also runs with the internet physically off</b> — rehearsed, not assumed</summary>
+
+<br/>
+
+A judge's venue Wi-Fi is a single point of failure for a demo, so we removed it as one.
+With the machine disconnected, a cold `docker compose up` reaches a healthy API in **6
+seconds**, serves all 30 zones and accepts a new citizen report; the dashboard detects that
+map tiles cannot be fetched, falls back to a **bundled basemap image** of Jaipur, draws every
+zone polygon over it, and shows an offline badge rather than a grey void
+([#15](https://github.com/OfficialAbhinavSingh/Decode-SIH-2026-Team-Zeniths/pull/15)).
+
+Two problems surfaced only because we actually pulled the plug: the API image had never
+been built locally, and port 8000 was already taken on the demo machine. Both are now
+warnings in [`docs/DEMO.md`](docs/DEMO.md) and checks in `scripts/verify-demo.sh`.
+
+</details>
 
 ---
 
@@ -198,9 +240,16 @@ the dashboard comes up fully populated. Full guide: [`docs/SETUP.md`](docs/SETUP
 <br/>
 
 ```bash
-cd backend            && python -m pytest tests/ -q      # 42 passed
-cd automation/n8n     && python -m pytest tests/ -q      # 12 passed
+cd backend            && python -m pytest tests/ -q      # 70 passed, 11 skipped
+cd automation/n8n     && python -m pytest tests/ -q      # 31 passed
 cd frontend           && npm run build                   # must be clean
+```
+
+And one read-only script that checks a running instance still matches every number the
+demo script reads aloud — 15 assertions, changes nothing, safe to run in front of anyone:
+
+```bash
+./scripts/verify-demo.sh
 ```
 
 </details>
@@ -218,7 +267,8 @@ cd frontend           && npm run build                   # must be clean
 ├── frontend/                 React + Leaflet · ranked list beside the map
 ├── automation/n8n/           citizen intake · Sarvam AI translation · alerts
 ├── data/samples/             zones, the real NDVI export, billing CSV
-├── docs/                     ← five documents, read these first
+├── scripts/verify-demo.sh    read-only pre-demo check · 15 assertions
+├── docs/                     ← six documents, read these first
 └── .github/                  CI · PR template · CODEOWNERS
 ```
 
@@ -250,7 +300,10 @@ cd frontend           && npm run build                   # must be clean
 
 **Full rules: [`CONTRIBUTING.md`](CONTRIBUTING.md). Compulsory, every change, no exceptions.**
 
-- 🔒 **`main` is protected.** No direct pushes. Everything lands through a reviewed PR.
+- 🔒 **`main` is protected**, and not just as a stated intention. GitHub enforces one
+  approving review, dismissal of stale reviews, resolution of every review thread, and five
+  status checks that must pass before merge is even offered:
+  **PR hygiene · Secret scan · Backend lint + tests · Frontend build · Offline demo fallback still works**.
 - 👤 **[@OfficialAbhinavSingh](https://github.com/OfficialAbhinavSingh) reviews and merges every PR.** Nobody self-merges.
 - 🌿 Branch `<type>/<lane>-<thing>` — e.g. `feat/r1-ndvi-baseline-composite`.
 - 📝 Fill in **every** section of the PR template. CI rejects a half-filled one.

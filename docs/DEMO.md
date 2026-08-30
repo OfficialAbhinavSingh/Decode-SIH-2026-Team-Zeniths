@@ -14,27 +14,34 @@ this page that no longer matches the screen is worse than no figure at all.
 
 ---
 
-## ⛔ Blocker — the deployment is not showing our real data
+## ✅ Resolved — the deployment is serving our real data
 
-`https://neerdrishti-api.onrender.com` currently returns, for its top zone:
+This section was a blocker until 29 Aug 2026: production was serving `seed.py`'s invented
+satellite scores and pre-replant billing, and its top zone claimed *"all three signals
+agree"* at high confidence. R6 ran the real load sequence against it.
 
-```
-Z-016  Ward 3 - Sector 4  ·  high confidence  ·  "all three signals agree"  ·  46% NRW
-```
+Re-verified against the hosted API on **30 Aug 2026** — anyone can repeat this, no clone needed:
 
-A local instance loaded with the **real** Sentinel-2 export and the current billing
-generator returns, for the same zone:
-
-```
-Z-016  Ward 3 - Sector 4  ·  medium confidence  ·  "two of three signals available"  ·  44% NRW
+```bash
+curl -s https://neerdrishti-api.onrender.com/api/scores | head
+curl -s https://neerdrishti-api.onrender.com/api/zones/Z-005/signals
 ```
 
-The production database has never had the real NDVI export ingested and its billing rows
-predate the hotspot replant. Its satellite scores come from `seed.py` — they are invented.
+| Check | Expected | Live on 30 Aug |
+|---|---|---|
+| Satellite provenance | `sentinel2-gee`, not `seed` | ✅ `"source": "sentinel2-gee"` |
+| Cloud-masked zones | no satellite signal at all | ✅ `Z-016` returns `"satellite_score": null`, `"signals_used": 2` |
+| Z-016 confidence | `medium` — two of three | ✅ `"two of three signals available"`, 44% NRW |
+| Z-005 (main beat) | rank 3, all three signals | ✅ rank 3, `signals_used: 3`, score 93.1 |
+| Billing honesty | every row flagged | ✅ `"is_synthetic": true` |
 
-**Do not open the deployed URL and describe it as real satellite data.** Fix before the
-demo by running the load sequence below against production, then `POST /api/fusion/run`.
-Owner: R6.
+The old figure in this file was *high confidence, 46% NRW*. It is now *medium, 44%* — which
+is the correct answer, because `Z-016` was one of the nine cloud-masked zones and never had
+a satellite observation to be confident about.
+
+`./scripts/verify-demo.sh` runs this and twelve more checks in one command.
+
+---
 
 ### Why nine zones have no satellite score at all
 
