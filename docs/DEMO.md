@@ -39,7 +39,7 @@ The old figure in this file was *high confidence, 46% NRW*. It is now *medium, 4
 is the correct answer, because `Z-016` was one of the nine cloud-masked zones and never had
 a satellite observation to be confident about.
 
-`./scripts/verify-demo.sh` runs this and twelve more checks in one command.
+`./scripts/verify-demo.sh` runs these and eleven more checks in one command — 16 in total.
 
 ---
 

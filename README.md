@@ -246,7 +246,7 @@ cd frontend           && npm run build                   # must be clean
 ```
 
 And one read-only script that checks a running instance still matches every number the
-demo script reads aloud — 15 assertions, changes nothing, safe to run in front of anyone:
+demo script reads aloud — 16 assertions, changes nothing, safe to run in front of anyone:
 
 ```bash
 ./scripts/verify-demo.sh
@@ -267,7 +267,7 @@ demo script reads aloud — 15 assertions, changes nothing, safe to run in front
 ├── frontend/                 React + Leaflet · ranked list beside the map
 ├── automation/n8n/           citizen intake · Sarvam AI translation · alerts
 ├── data/samples/             zones, the real NDVI export, billing CSV
-├── scripts/verify-demo.sh    read-only pre-demo check · 15 assertions
+├── scripts/verify-demo.sh    read-only pre-demo check · 16 assertions
 ├── docs/                     ← six documents, read these first
 └── .github/                  CI · PR template · CODEOWNERS
 ```
