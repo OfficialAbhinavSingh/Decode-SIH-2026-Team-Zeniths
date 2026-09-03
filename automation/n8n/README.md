@@ -97,6 +97,23 @@ Citizen sends WhatsApp/Telegram message (any Indian language)
 
 ---
 
+## 🚫 4. Citizen Reward — disabled on purpose (`citizen-reward.workflow.json`)
+
+`active: false`. Do not switch it back on.
+
+It messages a resident that "our NeerDrishti field crew has successfully fixed it" and that
+they "helped save approximately N liters". We have never dispatched a field crew and we have
+never measured a litre saved — `docs/SCOPE.md` says so, and the finals deck states it as an
+explicit limit. Sending that message would make the product contradict its own honesty claim
+in the one place a judge can screenshot it.
+
+Nothing in `backend/` calls this webhook, so it was already unreachable; the flag makes that
+deliberate rather than accidental. Re-enable it only after a real repair loop exists and a
+real volume figure can be measured, and `tests/test_no_unbacked_reward_claims.py` will tell
+you what has to change first.
+
+---
+
 ## 🧪 Testing & Simulation Commands
 
 ### 1. Run the Unit Test Suite
