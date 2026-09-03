@@ -6,12 +6,46 @@ import { submitReport } from '../api.js'
 // so this form must exist -- the demo can never depend on Meta approving us in time.
 const inRange = (value, limit) => Number.isFinite(value) && Math.abs(value) <= limit
 
+// A report is only evidence if it matched a zone *and* read as a leak. Those are two
+// independent checks: match_zone() returns null for a point outside every polygon, and
+// classify() marks an off-topic message 'dismissed'. fusion.py joins on zone_id and
+// excludes 'dismissed', so a report failing either one moves no score and reaches no ward
+// queue. Telling that resident "our AI will factor your report into zone risk scoring"
+// is the same overclaim node 7 of automation/n8n/leak-intake.workflow.json was fixed to
+// stop making -- and the web form and Telegram must answer this the same way, or the two
+// channels drift and only one of them is honest.
+function outcomeCopy(res) {
+  if (!res.zone_id) {
+    return {
+      heading: 'Report logged — outside coverage',
+      detail:
+        `NeerDrishti currently covers Jaipur. Your report is on record as ticket #${res.id}, ` +
+        'but it is not queued for ward dispatch and does not change any zone score.',
+    }
+  }
+  if (res.status !== 'new') {
+    return {
+      heading: 'Message recorded',
+      detail:
+        `Saved as ticket #${res.id}, but it was not read as a leak report, so it does not ` +
+        'affect zone scoring. Send another describing what you can see and we will log it.',
+    }
+  }
+  return {
+    heading: 'Report submitted',
+    detail:
+      `Logged against zone ${res.zone_id} as ticket #${res.id}. Our AI will factor it into ` +
+      'zone risk scoring in the next analysis cycle.',
+  }
+}
+
 export default function Report() {
   const [description, setDescription] = useState('')
   const [coords, setCoords] = useState(null)
   const [manual, setManual] = useState({ lat: '', lon: '' })
   const [showManual, setShowManual] = useState(false)
   const [status, setStatus] = useState(null) // null | 'loading' | 'success' | 'error'
+  const [outcome, setOutcome] = useState(null) // what the API said about the last submit
   const [statusMsg, setStatusMsg] = useState('')
   const [locLoading, setLocLoading] = useState(false)
 
@@ -53,11 +87,7 @@ export default function Report() {
     setStatusMsg('')
     try {
       const res = await submitReport({ channel: 'web', description, ...effective })
-      setStatusMsg(
-        res.zone_id
-          ? `Logged against zone ${res.zone_id}`
-          : 'Logged — location fell outside mapped zones.',
-      )
+      setOutcome(outcomeCopy(res))
       setStatus('success')
       setDescription('')
     } catch (err) {
@@ -77,11 +107,10 @@ export default function Report() {
           /* ── Success state ── */
           <div className="report-card success-card">
             <div className="success-icon">✓</div>
-            <h2>Report submitted</h2>
-            <p className="report-sub">{statusMsg}</p>
-            <p className="report-sub">Our AI will factor your report into zone risk scoring within the next analysis cycle.</p>
+            <h2>{outcome.heading}</h2>
+            <p className="report-sub">{outcome.detail}</p>
             <div className="report-actions" style={{ marginTop: 32 }}>
-              <button className="btn-primary" onClick={() => setStatus(null)}>Submit another</button>
+              <button className="btn-primary" onClick={() => { setOutcome(null); setStatus(null) }}>Submit another</button>
               <Link to="/" className="btn-secondary">View dashboard</Link>
             </div>
           </div>

@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getScores, getScoresGeojson, getZone } from '../api.js'
+import { getReports, getScores, getScoresGeojson, getZone } from '../api.js'
 import MapView from '../components/MapView.jsx'
 import ZoneDetail from '../components/ZoneDetail.jsx'
 import Legend from '../components/Legend.jsx'
@@ -25,6 +25,19 @@ function timeAgo(iso) {
   const hours = Math.round(minutes / 60)
   if (hours < 24) return `${hours}h ago`
   return `${Math.round(hours / 24)}d ago`
+}
+
+// What actually became of one citizen report, in the report's own terms. A report whose
+// GPS fell outside every mapped polygon is stored with zone_id = null (match_zone() in
+// backend/app/routers/reports.py) and fusion.py never joins it to a zone -- it is on
+// record and it has a ticket, but it is not evidence and it moved no score. The console
+// has to say which of those it is, or it repeats the overclaim the Telegram receipt used
+// to make.
+function reportVerdict(report) {
+  if (report.status === 'duplicate') return { label: 'Duplicate', tone: 'idle' }
+  if (report.status === 'dismissed') return { label: 'Not a leak report', tone: 'idle' }
+  if (!report.zone_id) return { label: 'Outside coverage', tone: 'warn' }
+  return { label: `Scoring ${report.zone_id}`, tone: 'ok' }
 }
 
 // window.innerWidth read directly during render doesn't update on resize/rotation --
@@ -60,6 +73,9 @@ export default function Dashboard() {
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('all')
   const [mobileView, setMobileView] = useState('list')
+  const [reports, setReports] = useState(null)
+  const [intakeOpen, setIntakeOpen] = useState(false)
+  const [intakeBusy, setIntakeBusy] = useState(false)
   const isMobile = useIsMobile()
   const rowRefs = useRef({})
 
@@ -72,6 +88,22 @@ export default function Dashboard() {
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
   }, [])
+
+  // Loaded on its own, never folded into the Promise.all above. That call's rejection
+  // path sets the page-wide error state, so putting the intake strip in it would let a
+  // failing /api/reports blank out the ranked list and the map. Here a failure only
+  // leaves `reports` null, which hides the strip and nothing else.
+  const loadReports = useCallback(() => {
+    setIntakeBusy(true)
+    getReports(8)
+      .then(setReports)
+      .catch(() => setReports(null))
+      .finally(() => setIntakeBusy(false))
+  }, [])
+
+  useEffect(() => {
+    loadReports()
+  }, [loadReports])
 
   useEffect(() => {
     if (!selectedId) return setFlyTarget(null)
@@ -280,6 +312,51 @@ export default function Dashboard() {
               </p>
             )}
           </div>
+
+          {reports && reports.length > 0 && (
+            <div className="intake" data-open={intakeOpen}>
+              <button
+                className="intake-bar"
+                onClick={() => setIntakeOpen((v) => !v)}
+                aria-expanded={intakeOpen}
+              >
+                <span className="intake-title">Citizen intake</span>
+                <span className="intake-count">{reports.length} most recent</span>
+                <Chevron />
+              </button>
+
+              {intakeOpen && (
+                <div className="intake-body">
+                  <div className="intake-list">
+                    {reports.map((r) => {
+                      const verdict = reportVerdict(r)
+                      const when = timeAgo(r.reported_at)
+                      return (
+                        <div className="intake-row" key={r.id}>
+                          <span className={`intake-tag t-${verdict.tone}`}>{verdict.label}</span>
+                          <span className="intake-desc">
+                            {r.description || 'No description sent'}
+                          </span>
+                          <span className="intake-meta">
+                            #{r.id} · {r.channel}
+                            {when ? ` · ${when}` : ''}
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className="intake-foot">
+                    <button className="ghost-btn" onClick={loadReports} disabled={intakeBusy}>
+                      {intakeBusy ? 'Refreshing…' : 'Refresh'}
+                    </button>
+                    <span className="intake-note">
+                      Reports outside the mapped zones are recorded and ticketed, never scored.
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {!loading && !error && scores.length > 0 && (
             <p className="disclosure">

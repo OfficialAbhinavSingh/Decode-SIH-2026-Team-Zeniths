@@ -22,6 +22,11 @@ export const getZoneSignals = (zoneId) => get(`/api/zones/${zoneId}/signals`)
 
 export const getZone = (zoneId) => get(`/api/zones/${zoneId}`)
 
+// The dashboard scores only reports that fall inside a mapped zone, so it also has to be
+// able to show the ones it did not score. This returns them all, newest first, including
+// the zone_id=null ones the fusion engine deliberately ignores.
+export const getReports = (limit = 8) => get(`/api/reports?limit=${limit}`)
+
 export async function submitReport(body) {
   const res = await fetch(`${BASE}/api/reports`, {
     method: 'POST',
