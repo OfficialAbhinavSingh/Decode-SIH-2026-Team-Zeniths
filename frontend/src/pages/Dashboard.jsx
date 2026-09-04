@@ -358,11 +358,20 @@ export default function Dashboard() {
             </div>
           )}
 
+          {/* Every clause in the disclosure below is load-bearing. It sits under the ranked list
+              for the whole demo, so a wrong word in it is the most-read untrue thing we could
+              ship. It used to say "Satellite NDVI and citizen reports are real", which was false
+              for the reports: seed.py writes them with reporter_hash "sha256:seed...", and on
+              production today every report actually moving a zone score is a seeded one. The
+              intake path being live is a different claim from the stored rows being real, and
+              README.md has said so all along -- the dashboard was the copy that drifted. */}
           {!loading && !error && scores.length > 0 && (
             <p className="disclosure">
-              Billing figures are <strong>synthetic</strong>, modelled on published CPHEEO / AMRUT /
-              Jal Jeevan Mission non-revenue-water benchmarks. Satellite NDVI and citizen reports
-              are real. See <code>docs/SCOPE.md</code>.
+              Satellite NDVI is <strong>real</strong> Sentinel-2 data. Billing figures are{' '}
+              <strong>synthetic</strong>, modelled on published CPHEEO / AMRUT / Jal Jeevan Mission
+              non-revenue-water benchmarks. The citizen reports in this demo database are{' '}
+              <strong>seeded</strong> — the intake path itself is live. See{' '}
+              <code>docs/SCOPE.md</code>.
             </p>
           )}
         </section>
