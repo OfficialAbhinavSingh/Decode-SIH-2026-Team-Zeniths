@@ -17,6 +17,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -231,7 +232,15 @@ class ZoneScore(Base):
     groundwater_category: Mapped[str | None] = mapped_column(String(24), nullable=True)
     # Set when heavy recent rain made the NDVI reading untrustworthy and the satellite
     # signal was down-weighted for it.
-    rain_flagged: Mapped[bool] = mapped_column(Boolean, default=False)
+    # server_default, not just default=False: `default` is Python-side only, applied by
+    # the ORM when an object is constructed without this attribute set. Every sibling
+    # column added alongside this one is nullable and can be ADD COLUMN'd onto a live
+    # table with existing rows for free; this one, alone among them, was NOT NULL with no
+    # DB-level default -- there was no value to backfill into rows that already existed,
+    # so init_db.py's add_missing_columns() correctly refused to add it rather than
+    # guess. A server_default lets Postgres backfill every existing row to false in the
+    # same ALTER TABLE that adds the column.
+    rain_flagged: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
     rain_mm_7d: Mapped[float | None] = mapped_column(Float, nullable=True)
     # Estimated recoverable water, kilolitres per day, if this zone is repaired.
     water_at_risk_kld: Mapped[float | None] = mapped_column(Float, nullable=True)
