@@ -25,7 +25,7 @@ import time
 # pyrefly: ignore [missing-import]
 import httpx
 
-from .nrw import score_batch_with_percentile
+from .nrw import score_batch_by_city
 
 
 # ---------------------------------------------------------------------------
@@ -178,7 +178,7 @@ def main() -> int:
     rows = read_csv(args.csv_path)
     print(f"read {len(rows)} rows from {args.csv_path}")
 
-    score_batch_with_percentile(rows)
+    score_batch_by_city(rows)
 
     print_summary(rows)
 
