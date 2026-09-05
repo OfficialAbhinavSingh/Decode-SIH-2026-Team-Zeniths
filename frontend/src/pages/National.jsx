@@ -9,10 +9,7 @@ import {
 import NationalMap, { priorityColor } from '../components/NationalMap.jsx'
 import ImpactLedger from '../components/ImpactLedger.jsx'
 
-// National coverage -- an opt-in extra at /national, deliberately NOT the homepage.
-// "/" is, and must stay, the working single-city dashboard: that is the thing actually
-// judged, and it must never depend on the national data pipelines having been run
-// against whatever database is live. City zoom -- the single-city MVP view, now
+// The country-zoom entry point, at "/". City zoom -- the single-city MVP view, now
 // reusable for any city -- lives at /city/:cityCode. Reuses the same .app/.workspace/
 // .topbar/.list-pane/.map-pane shell Dashboard.jsx defines, so this reads as the same
 // product zoomed out rather than a bolted-on second app.
@@ -56,11 +53,11 @@ export default function National() {
   return (
     <div className="app">
       <header className="topbar">
-        <Link to="/" className="brand">
+        <span className="brand">
           <img className="brand-mark" src="/logo.png" alt="" width="30" height="30" />
           <span className="brand-name">NeerDrishti</span>
-        </Link>
-        <span className="topbar-city">Pan-India water leak intelligence (opt-in extra)</span>
+        </span>
+        <span className="topbar-city">Pan-India water leak intelligence</span>
         <span className="topbar-spacer" />
         <Link to="/report" className="cta">
           Report a leak

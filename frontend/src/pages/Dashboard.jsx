@@ -247,12 +247,6 @@ export default function Dashboard() {
           </span>
         )}
 
-        {!cityCode && (
-          <Link to="/national" className="pill" title="National coverage (opt-in extra)">
-            National map
-          </Link>
-        )}
-
         <Link to="/report" className="cta">
           Report a leak
         </Link>
