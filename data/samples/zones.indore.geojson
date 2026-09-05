@@ -31,7 +31,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-001",
+    "zone_id": "IND-001",
     "name": "Ward 1 - Sector 4",
     "city": "Indore",
     "ward": "Ward 1",
@@ -69,7 +69,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-002",
+    "zone_id": "IND-002",
     "name": "Ward 1 - Sector 5",
     "city": "Indore",
     "ward": "Ward 1",
@@ -107,7 +107,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-003",
+    "zone_id": "IND-003",
     "name": "Ward 2 - Sector 3",
     "city": "Indore",
     "ward": "Ward 2",
@@ -145,7 +145,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-004",
+    "zone_id": "IND-004",
     "name": "Ward 2 - Sector 4",
     "city": "Indore",
     "ward": "Ward 2",
@@ -183,7 +183,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-005",
+    "zone_id": "IND-005",
     "name": "Ward 2 - Sector 5",
     "city": "Indore",
     "ward": "Ward 2",
@@ -221,7 +221,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-006",
+    "zone_id": "IND-006",
     "name": "Ward 2 - Sector 6",
     "city": "Indore",
     "ward": "Ward 2",
@@ -259,7 +259,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-007",
+    "zone_id": "IND-007",
     "name": "Ward 2 - Sector 7",
     "city": "Indore",
     "ward": "Ward 2",
@@ -297,7 +297,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-008",
+    "zone_id": "IND-008",
     "name": "Ward 3 - Sector 3",
     "city": "Indore",
     "ward": "Ward 3",
@@ -335,7 +335,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-009",
+    "zone_id": "IND-009",
     "name": "Ward 3 - Sector 4",
     "city": "Indore",
     "ward": "Ward 3",
@@ -373,7 +373,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-010",
+    "zone_id": "IND-010",
     "name": "Ward 3 - Sector 5",
     "city": "Indore",
     "ward": "Ward 3",
@@ -411,7 +411,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-011",
+    "zone_id": "IND-011",
     "name": "Ward 3 - Sector 6",
     "city": "Indore",
     "ward": "Ward 3",
@@ -449,7 +449,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-012",
+    "zone_id": "IND-012",
     "name": "Ward 3 - Sector 7",
     "city": "Indore",
     "ward": "Ward 3",
@@ -487,7 +487,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-013",
+    "zone_id": "IND-013",
     "name": "Ward 3 - Sector 8",
     "city": "Indore",
     "ward": "Ward 3",
@@ -525,7 +525,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-014",
+    "zone_id": "IND-014",
     "name": "Ward 3 - Sector 10",
     "city": "Indore",
     "ward": "Ward 3",
@@ -563,7 +563,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-015",
+    "zone_id": "IND-015",
     "name": "Ward 4 - Sector 3",
     "city": "Indore",
     "ward": "Ward 4",
@@ -601,7 +601,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-016",
+    "zone_id": "IND-016",
     "name": "Ward 4 - Sector 4",
     "city": "Indore",
     "ward": "Ward 4",
@@ -639,7 +639,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-017",
+    "zone_id": "IND-017",
     "name": "Ward 4 - Sector 5",
     "city": "Indore",
     "ward": "Ward 4",
@@ -677,7 +677,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-018",
+    "zone_id": "IND-018",
     "name": "Ward 4 - Sector 6",
     "city": "Indore",
     "ward": "Ward 4",
@@ -715,7 +715,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-019",
+    "zone_id": "IND-019",
     "name": "Ward 4 - Sector 7",
     "city": "Indore",
     "ward": "Ward 4",
@@ -753,7 +753,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-020",
+    "zone_id": "IND-020",
     "name": "Ward 4 - Sector 8",
     "city": "Indore",
     "ward": "Ward 4",
@@ -791,7 +791,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-021",
+    "zone_id": "IND-021",
     "name": "Ward 4 - Sector 9",
     "city": "Indore",
     "ward": "Ward 4",
@@ -829,7 +829,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-022",
+    "zone_id": "IND-022",
     "name": "Ward 4 - Sector 10",
     "city": "Indore",
     "ward": "Ward 4",
@@ -867,7 +867,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-023",
+    "zone_id": "IND-023",
     "name": "Ward 5 - Sector 2",
     "city": "Indore",
     "ward": "Ward 5",
@@ -905,7 +905,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-024",
+    "zone_id": "IND-024",
     "name": "Ward 5 - Sector 3",
     "city": "Indore",
     "ward": "Ward 5",
@@ -943,7 +943,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-025",
+    "zone_id": "IND-025",
     "name": "Ward 5 - Sector 4",
     "city": "Indore",
     "ward": "Ward 5",
@@ -981,7 +981,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-026",
+    "zone_id": "IND-026",
     "name": "Ward 5 - Sector 5",
     "city": "Indore",
     "ward": "Ward 5",
@@ -1019,7 +1019,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-027",
+    "zone_id": "IND-027",
     "name": "Ward 5 - Sector 6",
     "city": "Indore",
     "ward": "Ward 5",
@@ -1057,7 +1057,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-028",
+    "zone_id": "IND-028",
     "name": "Ward 5 - Sector 7",
     "city": "Indore",
     "ward": "Ward 5",
@@ -1095,7 +1095,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-029",
+    "zone_id": "IND-029",
     "name": "Ward 5 - Sector 8",
     "city": "Indore",
     "ward": "Ward 5",
@@ -1133,7 +1133,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-030",
+    "zone_id": "IND-030",
     "name": "Ward 5 - Sector 9",
     "city": "Indore",
     "ward": "Ward 5",
@@ -1171,7 +1171,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-031",
+    "zone_id": "IND-031",
     "name": "Ward 5 - Sector 10",
     "city": "Indore",
     "ward": "Ward 5",
@@ -1209,7 +1209,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-032",
+    "zone_id": "IND-032",
     "name": "Ward 6 - Sector 1",
     "city": "Indore",
     "ward": "Ward 6",
@@ -1247,7 +1247,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-033",
+    "zone_id": "IND-033",
     "name": "Ward 6 - Sector 2",
     "city": "Indore",
     "ward": "Ward 6",
@@ -1285,7 +1285,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-034",
+    "zone_id": "IND-034",
     "name": "Ward 6 - Sector 3",
     "city": "Indore",
     "ward": "Ward 6",
@@ -1323,7 +1323,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-035",
+    "zone_id": "IND-035",
     "name": "Ward 6 - Sector 4",
     "city": "Indore",
     "ward": "Ward 6",
@@ -1361,7 +1361,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-036",
+    "zone_id": "IND-036",
     "name": "Ward 6 - Sector 5",
     "city": "Indore",
     "ward": "Ward 6",
@@ -1399,7 +1399,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-037",
+    "zone_id": "IND-037",
     "name": "Ward 6 - Sector 6",
     "city": "Indore",
     "ward": "Ward 6",
@@ -1437,7 +1437,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-038",
+    "zone_id": "IND-038",
     "name": "Ward 6 - Sector 7",
     "city": "Indore",
     "ward": "Ward 6",
@@ -1475,7 +1475,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-039",
+    "zone_id": "IND-039",
     "name": "Ward 6 - Sector 8",
     "city": "Indore",
     "ward": "Ward 6",
@@ -1513,7 +1513,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-040",
+    "zone_id": "IND-040",
     "name": "Ward 6 - Sector 9",
     "city": "Indore",
     "ward": "Ward 6",
@@ -1551,7 +1551,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-041",
+    "zone_id": "IND-041",
     "name": "Ward 6 - Sector 10",
     "city": "Indore",
     "ward": "Ward 6",
@@ -1589,7 +1589,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-042",
+    "zone_id": "IND-042",
     "name": "Ward 6 - Sector 11",
     "city": "Indore",
     "ward": "Ward 6",
@@ -1627,7 +1627,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-043",
+    "zone_id": "IND-043",
     "name": "Ward 7 - Sector 4",
     "city": "Indore",
     "ward": "Ward 7",
@@ -1665,7 +1665,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-044",
+    "zone_id": "IND-044",
     "name": "Ward 7 - Sector 5",
     "city": "Indore",
     "ward": "Ward 7",
@@ -1703,7 +1703,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-045",
+    "zone_id": "IND-045",
     "name": "Ward 7 - Sector 6",
     "city": "Indore",
     "ward": "Ward 7",
@@ -1741,7 +1741,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-046",
+    "zone_id": "IND-046",
     "name": "Ward 7 - Sector 7",
     "city": "Indore",
     "ward": "Ward 7",
@@ -1779,7 +1779,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-047",
+    "zone_id": "IND-047",
     "name": "Ward 7 - Sector 8",
     "city": "Indore",
     "ward": "Ward 7",
@@ -1817,7 +1817,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-048",
+    "zone_id": "IND-048",
     "name": "Ward 7 - Sector 9",
     "city": "Indore",
     "ward": "Ward 7",
@@ -1855,7 +1855,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-049",
+    "zone_id": "IND-049",
     "name": "Ward 7 - Sector 10",
     "city": "Indore",
     "ward": "Ward 7",
@@ -1893,7 +1893,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-050",
+    "zone_id": "IND-050",
     "name": "Ward 7 - Sector 11",
     "city": "Indore",
     "ward": "Ward 7",
@@ -1931,7 +1931,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-051",
+    "zone_id": "IND-051",
     "name": "Ward 8 - Sector 5",
     "city": "Indore",
     "ward": "Ward 8",
@@ -1969,7 +1969,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-052",
+    "zone_id": "IND-052",
     "name": "Ward 8 - Sector 6",
     "city": "Indore",
     "ward": "Ward 8",
@@ -2007,7 +2007,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-053",
+    "zone_id": "IND-053",
     "name": "Ward 8 - Sector 7",
     "city": "Indore",
     "ward": "Ward 8",
@@ -2045,7 +2045,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-054",
+    "zone_id": "IND-054",
     "name": "Ward 8 - Sector 8",
     "city": "Indore",
     "ward": "Ward 8",
@@ -2083,7 +2083,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-055",
+    "zone_id": "IND-055",
     "name": "Ward 8 - Sector 9",
     "city": "Indore",
     "ward": "Ward 8",
@@ -2121,7 +2121,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-056",
+    "zone_id": "IND-056",
     "name": "Ward 8 - Sector 10",
     "city": "Indore",
     "ward": "Ward 8",
@@ -2159,7 +2159,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-057",
+    "zone_id": "IND-057",
     "name": "Ward 8 - Sector 11",
     "city": "Indore",
     "ward": "Ward 8",
@@ -2197,7 +2197,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-058",
+    "zone_id": "IND-058",
     "name": "Ward 9 - Sector 5",
     "city": "Indore",
     "ward": "Ward 9",
@@ -2235,7 +2235,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-059",
+    "zone_id": "IND-059",
     "name": "Ward 9 - Sector 6",
     "city": "Indore",
     "ward": "Ward 9",
@@ -2273,7 +2273,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-060",
+    "zone_id": "IND-060",
     "name": "Ward 9 - Sector 7",
     "city": "Indore",
     "ward": "Ward 9",
@@ -2311,7 +2311,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-061",
+    "zone_id": "IND-061",
     "name": "Ward 9 - Sector 8",
     "city": "Indore",
     "ward": "Ward 9",
@@ -2349,7 +2349,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-062",
+    "zone_id": "IND-062",
     "name": "Ward 9 - Sector 9",
     "city": "Indore",
     "ward": "Ward 9",
@@ -2387,7 +2387,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-063",
+    "zone_id": "IND-063",
     "name": "Ward 10 - Sector 5",
     "city": "Indore",
     "ward": "Ward 10",
@@ -2425,7 +2425,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-064",
+    "zone_id": "IND-064",
     "name": "Ward 10 - Sector 6",
     "city": "Indore",
     "ward": "Ward 10",
@@ -2463,7 +2463,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-065",
+    "zone_id": "IND-065",
     "name": "Ward 10 - Sector 7",
     "city": "Indore",
     "ward": "Ward 10",
@@ -2501,7 +2501,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-066",
+    "zone_id": "IND-066",
     "name": "Ward 10 - Sector 8",
     "city": "Indore",
     "ward": "Ward 10",
@@ -2539,7 +2539,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-067",
+    "zone_id": "IND-067",
     "name": "Ward 10 - Sector 9",
     "city": "Indore",
     "ward": "Ward 10",
@@ -2577,7 +2577,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-068",
+    "zone_id": "IND-068",
     "name": "Ward 11 - Sector 5",
     "city": "Indore",
     "ward": "Ward 11",
@@ -2615,7 +2615,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-069",
+    "zone_id": "IND-069",
     "name": "Ward 11 - Sector 7",
     "city": "Indore",
     "ward": "Ward 11",
@@ -2653,7 +2653,7 @@
     ]
    },
    "properties": {
-    "zone_id": "Z-070",
+    "zone_id": "IND-070",
     "name": "Ward 11 - Sector 8",
     "city": "Indore",
     "ward": "Ward 11",

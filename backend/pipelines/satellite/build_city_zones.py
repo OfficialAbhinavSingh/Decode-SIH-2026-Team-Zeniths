@@ -303,13 +303,29 @@ def build(city: str, state: str | None, cell: float) -> dict:
         )
     print(f"  fishnet:  {rows} x {cols} bbox grid -> {len(cells)} cells inside the boundary")
 
+    # `zones.id` is a single global text primary key (docs/DATA-CONTRACT.md) -- it is NOT
+    # scoped per city. seed.py's committed Jaipur grid already occupies Z-001..Z-030. A
+    # second city generated with the same "Z-{index:03d}" scheme collides on every
+    # overlapping id, and load_zones.py's upsert-on-conflict means loading it silently
+    # OVERWRITES the first city's zone rows -- name, geometry, everything. Verified this
+    # by hand: loading a 70-zone Indore file with plain Z-001..Z-070 ids into a database
+    # that already had Jaipur's Z-001..Z-030 left zero Jaipur rows, no error, no warning.
+    #
+    # Prefixing the id with a code derived from the city name fixes the common case
+    # cheaply. It does not fully solve the problem -- two cities whose names produce the
+    # same 3-letter code (e.g. "Indore" and "Indraprastha" both -> IND) still collide, and
+    # this script cannot know what city codes already exist in the target database. Loading
+    # a second city remains something to do deliberately, checking `GET /api/zones?city=`
+    # first, not something this script can make fully automatic.
+    prefix = "".join(ch for ch in city.upper() if ch.isalnum())[:3] or "ZZZ"
+
     features = []
     for index, (row, col, lat, lon, polygon) in enumerate(cells, start=1):
         features.append({
             "type": "Feature",
             "geometry": polygon,
             "properties": {
-                "zone_id": f"Z-{index:03d}",
+                "zone_id": f"{prefix}-{index:03d}",
                 "name": f"Ward {row + 1} - Sector {col + 1}",
                 "city": city,
                 "ward": f"Ward {row + 1}",

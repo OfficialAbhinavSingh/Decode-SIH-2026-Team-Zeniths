@@ -134,6 +134,30 @@ def test_max_zones_guard_is_smaller_than_a_district():
     assert len(cells) > MAX_ZONES
 
 
+def test_generated_zone_ids_are_prefixed_by_city_not_by_z():
+    """Regression test for a real bug: a plain Z-{index} scheme collides with the
+    committed Jaipur grid's Z-001..Z-030 on every overlapping id, and load_zones.py's
+    upsert-on-conflict means loading a second city SILENTLY OVERWRITES the first city's
+    zone rows. Verified by hand against a local database: loading 70 Indore zones with
+    bare Z-ids left zero Jaipur rows behind, no error, no warning.
+    """
+    import json
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[2] / "data" / "samples" / "zones.indore.geojson"
+    data = json.loads(path.read_text())
+    jaipur_range = {f"Z-{i:03d}" for i in range(1, 31)}
+    for feature in data["features"]:
+        zone_id = feature["properties"]["zone_id"]
+        assert zone_id not in jaipur_range, (
+            f"{zone_id} collides with the committed Jaipur zone of the same id -- "
+            "loading this file would overwrite that Jaipur zone's row"
+        )
+        assert not zone_id.startswith("Z-"), (
+            f"{zone_id} uses the bare 'Z-' scheme reserved for the default Jaipur grid"
+        )
+
+
 def test_generated_indore_file_matches_the_loader_contract():
     """The committed sample must stay loadable by load_zones.py without edits."""
     import json
