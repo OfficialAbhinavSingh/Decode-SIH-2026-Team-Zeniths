@@ -318,6 +318,7 @@ export default function Dashboard() {
                   {open && (
                     <ZoneDetail
                       score={s}
+                      cityCount={scores.length}
                       onShowOnMap={isMobile ? () => setMobileView('map') : null}
                     />
                   )}

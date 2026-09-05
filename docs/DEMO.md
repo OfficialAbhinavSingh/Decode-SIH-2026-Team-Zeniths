@@ -32,7 +32,7 @@ curl -s https://neerdrishti-api.onrender.com/api/zones/Z-005/signals
 | Satellite provenance | `sentinel2-gee`, not `seed` | ✅ `"source": "sentinel2-gee"` |
 | Cloud-masked zones | no satellite signal at all | ✅ `Z-016` returns `"satellite_score": null`, `"signals_used": 2` |
 | Z-016 confidence | `medium` — two of three | ✅ `"two of three signals available"`, 44% NRW |
-| Z-005 (main beat) | rank 3, all three signals | ✅ rank 3, `signals_used: 3`, score 93.1 |
+| Z-005 (main beat) | top-3, all three signals | ✅ rank 2, `signals_used: 3`, score 96.5 (5 Sep) |
 | Billing honesty | every row flagged | ✅ `"is_synthetic": true` |
 
 The old figure in this file was *high confidence, 46% NRW*. It is now *medium, 44%* — which
@@ -58,6 +58,32 @@ before a judge finds it.** It is a much better answer than being caught.
 
 ---
 
+## ⏳ The seeded citizen reports expire — re-check the ranks on the day
+
+`seed.py` dates each report `now - randint(0, 25) days` (line 169), and `fusion.py` counts
+only reports from the last **30 days** (`CITIZEN_WINDOW_DAYS`). So seeded data starts
+expiring about five days after the seed runs, and every expiry re-ranks the city the next
+time fusion runs.
+
+This is correct behaviour — a report from six weeks ago is not evidence about today — but it
+means **the numbers on this page have a shelf life.** Between the 28 Aug fusion run and
+5 Sep, four reports aged out and the top of the list reshuffled: `Z-016` fell from rank 1 to
+5, `Z-005` rose from 3 to 2, `Z-018` took rank 1.
+
+Measured against the live data on 5 Sep, if fusion is re-run on:
+
+| Date | `Z-005` (main beat) |
+|---|---|
+| 5–10 Sep | rank #2, **3/3 signals** — the script works |
+| 11–12 Sep | rank #3, 3/3 — still fine |
+| **13 Sep onward** | **2/3 signals** — *"all three signals present"* stops being true |
+
+**Both of `Z-005`'s citizen reports expire on 11 and 12 September.** If you are presenting
+on or after 13 Sep, either re-seed so the reports are dated relative to that day, or move
+the main beat to a zone that still carries three signals. Do not find this out on stage.
+
+---
+
 ## The 4-minute script
 
 | Time | Who | Screen | Beat |
@@ -72,13 +98,14 @@ before a judge finds it.** It is a much better answer than being caught.
 
 ---
 
-### 1:40–2:40 · Main beat · Ward 1 - Sector 5 (`Z-005`, rank #3)
+### 1:40–2:40 · Main beat · Ward 1 - Sector 5 (`Z-005`, rank #2)
 
 Open **this** zone, not the #1. It is the highest-ranked zone that carries all three signals
 *and* a real Sentinel-2 observation. The #1 and #2 zones are two-signal zones — perfectly
 honest, but they cannot carry the "three independent sources" line.
 
-> "Ward 1 - Sector 5. Priority 93 out of 100, rank 3 of 30.
+> "Ward 1 - Sector 5. Rank 2 of 30 — and that headline number is a rank position in the
+> city, not a score out of a hundred; the panel says so underneath.
 >
 > **Satellite.** Sentinel-2 measured NDVI 0.265 over this polygon on 25 August. Its own
 > three-year baseline for the same calendar window is 0.191 — this ground is 0.07 greener
@@ -103,7 +130,7 @@ rank #27):
 > they agreed that nothing is wrong."
 
 **The coverage contrast**, if a judge is already leaning in. Scroll to `Ward 4 - Sector 5`
-(`Z-023`, rank #4):
+(`Z-023`, rank #3):
 
 > "This is our fourth priority and it is **low** confidence — one signal, billing only, no
 > satellite observation and nobody has reported it. The system says *'treat as a lead, not
@@ -155,7 +182,7 @@ one the API returned.
 | **"How do you know it's a leak and not a park?"** | The baseline is not a city average — it is *that same polygon*, same calendar window, median of the previous three years (`gee_ndvi.js`). A park that is always green has an anomaly near zero. |
 | **"Why not machine learning?"** | No labelled leak dataset exists at this scale, and a model we cannot explain is one a municipal engineer will not dig on. The rule is three weights — satellite 0.40, billing 0.35, citizen 0.25, in `fusion.py` — auditable and tunable. |
 | **"Can you change the weights right now?"** | Yes: edit `WEIGHTS` in `backend/app/services/fusion.py`, then `POST /api/fusion/run`. About 15 seconds. **Rehearse it or do not offer it.** Never improvise this on stage. |
-| **"What if a city has no billing data?"** | Weights renormalise over whatever signals exist, so a missing signal is *absent*, not zero — a zone is never punished to 40% of its score for data nobody collected. The score is then discounted for coverage (0.70 on one signal, 0.90 on two) so a lone reading cannot outrank corroboration. Show `Z-023` at rank #4: `1/3 signals · low confidence`. |
+| **"What if a city has no billing data?"** | Weights renormalise over whatever signals exist, so a missing signal is *absent*, not zero — a zone is never punished to 40% of its score for data nobody collected. The score is then discounted for coverage (0.70 on one signal, 0.90 on two) so a lone reading cannot outrank corroboration. Show `Z-023` at rank #3: `1/3 signals · low confidence`. |
 | **"What does 'confidence' mean?"** | Three signals present and within 25 points of each other = high. Two or more = medium. One = low. It describes agreement between sources, not probability of a leak. `Z-028` is high confidence *and* rank 27. |
 | **"Why is your #1 only two signals?"** | Because the third does not exist for that zone — it was under cloud on the observation date. We show two real signals rather than inventing a third. It still outranks the one-signal leads below it, which is exactly what the coverage discount is for. |
 | **"Only 30 zones?"** | The grid is a demonstration boundary set, not a claim about Jaipur's real ward geometry. The pipeline takes any polygon set — swap the GeoJSON and re-run. |
@@ -188,7 +215,8 @@ curl -s "localhost:8000/api/scores?limit=6" | python -m json.tool
 
 Confirm before you walk on:
 
-- [ ] `Z-005` (Ward 1 - Sector 5) is rank #3 with `3/3 signals`, and its satellite row's `source` is `sentinel2-gee`
+- [ ] `Z-005` (Ward 1 - Sector 5) is **still `3/3 signals`** (see the decay warning above) and its satellite row's `source` is `sentinel2-gee`
+- [ ] You re-ran `POST /api/fusion/run` **today**, and the ranks you are about to read match what is on screen
 - [ ] `Z-025` (Ward 5 - Sector 1) still shows satellite 0 and the highest NRW in the city
 - [ ] `Z-028` (Ward 5 - Sector 4) still reads `high` confidence at a low rank
 - [ ] `Z-023` (Ward 4 - Sector 5) still reads `1/3 signals · low confidence` **below** the corroborated zones

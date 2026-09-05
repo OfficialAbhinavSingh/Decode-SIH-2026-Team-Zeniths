@@ -137,3 +137,33 @@ export function zoneAt(lat, lon, geojson) {
   }
   return null
 }
+
+// ------------------------------------------------- decoding the headline score
+//
+// `fusion_score` is not a magnitude. fusion.py computes a weighted score, discounts it for
+// coverage, and then replaces it with the zone's *percentile within the city* -- without
+// that spread every zone lands in the 55-65 band and the map is one flat colour.
+//
+// The cost is a panel where a zone with one signal at 86 shows a headline of 90, and both
+// numbers are percentiles of different populations: the sub-scores are percentile-ranked
+// within their own signal (billing does this in pipelines/billing/load.py), the headline is
+// percentile-ranked across fused scores. Reading 90 as "90 out of 100" is then the natural
+// mistake, and it is the first thing anyone asks about.
+//
+// So we recompute the magnitude the percentile came from and show it. These two constants
+// mirror fusion.py, which stores only the percentile and discards the raw value.
+// **fusion.py is the source of truth** -- if WEIGHTS or COVERAGE_FACTOR change there,
+// change them here in the same PR or this line quietly starts lying.
+const FUSION_WEIGHTS = { satellite_score: 0.4, billing_score: 0.35, citizen_score: 0.25 }
+const FUSION_COVERAGE = { 0: 0, 1: 0.7, 2: 0.9, 3: 1 }
+
+/** The weighted, coverage-discounted score behind the percentile, or null if no signal. */
+export function rawFusedScore(score) {
+  const present = Object.entries(FUSION_WEIGHTS).filter(
+    ([key]) => score[key] !== null && score[key] !== undefined,
+  )
+  if (present.length === 0) return null
+  const weightSum = present.reduce((sum, [, w]) => sum + w, 0)
+  const weighted = present.reduce((sum, [key, w]) => sum + w * score[key], 0) / weightSum
+  return weighted * FUSION_COVERAGE[present.length]
+}
