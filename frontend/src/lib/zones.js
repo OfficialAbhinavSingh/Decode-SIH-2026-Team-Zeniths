@@ -41,6 +41,12 @@ export function firstVertexLatLon(geometry) {
   return [ring[0][1], ring[0][0]]
 }
 
+// The sentinel `city` value meaning "the whole country, ranked against itself" rather
+// than any one city. Not a real city name, and deliberately not one that could ever be
+// mistaken for one: it is compared against `Zone.city` values on the way to the API, and a
+// plausible name like "India" would silently become a ?city= filter matching nothing.
+export const NATIONAL = '__india__'
+
 export const SIGNAL_KEYS = ['satellite_score', 'billing_score', 'citizen_score']
 
 // How far apart this zone's available signals are. Two signals at 95 and 20 mean the
@@ -61,7 +67,7 @@ export const DISAGREEMENT_MIN = 40
 export const FILTERS = {
   all: {
     label: 'All zones',
-    describe: (n, city) => `${n} zones in ${city}, ranked`,
+    describe: (n, scope) => `${n} zones in ${scope}, ranked`,
     test: () => true,
   },
   inspect: {
@@ -79,15 +85,20 @@ export const FILTERS = {
   },
 }
 
-// Name or ward, case-insensitive, whitespace-tolerant. Ward lives on the GeoJSON
-// properties rather than on ScoreOut, so the caller passes it in.
+// Name, zone id, ward or city -- case-insensitive, whitespace-tolerant. Ward lives on the
+// GeoJSON properties rather than on ScoreOut, so the caller passes it in.
+//
+// City only exists on the national rows, and typing a city name is the first thing anyone
+// does to a map of the whole country. In a single-city view it is absent and the clause
+// costs nothing; matching it there would only match everything anyway.
 export function matchesQuery(score, ward, query) {
   const q = query.trim().toLowerCase()
   if (!q) return true
   return (
     score.name.toLowerCase().includes(q) ||
     score.zone_id.toLowerCase().includes(q) ||
-    (ward || '').toLowerCase().includes(q)
+    (ward || '').toLowerCase().includes(q) ||
+    (score.city || '').toLowerCase().includes(q)
   )
 }
 

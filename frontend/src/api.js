@@ -23,6 +23,13 @@ export const getScoresGeojson = (city) =>
 // hides itself -- the dashboard looks and behaves the way it always has.
 export const getCities = () => get('/api/cities')
 
+// Every scored zone in the country in one FeatureCollection, ranked against each other
+// rather than within their own city. One request rather than a lean map payload plus a
+// top-N list: at national scale most of what is on screen falls outside any top N, and a
+// polygon you can see but cannot open is worse than a slightly larger download. The
+// backend gzips it (~340 KB on the wire for 6,000 zones).
+export const getNationalGeojson = () => get('/api/national/geojson')
+
 export const getZoneSignals = (zoneId) => get(`/api/zones/${zoneId}/signals`)
 
 export const getZone = (zoneId) => get(`/api/zones/${zoneId}`)

@@ -1,11 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getCities, getReports, getScores, getScoresGeojson, getZone } from '../api.js'
+import {
+  getCities,
+  getNationalGeojson,
+  getReports,
+  getScores,
+  getScoresGeojson,
+  getZone,
+} from '../api.js'
 import CityPicker from '../components/CityPicker.jsx'
 import MapView from '../components/MapView.jsx'
 import ZoneDetail from '../components/ZoneDetail.jsx'
 import Legend from '../components/Legend.jsx'
-import { FILTERS, firstVertexLatLon, matchesQuery, scoreColor } from '../lib/zones.js'
+import { FILTERS, NATIONAL, firstVertexLatLon, matchesQuery, scoreColor } from '../lib/zones.js'
 
 const DEFAULT_CENTER = [26.9124, 75.7873] // Jaipur; overridden by the first zone loaded
 
@@ -15,6 +22,31 @@ const DEFAULT_CENTER = [26.9124, 75.7873] // Jaipur; overridden by the first zon
 const TOP_N = 10
 
 const MOBILE_BREAKPOINT = 820
+
+// Fallback only. The national view fits the bounds of the cities that are actually loaded,
+// which is right whether that is six cities or the whole registry; this is what the map
+// opens on for the frame before /api/cities has answered.
+const INDIA_CENTER = [22.6, 79.5]
+const INDIA_ZOOM = 5
+
+// How many rows the list will put in the DOM at once, however many zones match.
+//
+// Every other limit here is editorial -- TOP_N is a decision about what a crew should be
+// handed. This one is mechanical: "Inspect first" over the whole country matches more than
+// a thousand zones, each row carrying a coloured dot and a chevron, and rendering all of
+// them stalls the tab for seconds on a click. A city never comes close to it, so nothing
+// about the single-city view changes.
+const LIST_CAP = 200
+
+// The national FeatureCollection carries the full evidence per zone, so the ranked list is
+// derived from it rather than fetched separately. That is what closes the gap a lean map
+// payload would leave: at country zoom almost every polygon on screen falls outside any
+// top N, and clicking one of those has to open its panel, not nothing.
+function scoresFromFeatures(collection) {
+  return (collection?.features || [])
+    .map((f) => ({ ...f.properties, computed_at: collection.computed_at }))
+    .sort((a, b) => a.rank - b.rank)
+}
 
 function timeAgo(iso) {
   if (!iso) return null
@@ -75,20 +107,33 @@ export default function Dashboard() {
   const [filter, setFilter] = useState('all')
   const [mobileView, setMobileView] = useState('list')
   const [cities, setCities] = useState([])
-  // null means "whatever CITY_DEFAULT is" -- the first load sends no ?city= at all, so a
-  // database with only the seeded Jaipur grid behaves exactly as it did before the picker.
-  const [city, setCity] = useState(null)
+  // Three states, and the third one matters. `undefined` means "we have not been told what
+  // is loaded yet" and blocks the data request; NATIONAL means the whole country; null
+  // means "whatever CITY_DEFAULT is", sending no ?city= at all, which is how a database
+  // holding only the seeded Jaipur grid behaves exactly as it did before any of this.
+  //
+  // Deciding before fetching costs one round trip on first paint and buys the thing that
+  // matters most here: a single-city database never so much as requests the national view,
+  // let alone renders a country map over one city's worth of squares.
+  const [city, setCity] = useState(undefined)
   const [reports, setReports] = useState(null)
   const [intakeOpen, setIntakeOpen] = useState(false)
   const [intakeBusy, setIntakeBusy] = useState(false)
   const isMobile = useIsMobile()
   const rowRefs = useRef({})
 
+  const national = city === NATIONAL
+
   useEffect(() => {
+    // Still waiting on /api/cities to say whether there is a country to show.
+    if (city === undefined) return
     let live = true
     setLoading(true)
     setError(null)
-    Promise.all([getScores(city, 500), getScoresGeojson(city)])
+    const load = national
+      ? getNationalGeojson().then((g) => [scoresFromFeatures(g), g])
+      : Promise.all([getScores(city, 500), getScoresGeojson(city)])
+    load
       .then(([s, g]) => {
         // A slow response for the city the user just switched away from must not paint
         // over the one they are actually looking at. Without this guard, picking three
@@ -103,6 +148,8 @@ export default function Dashboard() {
     return () => {
       live = false
     }
+    // `national` is derived from `city`, so it cannot change without it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [city])
 
   // Loaded once and kept out of the effect above: a failure here must cost the picker
@@ -110,8 +157,18 @@ export default function Dashboard() {
   // default city it has always shown.
   useEffect(() => {
     getCities()
-      .then(setCities)
-      .catch(() => setCities([]))
+      .then((rows) => {
+        setCities(rows)
+        // The landing view is the whole country when there is a whole country to land on,
+        // and the one seeded city when there is not. Both branches resolve `city` out of
+        // `undefined`, which is what releases the data request above -- including the
+        // failure branch, or a dead /api/cities would leave the dashboard loading forever.
+        setCity(rows.length > 1 ? NATIONAL : null)
+      })
+      .catch(() => {
+        setCities([])
+        setCity(null)
+      })
   }, [])
 
   // Loaded on its own, never folded into the Promise.all above. That call's rejection
@@ -130,10 +187,10 @@ export default function Dashboard() {
     loadReports()
   }, [loadReports])
 
-  // Everything below is scoped to one city: a selected zone, a text query, a filter and
-  // the expanded list all refer to zones that no longer exist after a switch. Clearing
-  // them is what makes the switch feel like arriving at a fresh city rather than landing
-  // in a filtered, empty list.
+  // Everything below is scoped to whatever is loaded: a selected zone, a text query, a
+  // filter and the expanded list all refer to zones that no longer exist after a switch.
+  // Clearing them is what makes the switch feel like arriving somewhere new rather than
+  // landing in a filtered, empty list.
   const changeCity = (next) => {
     if (next === city) return
     setCity(next)
@@ -166,10 +223,17 @@ export default function Dashboard() {
     return byId
   }, [geojson])
 
-  // The city the loaded data is actually FOR, which is not the same as `city`: on first
-  // load `city` is null (no ?city= sent) and only the response says which one the API
-  // chose. The picker and the headline both need that name, not the null.
-  const cityLabel = geojson?.features?.[0]?.properties?.city || null
+  // What the loaded data is actually FOR, which is not the same as `city`: when `city` is
+  // null no ?city= was sent and only the response says which one the API chose. The
+  // headline needs that name, not the null. Nationally the features carry 234 different
+  // city names and none of them is the answer.
+  const cityLabel = national ? 'India' : geojson?.features?.[0]?.properties?.city || null
+
+  // How to finish the sentence "ranked across ___" wherever a percentile is explained --
+  // the legend, and the decode line under a selected zone. Naming the wrong population is
+  // the one way these numbers actively mislead: 100 nationally is the worst zone in the
+  // country, 100 in a city view is only the worst zone in that city.
+  const scope = national ? 'India' : cityLabel || 'the city'
 
   const matches = useMemo(
     () =>
@@ -180,7 +244,9 @@ export default function Dashboard() {
   )
 
   const narrowed = filter !== 'all' || query.trim() !== ''
-  const visible = narrowed || showAll ? matches : matches.slice(0, TOP_N)
+  const shortlist = narrowed || showAll ? matches : matches.slice(0, TOP_N)
+  const visible = shortlist.slice(0, LIST_CAP)
+  const capped = shortlist.length > visible.length
   const matchIds = useMemo(
     () => (narrowed ? new Set(matches.map((s) => s.zone_id)) : null),
     [narrowed, matches],
@@ -193,15 +259,45 @@ export default function Dashboard() {
     if (selectedId && !matches.some((s) => s.zone_id === selectedId)) setSelectedId(null)
   }, [matches, selectedId])
 
+  // A zone clicked on the map has to open its evidence, and neither the Top 10 nor the
+  // capped list is guaranteed to contain it -- nationally almost nothing on screen is in
+  // either. Rather than expand the list until it does, the selected zone gets a row of its
+  // own at the top. Scrolling six thousand rows to find the square you just clicked is not
+  // a better answer than putting it where you are already looking.
+  const selectedRow =
+    selectedId && !visible.some((s) => s.zone_id === selectedId)
+      ? matches.find((s) => s.zone_id === selectedId)
+      : null
+  const rows = selectedRow ? [selectedRow, ...visible] : visible
+
   const freshness = timeAgo(scores[0]?.computed_at)
-  const center = firstVertexLatLon(geojson?.features?.[0]?.geometry) || DEFAULT_CENTER
+  const center = national
+    ? INDIA_CENTER
+    : firstVertexLatLon(geojson?.features?.[0]?.geometry) || DEFAULT_CENTER
+
+  // Fit what is loaded rather than hardcoding a view of the country: six cities and 234
+  // cities want very different framings, and the second one stops being true the moment
+  // someone seeds a subset. Built from the city centroids, not from 6,000 polygons.
+  const bounds = useMemo(() => {
+    if (!national || cities.length < 2) return null
+    const lats = cities.map((c) => c.centroid_lat)
+    const lons = cities.map((c) => c.centroid_lon)
+    return [
+      [Math.min(...lats), Math.min(...lons)],
+      [Math.max(...lats), Math.max(...lons)],
+    ]
+  }, [national, cities])
 
   const select = (zoneId) => {
     const next = zoneId === selectedId ? null : zoneId
     setSelectedId(next)
     // Clicking a polygon on the map should move the list to that zone, not leave the
     // crew hunting for it -- and if the zone is outside the current Top 10, show all.
-    if (next && !visible.some((s) => s.zone_id === next)) setShowAll(true)
+    // Not worth doing when the full list is capped anyway: expanding to 200 rows still
+    // would not reach a zone ranked 3,000th, and selectedRow has already put it on screen.
+    if (next && !visible.some((s) => s.zone_id === next) && matches.length <= LIST_CAP) {
+      setShowAll(true)
+    }
     if (next) {
       requestAnimationFrame(() =>
         rowRefs.current[next]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }),
@@ -212,10 +308,10 @@ export default function Dashboard() {
   const headline = loading
     ? 'Loading zone scores'
     : narrowed
-      ? FILTERS[filter].describe(matches.length, cityLabel) +
+      ? FILTERS[filter].describe(matches.length, scope) +
         (query.trim() ? ` matching “${query.trim()}”` : '')
       : showAll
-        ? `All ${scores.length} zones${cityLabel ? ` in ${cityLabel}` : ''}, ranked`
+        ? `All ${scores.length.toLocaleString()} zones${cityLabel ? ` in ${cityLabel}` : ''}, ranked`
         : `Top ${Math.min(TOP_N, scores.length) || ''} to inspect${cityLabel ? ` in ${cityLabel}` : ''}`
 
   const listHidden = isMobile && mobileView !== 'list'
@@ -335,7 +431,7 @@ export default function Dashboard() {
               </p>
             )}
 
-            {visible.map((s) => {
+            {rows.map((s) => {
               const open = s.zone_id === selectedId
               return (
                 <div
@@ -372,6 +468,7 @@ export default function Dashboard() {
                     <ZoneDetail
                       score={s}
                       cityCount={scores.length}
+                      scope={national ? 'across India' : cityLabel ? `in ${cityLabel}` : ''}
                       onShowOnMap={isMobile ? () => setMobileView('map') : null}
                     />
                   )}
@@ -379,10 +476,23 @@ export default function Dashboard() {
               )
             })}
 
+            {/* Says so when the list is not showing everything it matched, rather than
+                letting a truncated list read as the complete answer. */}
+            {capped && (
+              <p className="empty">
+                Showing the first {LIST_CAP} of {shortlist.length.toLocaleString()} — narrow
+                the search or the filter to see the rest.
+              </p>
+            )}
+
             {!loading && !narrowed && scores.length > TOP_N && (
               <p className="empty">
                 <button className="ghost-btn" onClick={() => setShowAll((v) => !v)}>
-                  {showAll ? `Show top ${TOP_N} only` : `Show all ${scores.length} zones`}
+                  {showAll
+                    ? `Show top ${TOP_N} only`
+                    : scores.length > LIST_CAP
+                      ? `Show the top ${LIST_CAP} of ${scores.length.toLocaleString()}`
+                      : `Show all ${scores.length} zones`}
                 </button>
               </p>
             )}
@@ -442,11 +552,24 @@ export default function Dashboard() {
               README.md has said so all along -- the dashboard was the copy that drifted. */}
           {!loading && !error && scores.length > 0 && (
             <p className="disclosure">
-              Satellite NDVI is <strong>real</strong> Sentinel-2 data. Billing figures are{' '}
-              <strong>synthetic</strong>, modelled on published CPHEEO / AMRUT / Jal Jeevan Mission
-              non-revenue-water benchmarks. The citizen reports in this demo database are{' '}
-              <strong>seeded</strong> — the intake path itself is live. See{' '}
-              <code>docs/SCOPE.md</code>.
+              {cities.length > 1 ? (
+                <>
+                  Every signal on this map is <strong>synthetic</strong> — a seeded generator
+                  reproducing the Jaipur grid across {cities.length} cities, with billing
+                  modelled on published CPHEEO / AMRUT / Jal Jeevan Mission non-revenue-water
+                  benchmarks. A real Sentinel-2 export overrides the generated NDVI wherever
+                  one has been ingested; everything else here is generated. See{' '}
+                  <code>docs/SYNTHETIC-DATA.md</code>.
+                </>
+              ) : (
+                <>
+                  Satellite NDVI is <strong>real</strong> Sentinel-2 data. Billing figures are{' '}
+                  <strong>synthetic</strong>, modelled on published CPHEEO / AMRUT / Jal Jeevan
+                  Mission non-revenue-water benchmarks. The citizen reports in this demo database
+                  are <strong>seeded</strong> — the intake path itself is live. See{' '}
+                  <code>docs/SCOPE.md</code>.
+                </>
+              )}
             </p>
           )}
         </section>
@@ -457,11 +580,14 @@ export default function Dashboard() {
             selectedId={selectedId}
             onSelect={select}
             center={center}
+            zoom={national ? INDIA_ZOOM : 13}
+            bounds={bounds}
+            national={national}
             flyTarget={flyTarget}
             matchIds={matchIds}
             resizeToken={mapHidden ? 'hidden' : `${mobileView}-${isMobile}`}
           />
-          {!loading && scores.length > 0 && <Legend />}
+          {!loading && scores.length > 0 && <Legend scope={scope} />}
         </section>
       </div>
 

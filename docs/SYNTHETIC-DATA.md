@@ -127,6 +127,34 @@ The dashboard's city picker renders **only when more than one city is loaded**. 
 database with just the seeded Jaipur grid, the dashboard is exactly what it has always
 been: no picker, no `?city=` on the first request, same default, same map.
 
+### The India view
+
+When more than one city is loaded, the dashboard **opens on the whole country**: every
+zone square in every city, drawn at once, from a single `GET /api/national/geojson`. The
+picker's first entry (`All India`) returns to it; picking a city drops back to the
+single-city view, which is unchanged.
+
+The national ranking is not the stored one. `zone_scores.fusion_score` is a percentile
+*within one city*, so every city's worst zone reads exactly 100 and the numbers are not
+comparable across cities — Jaipur's rank #1 and Kohima's rank #1 are both 100 and mean
+different things. The national view re-ranks from the absolute sub-scores instead, which
+are stored as absolutes and survive the percentile. `DATA-CONTRACT.md` has the detail. In
+practice it is the difference between "the worst zone in Jaipur" and "#161 of 6,088" — the
+second is the one a state-level budget conversation needs.
+
+Two things the view does differently, both for the obvious reason that 6,088 is not 30:
+
+- **Canvas, not SVG.** Six thousand SVG paths is a DOM no browser pans smoothly. The city
+  view keeps SVG, because canvas cannot run the CSS keyframes behind the pulsing selection
+  ring, and at 30 zones there is nothing to gain.
+- **No pins, and no borders on unselected squares.** A 1.3 km zone is well under a pixel at
+  the zoom that fits India on screen, so a white hairline border is not a line between two
+  zones — it *is* the zone, and six thousand of them paint the country white.
+
+The ranked list is derived from the same response rather than fetched separately, so
+clicking any square on the map opens its evidence, including the ones far outside the top
+ten. It renders at most 200 rows at a time and says so when it is holding some back.
+
 ---
 
 ## Replacing it with real data

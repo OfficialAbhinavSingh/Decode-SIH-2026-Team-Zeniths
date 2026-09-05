@@ -10,7 +10,7 @@ import ScoreBar from './ScoreBar.jsx'
 const COUNT_WORD = { 1: 'a single', 2: 'two', 3: 'three' }
 const DISCOUNT_SHOWN = { 1: '0.70', 2: '0.90' } // ×1.0 on three signals is not a discount
 
-export default function ZoneDetail({ score, onShowOnMap, cityCount }) {
+export default function ZoneDetail({ score, onShowOnMap, cityCount, scope }) {
   const [signals, setSignals] = useState(null)
   const [signalsFailed, setSignalsFailed] = useState(false)
 
@@ -43,7 +43,8 @@ export default function ZoneDetail({ score, onShowOnMap, cityCount }) {
       {raw !== null && (
         <p className="score-decode">
           <strong>{score.fusion_score.toFixed(0)}</strong> is this zone's rank position —
-          {' '}#{score.rank} of {cityCount || 30}, not a score out of 100. The weighted score
+          {' '}#{score.rank} of {cityCount || 30}
+          {scope ? ` ${scope}` : ''}, not a score out of 100. The weighted score
           behind it is <strong>{raw.toFixed(1)}</strong>
           {discount ? `, after a ×${discount} discount for resting on ${countWord} signal${score.signals_used === 1 ? '' : 's'}` : ''}.
         </p>
