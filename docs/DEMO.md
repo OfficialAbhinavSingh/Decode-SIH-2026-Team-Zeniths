@@ -123,7 +123,8 @@ rank #27):
 ### 3:05–3:35 · The citizen loop
 
 Send a message to the Telegram bot **@zeniths_neerdrishti_bot**, or open `/report` in the
-dashboard and submit with coordinates. Then `POST /api/fusion/run` and reload.
+dashboard and set the location — search the place by name, use the browser's GPS, or type
+coordinates. Then `POST /api/fusion/run` and reload.
 
 > "Any resident, any Indian language — Sarvam AI translates it, we hash the phone number so
 > we never store it, the report lands in the right zone by its coordinates, and the score
@@ -133,6 +134,14 @@ dashboard and submit with coordinates. Then `POST /api/fusion/run` and reload.
 credential today. WhatsApp Business API approval is not something to gamble a demo on. The
 web form at `/report` depends on nobody's approval and was verified end to end — a
 submission at `26.9124, 75.7873` returns *"Logged against zone Z-022"*.
+
+Searching a place by name is the nicest of the three location paths on stage and the only
+one that needs the internet: it calls Nominatim, so it dies with the wifi. The form says so
+and keeps GPS and typed coordinates on screen, but if you are rehearsing the offline run,
+rehearse it with coordinates. Before submitting, the form names the zone the point falls
+in — it computes that in the browser from the same polygons the map draws, so it is a
+preview of `match_zone()`, not a second opinion; the zone in the confirmation is still the
+one the API returned.
 
 ---
 
@@ -207,7 +216,9 @@ Confirm before you walk on:
       all 30 zone polygons drawn, 0 live tiles loaded.
 - [ ] Slides exported to PDF and stored locally, not on Google Slides
 - [ ] The Telegram bot needs internet. If wifi is down, demo `/report` against the local
-      backend — rehearse that path too
+      backend — rehearse that path too, and set the location by typing coordinates rather
+      than searching, since place search is a live Nominatim call. The preview map falls
+      back to the same bundled basemap the dashboard uses.
 - [ ] **Hit the API once before the judges reach you.** `neerdrishti-api` is a free Render
       web service and those spin down after ~15 minutes idle. Measured 28 Aug: after 19
       minutes of no traffic the first request still came back in **0.77s**, so it had not
