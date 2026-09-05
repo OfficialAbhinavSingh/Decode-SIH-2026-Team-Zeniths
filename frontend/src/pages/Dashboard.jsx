@@ -232,17 +232,38 @@ export default function Dashboard() {
           <div className="list-scroll">
             {loading && [0, 1, 2, 3, 4, 5].map((i) => <div className="skeleton" key={i} />)}
 
+            {/* Two audiences, two messages. On a developer's machine the useful thing to say
+                is which port nothing is listening on. On the deployed URL a judge sees this
+                during a Render cold start, and "is the backend running on :8000?" reads as a
+                broken build -- it names a port that does not exist for them and asks them to
+                fix our server. */}
             {error && (
               <p className="empty error">
-                Could not reach the API ({error}).
-                <br />
-                Is the backend running on :8000?
+                {import.meta.env.DEV ? (
+                  <>
+                    Could not reach the API ({error}).
+                    <br />
+                    Is the backend running on :8000?
+                  </>
+                ) : (
+                  <>
+                    Could not load the zone list.
+                    <br />
+                    The service sleeps when idle — wait a few seconds and reload.
+                  </>
+                )}
               </p>
             )}
 
             {!loading && !error && scores.length === 0 && (
               <p className="empty">
-                No scores yet. Run <code>python seed.py</code> in <code>backend/</code>, then reload.
+                {import.meta.env.DEV ? (
+                  <>
+                    No scores yet. Run <code>python seed.py</code> in <code>backend/</code>, then reload.
+                  </>
+                ) : (
+                  <>No zones have been scored yet.</>
+                )}
               </p>
             )}
 
