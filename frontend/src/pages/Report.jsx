@@ -1,6 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { submitReport } from '../api.js'
+import { getScoresGeojson, submitReport } from '../api.js'
+import LocationSearch from '../components/LocationSearch.jsx'
+import LocationPreview from '../components/LocationPreview.jsx'
+import { describePoint } from '../lib/geocode.js'
+import { zoneAt } from '../lib/zones.js'
 
 // Web fallback for the WhatsApp intake (R5). WhatsApp Business API approval can be slow,
 // so this form must exist -- the demo can never depend on Meta approving us in time.
@@ -39,15 +43,27 @@ function outcomeCopy(res) {
   }
 }
 
+// How the point currently on the form was arrived at. Only the wording differs, but the
+// wording matters: "captured" claims GPS accuracy, and a pin the resident dragged onto a
+// road from a search result has not earned that claim.
+const ORIGIN_TEXT = {
+  gps: 'Location captured',
+  search: 'Location selected',
+  pin: 'Pin placed',
+}
+
 export default function Report() {
   const [description, setDescription] = useState('')
   const [coords, setCoords] = useState(null)
+  const [origin, setOrigin] = useState(null) // 'gps' | 'search' | 'pin' | null (typed)
+  const [placeLabel, setPlaceLabel] = useState(null) // { title, detail } from the geocoder
   const [manual, setManual] = useState({ lat: '', lon: '' })
   const [showManual, setShowManual] = useState(false)
   const [status, setStatus] = useState(null) // null | 'loading' | 'success' | 'error'
   const [outcome, setOutcome] = useState(null) // what the API said about the last submit
   const [statusMsg, setStatusMsg] = useState('')
   const [locLoading, setLocLoading] = useState(false)
+  const [zonesGeo, setZonesGeo] = useState(null)
 
   // Browser geolocation fails often in practice -- denied permission, no HTTPS, a desktop
   // with no GPS, a venue with no signal. Typing coordinates has to be a real path, not a
@@ -56,10 +72,46 @@ export default function Report() {
   const manualLon = Number.parseFloat(manual.lon)
   const manualValid = inRange(manualLat, 90) && inRange(manualLon, 180)
   const effective = coords || (manualValid ? { lat: manualLat, lon: manualLon } : null)
+  const hasPoint = Boolean(effective)
+
+  // Zone polygons, only once a point exists -- someone who never sets a location never
+  // pays for this request. It powers the "which zone is this?" line below the map, which
+  // is a preview of what the backend will decide, so every failure here is silent: no
+  // polygons means no line, never a blocked or altered submission.
+  useEffect(() => {
+    if (!hasPoint || zonesGeo) return undefined
+    let cancelled = false
+    getScoresGeojson()
+      .then((geo) => {
+        if (!cancelled) setZonesGeo(geo)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [hasPoint, zonesGeo])
+
+  const matchedZone = effective && zonesGeo ? zoneAt(effective.lat, effective.lon, zonesGeo) : null
+
+  // A dragged pin should say where it landed, but a reverse lookup is slower than the drag
+  // and the resident may drag again before it answers. The token discards every reply but
+  // the newest, so a slow first lookup cannot overwrite the label of a later pin.
+  const lookupToken = useRef(0)
+  const labelPoint = (lat, lon) => {
+    const token = lookupToken.current + 1
+    lookupToken.current = token
+    describePoint(lat, lon)
+      .then((found) => {
+        if (lookupToken.current === token) setPlaceLabel(found)
+      })
+      .catch(() => {
+        if (lookupToken.current === token) setPlaceLabel(null)
+      })
+  }
 
   const useMyLocation = () => {
     if (!navigator.geolocation) {
-      setStatusMsg('This browser has no location support — type the coordinates below instead.')
+      setStatusMsg('This browser has no location support — search for the place or type the coordinates below instead.')
       setStatus('error')
       setShowManual(true)
       return
@@ -67,17 +119,43 @@ export default function Report() {
     setLocLoading(true)
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        lookupToken.current += 1 // cancel any in-flight label from a previous pin
         setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude })
+        setOrigin('gps')
+        setPlaceLabel(null)
         setLocLoading(false)
         setStatus(null)
       },
       () => {
-        setStatusMsg('Could not read your location — type the coordinates below instead.')
+        setStatusMsg('Could not read your location — search for the place or type the coordinates below instead.')
         setStatus('error')
         setLocLoading(false)
         setShowManual(true)
       },
     )
+  }
+
+  const pickPlace = (place) => {
+    lookupToken.current += 1 // the search result already carries a name; drop any lookup
+    setCoords({ lat: place.lat, lon: place.lon })
+    setOrigin('search')
+    setPlaceLabel({ title: place.title, detail: place.detail })
+    setStatus(null)
+  }
+
+  const movePin = (lat, lon) => {
+    setCoords({ lat, lon })
+    setOrigin('pin')
+    setPlaceLabel(null)
+    labelPoint(lat, lon)
+  }
+
+  const clearLocation = () => {
+    lookupToken.current += 1
+    setCoords(null)
+    setOrigin(null)
+    setPlaceLabel(null)
+    setManual({ lat: '', lon: '' })
   }
 
   const submit = async (e) => {
@@ -149,45 +227,74 @@ export default function Report() {
               <div className="form-step">
                 <div className="step-label">
                   <span className="step-num">2</span>
-                  <span>Pin your location</span>
+                  <span>Set the leak location</span>
                 </div>
 
                 {effective ? (
                   <div className="loc-confirmed">
                     <span className="loc-dot" />
-                    <div>
+                    <div className="loc-body">
                       <p className="loc-text">
-                        Location {coords ? 'captured' : 'set'}
+                        {placeLabel ? placeLabel.title : ORIGIN_TEXT[origin] || 'Location set'}
                       </p>
+                      {placeLabel?.detail && <p className="loc-place">{placeLabel.detail}</p>}
                       <p className="loc-coords">{effective.lat.toFixed(5)}, {effective.lon.toFixed(5)}</p>
                     </div>
                     <button
                       type="button"
                       className="loc-change"
-                      onClick={() => {
-                        setCoords(null)
-                        setManual({ lat: '', lon: '' })
-                      }}
+                      onClick={clearLocation}
                     >
                       Change
                     </button>
                   </div>
                 ) : (
-                  <button
-                    type="button"
-                    className="btn-location"
-                    onClick={useMyLocation}
-                    disabled={locLoading}
-                  >
-                    {locLoading ? (
-                      <span className="spinner" />
-                    ) : (
-                      <span>📍</span>
-                    )}
-                    {locLoading ? 'Detecting…' : 'Use my current location'}
-                  </button>
+                  <>
+                    {/* Search first: it is the only path that works when you are not at
+                        the leak, which is most reports filed from a desk. */}
+                    <LocationSearch onPick={pickPlace} disabled={status === 'loading'} />
+
+                    <div className="loc-or"><span>or</span></div>
+
+                    <button
+                      type="button"
+                      className="btn-location"
+                      onClick={useMyLocation}
+                      disabled={locLoading}
+                    >
+                      {locLoading ? (
+                        <span className="spinner" />
+                      ) : (
+                        <span>📍</span>
+                      )}
+                      {locLoading ? 'Detecting…' : 'Use my current location'}
+                    </button>
+                  </>
                 )}
-                <p className="field-hint">We match your GPS to the nearest monitoring zone.</p>
+
+                {effective ? (
+                  <>
+                    <LocationPreview lat={effective.lat} lon={effective.lon} onMove={movePin} />
+                    {zonesGeo && (
+                      matchedZone ? (
+                        <p className="field-hint">
+                          Falls inside <strong>{matchedZone.name}</strong> — this report will be
+                          scored against that zone.
+                        </p>
+                      ) : (
+                        <p className="field-hint warn">
+                          This point is outside every monitored zone. The report is still logged,
+                          but it will not be scored or queued for a ward.
+                        </p>
+                      )
+                    )}
+                  </>
+                ) : (
+                  <p className="field-hint">
+                    Search for the road or landmark nearest the leak, or use your GPS if you are
+                    standing at it. We match the point to the nearest monitoring zone.
+                  </p>
+                )}
 
                 {!coords && (
                   <details

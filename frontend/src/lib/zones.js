@@ -90,3 +90,50 @@ export function matchesQuery(score, ward, query) {
     (ward || '').toLowerCase().includes(q)
   )
 }
+
+// ---------------------------------------------------------------- point in zone
+//
+// A deliberate port of backend/app/services/geo.py, down to the strict `<` in the
+// crossing test. The report form uses it to tell someone which zone their pin falls in
+// *before* they submit, and the backend re-runs its own copy on the point it receives.
+// Two implementations of one rule can disagree on a boundary pixel, so the form must
+// treat this as a preview and never as the verdict -- the answer that reaches the
+// resident is still the zone_id in the API response.
+function ringContains(lon, lat, ring) {
+  let inside = false
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i, i += 1) {
+    const [xi, yi] = ring[i]
+    const [xj, yj] = ring[j]
+    if (yi > lat !== yj > lat) {
+      const xAtLat = ((xj - xi) * (lat - yi)) / (yj - yi) + xi
+      if (lon < xAtLat) inside = !inside
+    }
+  }
+  return inside
+}
+
+/** True if [lat, lon] falls inside a GeoJSON Polygon or MultiPolygon, holes respected. */
+export function pointInGeometry(lat, lon, geometry) {
+  if (!geometry) return false
+  if (geometry.type === 'Feature') return pointInGeometry(lat, lon, geometry.geometry)
+  const coords = geometry.coordinates
+  if (!coords) return false
+  const polygons =
+    geometry.type === 'Polygon' ? [coords] : geometry.type === 'MultiPolygon' ? coords : null
+  if (!polygons) return false
+  for (const polygon of polygons) {
+    if (!polygon || !polygon[0]) continue
+    if (!ringContains(lon, lat, polygon[0])) continue
+    const inHole = polygon.slice(1).some((hole) => ringContains(lon, lat, hole))
+    if (!inHole) return true
+  }
+  return false
+}
+
+/** The first zone feature containing the point, or null. Mirrors match_zone() server-side. */
+export function zoneAt(lat, lon, geojson) {
+  for (const feature of geojson?.features || []) {
+    if (pointInGeometry(lat, lon, feature.geometry)) return feature.properties
+  }
+  return null
+}

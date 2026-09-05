@@ -816,6 +816,168 @@ code {
 .field-hint { margin: 7px 0 0; font-size: 12px; line-height: 1.5; color: var(--muted); }
 .field-hint.warn { color: var(--warn); }
 
+/* ------------------------------------------------- place search (report) */
+
+.place-search { position: relative; }
+
+.place-search-field { position: relative; display: flex; align-items: center; }
+
+.place-search-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+/* Matches .form-step input, plus room for the icon and the busy spinner. Declared after
+   that rule so the padding override lands without an !important. */
+.place-search-field input {
+  width: 100%;
+  padding: 11px 38px 11px 34px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  transition: border-color 0.18s var(--ease), box-shadow 0.18s var(--ease),
+    background 0.18s var(--ease);
+}
+
+.place-search-field input::placeholder { color: var(--muted); }
+
+.place-search-field input:focus {
+  outline: none;
+  background: var(--surface);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-weak);
+}
+
+.place-search-spin {
+  position: absolute;
+  right: 12px;
+  width: 14px;
+  height: 14px;
+  border-width: 2px;
+}
+
+.place-results {
+  position: absolute;
+  z-index: 500; /* over the Leaflet preview below it, which claims 400 */
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 264px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  animation: expand-in 0.18s var(--ease) both;
+}
+
+.place-result {
+  display: block;
+  width: 100%;
+  padding: 9px 11px;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.14s var(--ease);
+}
+
+.place-result.active { background: var(--accent-weak); }
+
+.place-result-title {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.place-result-detail {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+/* Separator between the two ways of setting a point, so neither reads as the caption
+   of the other. */
+.loc-or {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.loc-or::before,
+.loc-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* --------------------------------------------------- location preview map */
+
+.loc-preview { margin-top: 12px; }
+
+.loc-preview-map {
+  height: 190px;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-3);
+}
+
+.loc-preview-hint { margin: 7px 0 0; font-size: 12px; color: var(--muted); }
+
+/* divIcon carries no image, so the pin is drawn here. See LocationPreview.jsx for why
+   the default Leaflet marker is not used. */
+.pick-pin { background: none; border: 0; cursor: grab; }
+.pick-pin:active { cursor: grabbing; }
+
+.pick-pin-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgba(16, 24, 40, 0.4);
+}
+
+.pick-pin-stem {
+  position: absolute;
+  top: 19px;
+  left: 10px;
+  width: 2px;
+  height: 11px;
+  background: var(--accent);
+}
+
+.loc-body { min-width: 0; }
+
+.loc-place {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+
 .btn-location {
   display: flex;
   align-items: center;
@@ -838,7 +1000,7 @@ code {
 
 .loc-confirmed {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 11px;
   padding: 12px 14px;
   background: var(--surface-2);
@@ -851,6 +1013,7 @@ code {
   width: 9px;
   height: 9px;
   flex: none;
+  margin-top: 5px; /* .loc-confirmed aligns to flex-start; line the dot up with the title */
   border-radius: 50%;
   background: var(--ok);
   box-shadow: 0 0 0 4px rgba(26, 155, 92, 0.15);
@@ -867,6 +1030,7 @@ code {
 
 .loc-change {
   margin-left: auto;
+  flex: none;
   padding: 6px 11px;
   font-size: 12.5px;
   color: var(--accent-ink);
