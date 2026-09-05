@@ -17,9 +17,10 @@ split by a river or a railway line -- so the sample grid is not the only shape t
 import argparse
 import json
 
+from sqlalchemy.dialects.postgresql import insert
+
 from app.db import SessionLocal
 from app.models import Zone
-from app.upsert import upsert
 
 
 def _ring_points(ring: list) -> list:
@@ -130,7 +131,11 @@ def main() -> int:
 
     db = SessionLocal()
     try:
-        upsert(db, Zone, zones, index_elements=["id"])
+        update_cols = {c: getattr(insert(Zone).excluded, c) for c in zones[0] if c != "id"}
+        stmt = insert(Zone).values(zones).on_conflict_do_update(
+            index_elements=["id"], set_=update_cols
+        )
+        db.execute(stmt)
         db.commit()
     finally:
         db.close()

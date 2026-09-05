@@ -128,23 +128,6 @@ class ScoreOut(BaseModel):
     explanation: str
     computed_at: datetime
 
-    # --- pan-India additions. All optional, so a client written against the frozen
-    # --- MVP contract keeps working untouched.
-    city: str | None = None
-    city_code: str | None = None
-    state: str | None = None
-    # Comparable across cities, unlike `fusion_score`, which is a within-city percentile.
-    absolute_score: float | None = None
-    priority_score: float | None = None
-    urgency_multiplier: float | None = None
-    groundwater_stress_pct: float | None = None
-    groundwater_category: str | None = None
-    rain_flagged: bool = False
-    rain_mm_7d: float | None = None
-    water_at_risk_kld: float | None = None
-    annual_value_inr: float | None = None
-    households_served: int | None = None
-
 
 class IngestResult(BaseModel):
     inserted: int

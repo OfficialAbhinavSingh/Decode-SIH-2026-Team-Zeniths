@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 from .config import settings
 from .db import engine
-from .routers import fusion, ingest, national, reports, scores, zones
+from .routers import fusion, ingest, reports, scores, zones
 
 app = FastAPI(
     title="NeerDrishti AI",
@@ -25,7 +25,6 @@ app.include_router(scores.router)
 app.include_router(reports.router)
 app.include_router(ingest.router)
 app.include_router(fusion.router)
-app.include_router(national.router)
 
 
 @app.get("/health", tags=["ops"])

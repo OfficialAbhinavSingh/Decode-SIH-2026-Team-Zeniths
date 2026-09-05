@@ -1,12 +1,8 @@
 """Ingest upsert path.
 
-The pure parts run anywhere. The database parts need a live, migrated database and are
-skipped when there isn't one -- CI runs the test suite without a database on purpose.
-Any dialect `app/upsert.py` supports works here, Postgres or the SQLite offline-demo
-fallback alike, since `_upsert()` and its error translation are both dialect-generic.
-To run them against Postgres: `docker compose up -d db && python -m app.init_db &&
-python -m pytest tests/ -q`. Against SQLite: `DATABASE_URL=sqlite:///demo.db python -m
-app.init_db && DATABASE_URL=sqlite:///demo.db python -m pytest tests/ -q`.
+The pure parts run anywhere. The database parts need a live Postgres and are skipped
+when there isn't one -- CI runs the test suite without a database on purpose. To run
+them: `docker compose up -d db && python -m app.init_db && python -m pytest tests/ -q`.
 """
 
 import datetime as dt
@@ -38,19 +34,15 @@ def _row(score: float, day: dt.date = DAY) -> dict:
     }
 
 
-def _database_available() -> bool:
-    """A reachable, already-migrated database -- the `Zone` table has to exist, not just
-    the server has to accept a connection, or this passes against an empty Postgres and
-    every test below fails on "relation zones does not exist" instead of skipping."""
+def _postgres_available() -> bool:
     try:
-        with engine.connect() as conn:
-            conn.execute(select(func.count()).select_from(Zone.__table__))
-        return True
+        with engine.connect():
+            return True
     except Exception:
         return False
 
 
-requires_db = pytest.mark.skipif(not _database_available(), reason="no migrated database on DATABASE_URL")
+requires_pg = pytest.mark.skipif(not _postgres_available(), reason="no Postgres on DATABASE_URL")
 
 
 # --- pure ---------------------------------------------------------------------------
@@ -104,7 +96,7 @@ def _stored(db):
     ).one()
 
 
-@requires_db
+@requires_pg
 def test_reingesting_the_same_day_overwrites_instead_of_duplicating(db):
     assert _upsert(db, SatelliteSignal, [_row(55.0)], SAT_KEY) == 1
     assert _upsert(db, SatelliteSignal, [_row(72.0)], SAT_KEY) == 1
@@ -112,28 +104,25 @@ def test_reingesting_the_same_day_overwrites_instead_of_duplicating(db):
     assert (count, score) == (1, 72.0)
 
 
-@requires_db
+@requires_pg
 def test_duplicate_keys_in_one_batch_do_not_blow_up(db):
-    # Postgres raises CardinalityViolation, SQLite raises IntegrityError, on a batch that
-    # hits one key twice. A CSV that got concatenated or re-exported does exactly that
-    # ("ON CONFLICT DO UPDATE command cannot affect row a second time"), so the endpoint
-    # must survive it regardless of which database is behind DATABASE_URL.
+    # Postgres raises CardinalityViolation on a batch that hits one key twice. A CSV that
+    # got concatenated or re-exported does exactly that, so the endpoint must survive it.
     assert _upsert(db, SatelliteSignal, [_row(55.0), _row(66.0)], SAT_KEY) == 1
     count, score = _stored(db)
     assert (count, score) == (1, 66.0)
 
 
-@requires_db
+@requires_pg
 def test_empty_batch_is_a_no_op(db):
     assert _upsert(db, SatelliteSignal, [], SAT_KEY) == 0
     assert _stored(db)[0] == 0
 
 
-@requires_db
+@requires_pg
 def test_missing_constraint_reports_the_actual_fix(db):
     # A database created before the natural-key constraints existed. Postgres calls this an
-    # InvalidColumnReference and SQLite calls it "does not match any PRIMARY KEY or UNIQUE
-    # constraint" -- neither tells anybody what to do, so the router translates both.
+    # InvalidColumnReference, which tells nobody what to do -- we translate it.
     with pytest.raises(HTTPException) as exc:
         _upsert(db, SatelliteSignal, [_row(55.0)], ["zone_id", "score"])
     assert "python -m app.init_db" in exc.value.detail

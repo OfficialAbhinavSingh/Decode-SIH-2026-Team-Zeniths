@@ -1,13 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import {
-  getReports,
-  getScores,
-  getScoresByCityCode,
-  getScoresGeojson,
-  getScoresGeojsonByCityCode,
-  getZone,
-} from '../api.js'
+import { Link } from 'react-router-dom'
+import { getReports, getScores, getScoresGeojson, getZone } from '../api.js'
 import MapView from '../components/MapView.jsx'
 import ZoneDetail from '../components/ZoneDetail.jsx'
 import Legend from '../components/Legend.jsx'
@@ -69,14 +62,7 @@ function Chevron() {
   )
 }
 
-// City zoom. With no :cityCode param this is the original single-city view (the
-// backend's `city_default`, e.g. Jaipur) -- every feature below (search, filters, mobile
-// switch, citizen intake, legend, offline basemap) is unchanged either way. Routed at
-// /city/:cityCode with a `key={cityCode}` (see main.jsx) so switching cities remounts
-// this component fresh instead of carrying over the previous city's selection, search
-// text, and map viewport into the new one.
 export default function Dashboard() {
-  const { cityCode } = useParams()
   const [scores, setScores] = useState([])
   const [geojson, setGeojson] = useState(null)
   const [selectedId, setSelectedId] = useState(null)
@@ -94,16 +80,14 @@ export default function Dashboard() {
   const rowRefs = useRef({})
 
   useEffect(() => {
-    const fetchScores = cityCode ? getScoresByCityCode(cityCode, 500) : getScores(null, 500)
-    const fetchGeojson = cityCode ? getScoresGeojsonByCityCode(cityCode) : getScoresGeojson()
-    Promise.all([fetchScores, fetchGeojson])
+    Promise.all([getScores(null, 500), getScoresGeojson()])
       .then(([s, g]) => {
         setScores(s)
         setGeojson(g)
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
-  }, [cityCode])
+  }, [])
 
   // Loaded on its own, never folded into the Promise.all above. That call's rejection
   // path sets the page-wide error state, so putting the intake strip in it would let a
@@ -134,11 +118,7 @@ export default function Dashboard() {
     return byId
   }, [geojson])
 
-  // Prefer the score row's own `city`/`state` (present on every row now that coverage is
-  // national -- see ScoreOut in app/schemas.py) over the geojson feature's `city`, which
-  // stayed a city-only field for backward compatibility with the single-city contract.
-  const city = scores[0]?.city || geojson?.features?.[0]?.properties?.city || null
-  const state = scores[0]?.state || null
+  const city = geojson?.features?.[0]?.properties?.city || null
 
   const matches = useMemo(
     () =>
@@ -197,13 +177,6 @@ export default function Dashboard() {
           <img className="brand-mark" src="/logo.png" alt="" width="30" height="30" />
           <span className="brand-name">NeerDrishti</span>
         </Link>
-
-        {city && (
-          <span className="topbar-city" title="Switch cities from the national map">
-            {city}
-            {state ? `, ${state}` : ''}
-          </span>
-        )}
 
         <div className="search">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
