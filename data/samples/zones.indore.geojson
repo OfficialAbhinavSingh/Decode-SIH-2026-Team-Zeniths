@@ -1,0 +1,2665 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8311279,
+       22.6568645
+      ],
+      [
+       75.8431279,
+       22.6568645
+      ],
+      [
+       75.8431279,
+       22.6688645
+      ],
+      [
+       75.8311279,
+       22.6688645
+      ],
+      [
+       75.8311279,
+       22.6568645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-001",
+    "name": "Ward 1 - Sector 4",
+    "city": "Indore",
+    "ward": "Ward 1",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8431279,
+       22.6568645
+      ],
+      [
+       75.8551279,
+       22.6568645
+      ],
+      [
+       75.8551279,
+       22.6688645
+      ],
+      [
+       75.8431279,
+       22.6688645
+      ],
+      [
+       75.8431279,
+       22.6568645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-002",
+    "name": "Ward 1 - Sector 5",
+    "city": "Indore",
+    "ward": "Ward 1",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8191279,
+       22.6688645
+      ],
+      [
+       75.8311279,
+       22.6688645
+      ],
+      [
+       75.8311279,
+       22.680864500000002
+      ],
+      [
+       75.8191279,
+       22.680864500000002
+      ],
+      [
+       75.8191279,
+       22.6688645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-003",
+    "name": "Ward 2 - Sector 3",
+    "city": "Indore",
+    "ward": "Ward 2",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8311279,
+       22.6688645
+      ],
+      [
+       75.8431279,
+       22.6688645
+      ],
+      [
+       75.8431279,
+       22.680864500000002
+      ],
+      [
+       75.8311279,
+       22.680864500000002
+      ],
+      [
+       75.8311279,
+       22.6688645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-004",
+    "name": "Ward 2 - Sector 4",
+    "city": "Indore",
+    "ward": "Ward 2",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8431279,
+       22.6688645
+      ],
+      [
+       75.8551279,
+       22.6688645
+      ],
+      [
+       75.8551279,
+       22.680864500000002
+      ],
+      [
+       75.8431279,
+       22.680864500000002
+      ],
+      [
+       75.8431279,
+       22.6688645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-005",
+    "name": "Ward 2 - Sector 5",
+    "city": "Indore",
+    "ward": "Ward 2",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8551279,
+       22.6688645
+      ],
+      [
+       75.8671279,
+       22.6688645
+      ],
+      [
+       75.8671279,
+       22.680864500000002
+      ],
+      [
+       75.8551279,
+       22.680864500000002
+      ],
+      [
+       75.8551279,
+       22.6688645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-006",
+    "name": "Ward 2 - Sector 6",
+    "city": "Indore",
+    "ward": "Ward 2",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8671279,
+       22.6688645
+      ],
+      [
+       75.8791279,
+       22.6688645
+      ],
+      [
+       75.8791279,
+       22.680864500000002
+      ],
+      [
+       75.8671279,
+       22.680864500000002
+      ],
+      [
+       75.8671279,
+       22.6688645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-007",
+    "name": "Ward 2 - Sector 7",
+    "city": "Indore",
+    "ward": "Ward 2",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8191279,
+       22.680864500000002
+      ],
+      [
+       75.8311279,
+       22.680864500000002
+      ],
+      [
+       75.8311279,
+       22.692864500000002
+      ],
+      [
+       75.8191279,
+       22.692864500000002
+      ],
+      [
+       75.8191279,
+       22.680864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-008",
+    "name": "Ward 3 - Sector 3",
+    "city": "Indore",
+    "ward": "Ward 3",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8311279,
+       22.680864500000002
+      ],
+      [
+       75.8431279,
+       22.680864500000002
+      ],
+      [
+       75.8431279,
+       22.692864500000002
+      ],
+      [
+       75.8311279,
+       22.692864500000002
+      ],
+      [
+       75.8311279,
+       22.680864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-009",
+    "name": "Ward 3 - Sector 4",
+    "city": "Indore",
+    "ward": "Ward 3",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8431279,
+       22.680864500000002
+      ],
+      [
+       75.8551279,
+       22.680864500000002
+      ],
+      [
+       75.8551279,
+       22.692864500000002
+      ],
+      [
+       75.8431279,
+       22.692864500000002
+      ],
+      [
+       75.8431279,
+       22.680864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-010",
+    "name": "Ward 3 - Sector 5",
+    "city": "Indore",
+    "ward": "Ward 3",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8551279,
+       22.680864500000002
+      ],
+      [
+       75.8671279,
+       22.680864500000002
+      ],
+      [
+       75.8671279,
+       22.692864500000002
+      ],
+      [
+       75.8551279,
+       22.692864500000002
+      ],
+      [
+       75.8551279,
+       22.680864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-011",
+    "name": "Ward 3 - Sector 6",
+    "city": "Indore",
+    "ward": "Ward 3",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8671279,
+       22.680864500000002
+      ],
+      [
+       75.8791279,
+       22.680864500000002
+      ],
+      [
+       75.8791279,
+       22.692864500000002
+      ],
+      [
+       75.8671279,
+       22.692864500000002
+      ],
+      [
+       75.8671279,
+       22.680864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-012",
+    "name": "Ward 3 - Sector 7",
+    "city": "Indore",
+    "ward": "Ward 3",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8791279,
+       22.680864500000002
+      ],
+      [
+       75.8911279,
+       22.680864500000002
+      ],
+      [
+       75.8911279,
+       22.692864500000002
+      ],
+      [
+       75.8791279,
+       22.692864500000002
+      ],
+      [
+       75.8791279,
+       22.680864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-013",
+    "name": "Ward 3 - Sector 8",
+    "city": "Indore",
+    "ward": "Ward 3",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.9031279,
+       22.680864500000002
+      ],
+      [
+       75.9151279,
+       22.680864500000002
+      ],
+      [
+       75.9151279,
+       22.692864500000002
+      ],
+      [
+       75.9031279,
+       22.692864500000002
+      ],
+      [
+       75.9031279,
+       22.680864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-014",
+    "name": "Ward 3 - Sector 10",
+    "city": "Indore",
+    "ward": "Ward 3",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8191279,
+       22.692864500000002
+      ],
+      [
+       75.8311279,
+       22.692864500000002
+      ],
+      [
+       75.8311279,
+       22.704864500000003
+      ],
+      [
+       75.8191279,
+       22.704864500000003
+      ],
+      [
+       75.8191279,
+       22.692864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-015",
+    "name": "Ward 4 - Sector 3",
+    "city": "Indore",
+    "ward": "Ward 4",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8311279,
+       22.692864500000002
+      ],
+      [
+       75.8431279,
+       22.692864500000002
+      ],
+      [
+       75.8431279,
+       22.704864500000003
+      ],
+      [
+       75.8311279,
+       22.704864500000003
+      ],
+      [
+       75.8311279,
+       22.692864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-016",
+    "name": "Ward 4 - Sector 4",
+    "city": "Indore",
+    "ward": "Ward 4",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8431279,
+       22.692864500000002
+      ],
+      [
+       75.8551279,
+       22.692864500000002
+      ],
+      [
+       75.8551279,
+       22.704864500000003
+      ],
+      [
+       75.8431279,
+       22.704864500000003
+      ],
+      [
+       75.8431279,
+       22.692864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-017",
+    "name": "Ward 4 - Sector 5",
+    "city": "Indore",
+    "ward": "Ward 4",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8551279,
+       22.692864500000002
+      ],
+      [
+       75.8671279,
+       22.692864500000002
+      ],
+      [
+       75.8671279,
+       22.704864500000003
+      ],
+      [
+       75.8551279,
+       22.704864500000003
+      ],
+      [
+       75.8551279,
+       22.692864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-018",
+    "name": "Ward 4 - Sector 6",
+    "city": "Indore",
+    "ward": "Ward 4",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8671279,
+       22.692864500000002
+      ],
+      [
+       75.8791279,
+       22.692864500000002
+      ],
+      [
+       75.8791279,
+       22.704864500000003
+      ],
+      [
+       75.8671279,
+       22.704864500000003
+      ],
+      [
+       75.8671279,
+       22.692864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-019",
+    "name": "Ward 4 - Sector 7",
+    "city": "Indore",
+    "ward": "Ward 4",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8791279,
+       22.692864500000002
+      ],
+      [
+       75.8911279,
+       22.692864500000002
+      ],
+      [
+       75.8911279,
+       22.704864500000003
+      ],
+      [
+       75.8791279,
+       22.704864500000003
+      ],
+      [
+       75.8791279,
+       22.692864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-020",
+    "name": "Ward 4 - Sector 8",
+    "city": "Indore",
+    "ward": "Ward 4",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8911279,
+       22.692864500000002
+      ],
+      [
+       75.9031279,
+       22.692864500000002
+      ],
+      [
+       75.9031279,
+       22.704864500000003
+      ],
+      [
+       75.8911279,
+       22.704864500000003
+      ],
+      [
+       75.8911279,
+       22.692864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-021",
+    "name": "Ward 4 - Sector 9",
+    "city": "Indore",
+    "ward": "Ward 4",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.9031279,
+       22.692864500000002
+      ],
+      [
+       75.9151279,
+       22.692864500000002
+      ],
+      [
+       75.9151279,
+       22.704864500000003
+      ],
+      [
+       75.9031279,
+       22.704864500000003
+      ],
+      [
+       75.9031279,
+       22.692864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-022",
+    "name": "Ward 4 - Sector 10",
+    "city": "Indore",
+    "ward": "Ward 4",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8071279,
+       22.7048645
+      ],
+      [
+       75.8191279,
+       22.7048645
+      ],
+      [
+       75.8191279,
+       22.7168645
+      ],
+      [
+       75.8071279,
+       22.7168645
+      ],
+      [
+       75.8071279,
+       22.7048645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-023",
+    "name": "Ward 5 - Sector 2",
+    "city": "Indore",
+    "ward": "Ward 5",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8191279,
+       22.7048645
+      ],
+      [
+       75.8311279,
+       22.7048645
+      ],
+      [
+       75.8311279,
+       22.7168645
+      ],
+      [
+       75.8191279,
+       22.7168645
+      ],
+      [
+       75.8191279,
+       22.7048645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-024",
+    "name": "Ward 5 - Sector 3",
+    "city": "Indore",
+    "ward": "Ward 5",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8311279,
+       22.7048645
+      ],
+      [
+       75.8431279,
+       22.7048645
+      ],
+      [
+       75.8431279,
+       22.7168645
+      ],
+      [
+       75.8311279,
+       22.7168645
+      ],
+      [
+       75.8311279,
+       22.7048645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-025",
+    "name": "Ward 5 - Sector 4",
+    "city": "Indore",
+    "ward": "Ward 5",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8431279,
+       22.7048645
+      ],
+      [
+       75.8551279,
+       22.7048645
+      ],
+      [
+       75.8551279,
+       22.7168645
+      ],
+      [
+       75.8431279,
+       22.7168645
+      ],
+      [
+       75.8431279,
+       22.7048645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-026",
+    "name": "Ward 5 - Sector 5",
+    "city": "Indore",
+    "ward": "Ward 5",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8551279,
+       22.7048645
+      ],
+      [
+       75.8671279,
+       22.7048645
+      ],
+      [
+       75.8671279,
+       22.7168645
+      ],
+      [
+       75.8551279,
+       22.7168645
+      ],
+      [
+       75.8551279,
+       22.7048645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-027",
+    "name": "Ward 5 - Sector 6",
+    "city": "Indore",
+    "ward": "Ward 5",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8671279,
+       22.7048645
+      ],
+      [
+       75.8791279,
+       22.7048645
+      ],
+      [
+       75.8791279,
+       22.7168645
+      ],
+      [
+       75.8671279,
+       22.7168645
+      ],
+      [
+       75.8671279,
+       22.7048645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-028",
+    "name": "Ward 5 - Sector 7",
+    "city": "Indore",
+    "ward": "Ward 5",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8791279,
+       22.7048645
+      ],
+      [
+       75.8911279,
+       22.7048645
+      ],
+      [
+       75.8911279,
+       22.7168645
+      ],
+      [
+       75.8791279,
+       22.7168645
+      ],
+      [
+       75.8791279,
+       22.7048645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-029",
+    "name": "Ward 5 - Sector 8",
+    "city": "Indore",
+    "ward": "Ward 5",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8911279,
+       22.7048645
+      ],
+      [
+       75.9031279,
+       22.7048645
+      ],
+      [
+       75.9031279,
+       22.7168645
+      ],
+      [
+       75.8911279,
+       22.7168645
+      ],
+      [
+       75.8911279,
+       22.7048645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-030",
+    "name": "Ward 5 - Sector 9",
+    "city": "Indore",
+    "ward": "Ward 5",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.9031279,
+       22.7048645
+      ],
+      [
+       75.9151279,
+       22.7048645
+      ],
+      [
+       75.9151279,
+       22.7168645
+      ],
+      [
+       75.9031279,
+       22.7168645
+      ],
+      [
+       75.9031279,
+       22.7048645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-031",
+    "name": "Ward 5 - Sector 10",
+    "city": "Indore",
+    "ward": "Ward 5",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.7951279,
+       22.7168645
+      ],
+      [
+       75.8071279,
+       22.7168645
+      ],
+      [
+       75.8071279,
+       22.7288645
+      ],
+      [
+       75.7951279,
+       22.7288645
+      ],
+      [
+       75.7951279,
+       22.7168645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-032",
+    "name": "Ward 6 - Sector 1",
+    "city": "Indore",
+    "ward": "Ward 6",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8071279,
+       22.7168645
+      ],
+      [
+       75.8191279,
+       22.7168645
+      ],
+      [
+       75.8191279,
+       22.7288645
+      ],
+      [
+       75.8071279,
+       22.7288645
+      ],
+      [
+       75.8071279,
+       22.7168645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-033",
+    "name": "Ward 6 - Sector 2",
+    "city": "Indore",
+    "ward": "Ward 6",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8191279,
+       22.7168645
+      ],
+      [
+       75.8311279,
+       22.7168645
+      ],
+      [
+       75.8311279,
+       22.7288645
+      ],
+      [
+       75.8191279,
+       22.7288645
+      ],
+      [
+       75.8191279,
+       22.7168645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-034",
+    "name": "Ward 6 - Sector 3",
+    "city": "Indore",
+    "ward": "Ward 6",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8311279,
+       22.7168645
+      ],
+      [
+       75.8431279,
+       22.7168645
+      ],
+      [
+       75.8431279,
+       22.7288645
+      ],
+      [
+       75.8311279,
+       22.7288645
+      ],
+      [
+       75.8311279,
+       22.7168645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-035",
+    "name": "Ward 6 - Sector 4",
+    "city": "Indore",
+    "ward": "Ward 6",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8431279,
+       22.7168645
+      ],
+      [
+       75.8551279,
+       22.7168645
+      ],
+      [
+       75.8551279,
+       22.7288645
+      ],
+      [
+       75.8431279,
+       22.7288645
+      ],
+      [
+       75.8431279,
+       22.7168645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-036",
+    "name": "Ward 6 - Sector 5",
+    "city": "Indore",
+    "ward": "Ward 6",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8551279,
+       22.7168645
+      ],
+      [
+       75.8671279,
+       22.7168645
+      ],
+      [
+       75.8671279,
+       22.7288645
+      ],
+      [
+       75.8551279,
+       22.7288645
+      ],
+      [
+       75.8551279,
+       22.7168645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-037",
+    "name": "Ward 6 - Sector 6",
+    "city": "Indore",
+    "ward": "Ward 6",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8671279,
+       22.7168645
+      ],
+      [
+       75.8791279,
+       22.7168645
+      ],
+      [
+       75.8791279,
+       22.7288645
+      ],
+      [
+       75.8671279,
+       22.7288645
+      ],
+      [
+       75.8671279,
+       22.7168645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-038",
+    "name": "Ward 6 - Sector 7",
+    "city": "Indore",
+    "ward": "Ward 6",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8791279,
+       22.7168645
+      ],
+      [
+       75.8911279,
+       22.7168645
+      ],
+      [
+       75.8911279,
+       22.7288645
+      ],
+      [
+       75.8791279,
+       22.7288645
+      ],
+      [
+       75.8791279,
+       22.7168645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-039",
+    "name": "Ward 6 - Sector 8",
+    "city": "Indore",
+    "ward": "Ward 6",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8911279,
+       22.7168645
+      ],
+      [
+       75.9031279,
+       22.7168645
+      ],
+      [
+       75.9031279,
+       22.7288645
+      ],
+      [
+       75.8911279,
+       22.7288645
+      ],
+      [
+       75.8911279,
+       22.7168645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-040",
+    "name": "Ward 6 - Sector 9",
+    "city": "Indore",
+    "ward": "Ward 6",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.9031279,
+       22.7168645
+      ],
+      [
+       75.9151279,
+       22.7168645
+      ],
+      [
+       75.9151279,
+       22.7288645
+      ],
+      [
+       75.9031279,
+       22.7288645
+      ],
+      [
+       75.9031279,
+       22.7168645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-041",
+    "name": "Ward 6 - Sector 10",
+    "city": "Indore",
+    "ward": "Ward 6",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.9151279,
+       22.7168645
+      ],
+      [
+       75.9271279,
+       22.7168645
+      ],
+      [
+       75.9271279,
+       22.7288645
+      ],
+      [
+       75.9151279,
+       22.7288645
+      ],
+      [
+       75.9151279,
+       22.7168645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-042",
+    "name": "Ward 6 - Sector 11",
+    "city": "Indore",
+    "ward": "Ward 6",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8311279,
+       22.7288645
+      ],
+      [
+       75.8431279,
+       22.7288645
+      ],
+      [
+       75.8431279,
+       22.7408645
+      ],
+      [
+       75.8311279,
+       22.7408645
+      ],
+      [
+       75.8311279,
+       22.7288645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-043",
+    "name": "Ward 7 - Sector 4",
+    "city": "Indore",
+    "ward": "Ward 7",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8431279,
+       22.7288645
+      ],
+      [
+       75.8551279,
+       22.7288645
+      ],
+      [
+       75.8551279,
+       22.7408645
+      ],
+      [
+       75.8431279,
+       22.7408645
+      ],
+      [
+       75.8431279,
+       22.7288645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-044",
+    "name": "Ward 7 - Sector 5",
+    "city": "Indore",
+    "ward": "Ward 7",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8551279,
+       22.7288645
+      ],
+      [
+       75.8671279,
+       22.7288645
+      ],
+      [
+       75.8671279,
+       22.7408645
+      ],
+      [
+       75.8551279,
+       22.7408645
+      ],
+      [
+       75.8551279,
+       22.7288645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-045",
+    "name": "Ward 7 - Sector 6",
+    "city": "Indore",
+    "ward": "Ward 7",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8671279,
+       22.7288645
+      ],
+      [
+       75.8791279,
+       22.7288645
+      ],
+      [
+       75.8791279,
+       22.7408645
+      ],
+      [
+       75.8671279,
+       22.7408645
+      ],
+      [
+       75.8671279,
+       22.7288645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-046",
+    "name": "Ward 7 - Sector 7",
+    "city": "Indore",
+    "ward": "Ward 7",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8791279,
+       22.7288645
+      ],
+      [
+       75.8911279,
+       22.7288645
+      ],
+      [
+       75.8911279,
+       22.7408645
+      ],
+      [
+       75.8791279,
+       22.7408645
+      ],
+      [
+       75.8791279,
+       22.7288645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-047",
+    "name": "Ward 7 - Sector 8",
+    "city": "Indore",
+    "ward": "Ward 7",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8911279,
+       22.7288645
+      ],
+      [
+       75.9031279,
+       22.7288645
+      ],
+      [
+       75.9031279,
+       22.7408645
+      ],
+      [
+       75.8911279,
+       22.7408645
+      ],
+      [
+       75.8911279,
+       22.7288645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-048",
+    "name": "Ward 7 - Sector 9",
+    "city": "Indore",
+    "ward": "Ward 7",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.9031279,
+       22.7288645
+      ],
+      [
+       75.9151279,
+       22.7288645
+      ],
+      [
+       75.9151279,
+       22.7408645
+      ],
+      [
+       75.9031279,
+       22.7408645
+      ],
+      [
+       75.9031279,
+       22.7288645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-049",
+    "name": "Ward 7 - Sector 10",
+    "city": "Indore",
+    "ward": "Ward 7",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.9151279,
+       22.7288645
+      ],
+      [
+       75.9271279,
+       22.7288645
+      ],
+      [
+       75.9271279,
+       22.7408645
+      ],
+      [
+       75.9151279,
+       22.7408645
+      ],
+      [
+       75.9151279,
+       22.7288645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-050",
+    "name": "Ward 7 - Sector 11",
+    "city": "Indore",
+    "ward": "Ward 7",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8431279,
+       22.7408645
+      ],
+      [
+       75.8551279,
+       22.7408645
+      ],
+      [
+       75.8551279,
+       22.7528645
+      ],
+      [
+       75.8431279,
+       22.7528645
+      ],
+      [
+       75.8431279,
+       22.7408645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-051",
+    "name": "Ward 8 - Sector 5",
+    "city": "Indore",
+    "ward": "Ward 8",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8551279,
+       22.7408645
+      ],
+      [
+       75.8671279,
+       22.7408645
+      ],
+      [
+       75.8671279,
+       22.7528645
+      ],
+      [
+       75.8551279,
+       22.7528645
+      ],
+      [
+       75.8551279,
+       22.7408645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-052",
+    "name": "Ward 8 - Sector 6",
+    "city": "Indore",
+    "ward": "Ward 8",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8671279,
+       22.7408645
+      ],
+      [
+       75.8791279,
+       22.7408645
+      ],
+      [
+       75.8791279,
+       22.7528645
+      ],
+      [
+       75.8671279,
+       22.7528645
+      ],
+      [
+       75.8671279,
+       22.7408645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-053",
+    "name": "Ward 8 - Sector 7",
+    "city": "Indore",
+    "ward": "Ward 8",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8791279,
+       22.7408645
+      ],
+      [
+       75.8911279,
+       22.7408645
+      ],
+      [
+       75.8911279,
+       22.7528645
+      ],
+      [
+       75.8791279,
+       22.7528645
+      ],
+      [
+       75.8791279,
+       22.7408645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-054",
+    "name": "Ward 8 - Sector 8",
+    "city": "Indore",
+    "ward": "Ward 8",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8911279,
+       22.7408645
+      ],
+      [
+       75.9031279,
+       22.7408645
+      ],
+      [
+       75.9031279,
+       22.7528645
+      ],
+      [
+       75.8911279,
+       22.7528645
+      ],
+      [
+       75.8911279,
+       22.7408645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-055",
+    "name": "Ward 8 - Sector 9",
+    "city": "Indore",
+    "ward": "Ward 8",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.9031279,
+       22.7408645
+      ],
+      [
+       75.9151279,
+       22.7408645
+      ],
+      [
+       75.9151279,
+       22.7528645
+      ],
+      [
+       75.9031279,
+       22.7528645
+      ],
+      [
+       75.9031279,
+       22.7408645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-056",
+    "name": "Ward 8 - Sector 10",
+    "city": "Indore",
+    "ward": "Ward 8",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.9151279,
+       22.7408645
+      ],
+      [
+       75.9271279,
+       22.7408645
+      ],
+      [
+       75.9271279,
+       22.7528645
+      ],
+      [
+       75.9151279,
+       22.7528645
+      ],
+      [
+       75.9151279,
+       22.7408645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-057",
+    "name": "Ward 8 - Sector 11",
+    "city": "Indore",
+    "ward": "Ward 8",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8431279,
+       22.7528645
+      ],
+      [
+       75.8551279,
+       22.7528645
+      ],
+      [
+       75.8551279,
+       22.7648645
+      ],
+      [
+       75.8431279,
+       22.7648645
+      ],
+      [
+       75.8431279,
+       22.7528645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-058",
+    "name": "Ward 9 - Sector 5",
+    "city": "Indore",
+    "ward": "Ward 9",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8551279,
+       22.7528645
+      ],
+      [
+       75.8671279,
+       22.7528645
+      ],
+      [
+       75.8671279,
+       22.7648645
+      ],
+      [
+       75.8551279,
+       22.7648645
+      ],
+      [
+       75.8551279,
+       22.7528645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-059",
+    "name": "Ward 9 - Sector 6",
+    "city": "Indore",
+    "ward": "Ward 9",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8671279,
+       22.7528645
+      ],
+      [
+       75.8791279,
+       22.7528645
+      ],
+      [
+       75.8791279,
+       22.7648645
+      ],
+      [
+       75.8671279,
+       22.7648645
+      ],
+      [
+       75.8671279,
+       22.7528645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-060",
+    "name": "Ward 9 - Sector 7",
+    "city": "Indore",
+    "ward": "Ward 9",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8791279,
+       22.7528645
+      ],
+      [
+       75.8911279,
+       22.7528645
+      ],
+      [
+       75.8911279,
+       22.7648645
+      ],
+      [
+       75.8791279,
+       22.7648645
+      ],
+      [
+       75.8791279,
+       22.7528645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-061",
+    "name": "Ward 9 - Sector 8",
+    "city": "Indore",
+    "ward": "Ward 9",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8911279,
+       22.7528645
+      ],
+      [
+       75.9031279,
+       22.7528645
+      ],
+      [
+       75.9031279,
+       22.7648645
+      ],
+      [
+       75.8911279,
+       22.7648645
+      ],
+      [
+       75.8911279,
+       22.7528645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-062",
+    "name": "Ward 9 - Sector 9",
+    "city": "Indore",
+    "ward": "Ward 9",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8431279,
+       22.7648645
+      ],
+      [
+       75.8551279,
+       22.7648645
+      ],
+      [
+       75.8551279,
+       22.776864500000002
+      ],
+      [
+       75.8431279,
+       22.776864500000002
+      ],
+      [
+       75.8431279,
+       22.7648645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-063",
+    "name": "Ward 10 - Sector 5",
+    "city": "Indore",
+    "ward": "Ward 10",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8551279,
+       22.7648645
+      ],
+      [
+       75.8671279,
+       22.7648645
+      ],
+      [
+       75.8671279,
+       22.776864500000002
+      ],
+      [
+       75.8551279,
+       22.776864500000002
+      ],
+      [
+       75.8551279,
+       22.7648645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-064",
+    "name": "Ward 10 - Sector 6",
+    "city": "Indore",
+    "ward": "Ward 10",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8671279,
+       22.7648645
+      ],
+      [
+       75.8791279,
+       22.7648645
+      ],
+      [
+       75.8791279,
+       22.776864500000002
+      ],
+      [
+       75.8671279,
+       22.776864500000002
+      ],
+      [
+       75.8671279,
+       22.7648645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-065",
+    "name": "Ward 10 - Sector 7",
+    "city": "Indore",
+    "ward": "Ward 10",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8791279,
+       22.7648645
+      ],
+      [
+       75.8911279,
+       22.7648645
+      ],
+      [
+       75.8911279,
+       22.776864500000002
+      ],
+      [
+       75.8791279,
+       22.776864500000002
+      ],
+      [
+       75.8791279,
+       22.7648645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-066",
+    "name": "Ward 10 - Sector 8",
+    "city": "Indore",
+    "ward": "Ward 10",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8911279,
+       22.7648645
+      ],
+      [
+       75.9031279,
+       22.7648645
+      ],
+      [
+       75.9031279,
+       22.776864500000002
+      ],
+      [
+       75.8911279,
+       22.776864500000002
+      ],
+      [
+       75.8911279,
+       22.7648645
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-067",
+    "name": "Ward 10 - Sector 9",
+    "city": "Indore",
+    "ward": "Ward 10",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8431279,
+       22.776864500000002
+      ],
+      [
+       75.8551279,
+       22.776864500000002
+      ],
+      [
+       75.8551279,
+       22.788864500000003
+      ],
+      [
+       75.8431279,
+       22.788864500000003
+      ],
+      [
+       75.8431279,
+       22.776864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-068",
+    "name": "Ward 11 - Sector 5",
+    "city": "Indore",
+    "ward": "Ward 11",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8671279,
+       22.776864500000002
+      ],
+      [
+       75.8791279,
+       22.776864500000002
+      ],
+      [
+       75.8791279,
+       22.788864500000003
+      ],
+      [
+       75.8671279,
+       22.788864500000003
+      ],
+      [
+       75.8671279,
+       22.776864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-069",
+    "name": "Ward 11 - Sector 7",
+    "city": "Indore",
+    "ward": "Ward 11",
+    "pipe_length_km": null,
+    "population": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       75.8791279,
+       22.776864500000002
+      ],
+      [
+       75.8911279,
+       22.776864500000002
+      ],
+      [
+       75.8911279,
+       22.788864500000003
+      ],
+      [
+       75.8791279,
+       22.788864500000003
+      ],
+      [
+       75.8791279,
+       22.776864500000002
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "zone_id": "Z-070",
+    "name": "Ward 11 - Sector 8",
+    "city": "Indore",
+    "ward": "Ward 11",
+    "pipe_length_km": null,
+    "population": null
+   }
+  }
+ ]
+}
