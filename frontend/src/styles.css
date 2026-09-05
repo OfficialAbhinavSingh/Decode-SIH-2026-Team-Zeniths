@@ -195,6 +195,15 @@ button { font: inherit; }
 
 .topbar-spacer { flex: 1; }
 
+/* National coverage: which city this Dashboard instance is showing. Only rendered when
+   a score row actually carries a city name, so the single-city MVP path (no cityCode,
+   backend's city_default) shows nothing extra here. */
+.topbar-city {
+  color: var(--muted, #8b949e);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
 .freshness {
   display: flex;
   align-items: center;
@@ -1277,4 +1286,90 @@ code {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* --- Pan-India national view -------------------------------------------------- */
+/* Reuses .app/.workspace/.topbar/.brand/.list-pane/.list-head/.map-pane/.cta from the
+   Dashboard shell above -- the national view is the same product zoomed out, not a
+   second design. Only the widgets below (impact ledger, state/city rail) are new. */
+
+.national-scroll { padding: 14px 16px; }
+
+.rail-head {
+  margin: 18px 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.ledger {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.ledger-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 9px 11px;
+  background: var(--surface-2);
+}
+
+.ledger-value {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.ledger-label {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.state-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.state-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-2);
+  transition: background 0.15s var(--ease);
+}
+
+.state-row:hover,
+.state-row.selected {
+  background: var(--surface-2);
+}
+
+.state-row .swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.state-row .state-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.state-row .state-score {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
 }
