@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 from .config import settings
 from .db import engine
-from .routers import fusion, ingest, reports, scores, zones
+from .routers import cities, fusion, ingest, reports, scores, zones
 
 app = FastAPI(
     title="NeerDrishti AI",
@@ -21,6 +21,7 @@ app.add_middleware(
 )
 
 app.include_router(zones.router)
+app.include_router(cities.router)
 app.include_router(scores.router)
 app.include_router(reports.router)
 app.include_router(ingest.router)

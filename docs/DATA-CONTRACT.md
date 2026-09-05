@@ -93,6 +93,7 @@ Base: `/api`. All responses JSON. Errors: `{"detail": "..."}` with the right HTT
 |---|---|---|---|
 | `GET` | `/health` | R6 | `{"status":"ok","db":true}` |
 | `GET` | `/api/zones?city=` | R4 | `Zone[]` |
+| `GET` | `/api/cities` | R4 | `City[]` — every city with at least one zone. **Additive, read-only, derived entirely from `zones`/`zone_scores`; adds no column and needs no migration.** |
 | `GET` | `/api/zones/{zone_id}` | R4 | `Zone` |
 | `GET` | `/api/zones/{zone_id}/signals` | R4 | `{satellite:[], billing:[], citizen:[]}` |
 | `GET` | `/api/scores?city=&limit=` | R4 | `ZoneScore[]`, sorted by `rank` |
@@ -116,6 +117,20 @@ Base: `/api`. All responses JSON. Errors: `{"detail": "..."}` with the right HTT
 ```
 Either `zone_id` **or** `lat`+`lon` must be present. If only lat/lon, the API point-in-polygon
 matches it to a zone.
+
+### `GET /api/cities` item
+```json
+{
+  "city": "Jaipur",
+  "zone_count": 30,
+  "centroid_lat": 26.9064,
+  "centroid_lon": 75.7813,
+  "top_score": 100.0
+}
+```
+Sorted by `city`. `centroid_*` is the mean of the city's zone centroids — the map recentres
+on it when the picker changes. `top_score` is `null` when a city's zones are loaded but
+fusion has not scored them yet, which is a real state between the loader and the fusion run.
 
 ### `GET /api/scores` item
 ```json
