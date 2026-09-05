@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getReports, getScores, getScoresGeojson, getZone } from '../api.js'
+import { getCities, getReports, getScores, getScoresGeojson, getZone } from '../api.js'
+import CityPicker from '../components/CityPicker.jsx'
 import MapView from '../components/MapView.jsx'
 import ZoneDetail from '../components/ZoneDetail.jsx'
 import Legend from '../components/Legend.jsx'
@@ -73,6 +74,10 @@ export default function Dashboard() {
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('all')
   const [mobileView, setMobileView] = useState('list')
+  const [cities, setCities] = useState([])
+  // null means "whatever CITY_DEFAULT is" -- the first load sends no ?city= at all, so a
+  // database with only the seeded Jaipur grid behaves exactly as it did before the picker.
+  const [city, setCity] = useState(null)
   const [reports, setReports] = useState(null)
   const [intakeOpen, setIntakeOpen] = useState(false)
   const [intakeBusy, setIntakeBusy] = useState(false)
@@ -80,13 +85,33 @@ export default function Dashboard() {
   const rowRefs = useRef({})
 
   useEffect(() => {
-    Promise.all([getScores(null, 500), getScoresGeojson()])
+    let live = true
+    setLoading(true)
+    setError(null)
+    Promise.all([getScores(city, 500), getScoresGeojson(city)])
       .then(([s, g]) => {
+        // A slow response for the city the user just switched away from must not paint
+        // over the one they are actually looking at. Without this guard, picking three
+        // cities quickly can leave the list showing whichever request happened to land
+        // last rather than the one that is selected.
+        if (!live) return
         setScores(s)
         setGeojson(g)
       })
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false))
+      .catch((e) => live && setError(e.message))
+      .finally(() => live && setLoading(false))
+    return () => {
+      live = false
+    }
+  }, [city])
+
+  // Loaded once and kept out of the effect above: a failure here must cost the picker
+  // only. `cities` staying empty hides it, and the dashboard falls back to the single
+  // default city it has always shown.
+  useEffect(() => {
+    getCities()
+      .then(setCities)
+      .catch(() => setCities([]))
   }, [])
 
   // Loaded on its own, never folded into the Promise.all above. That call's rejection
@@ -105,6 +130,29 @@ export default function Dashboard() {
     loadReports()
   }, [loadReports])
 
+  // Everything below is scoped to one city: a selected zone, a text query, a filter and
+  // the expanded list all refer to zones that no longer exist after a switch. Clearing
+  // them is what makes the switch feel like arriving at a fresh city rather than landing
+  // in a filtered, empty list.
+  const changeCity = (next) => {
+    if (next === city) return
+    setCity(next)
+    // Drop the old city's data rather than leaving it on screen under the new city's
+    // name. The list is already showing skeletons while `loading` is true, and a map that
+    // is briefly empty is honest in a way that one still covered in Jaipur's polygons
+    // while the header says Pune is not.
+    setScores([])
+    setGeojson(null)
+    setSelectedId(null)
+    setFlyTarget(null)
+    setQuery('')
+    setFilter('all')
+    setShowAll(false)
+    setMobileView('list')
+    // These key off zone id, and no zone id survives a city switch.
+    rowRefs.current = {}
+  }
+
   useEffect(() => {
     if (!selectedId) return setFlyTarget(null)
     getZone(selectedId).then(setFlyTarget).catch(() => setFlyTarget(null))
@@ -118,7 +166,10 @@ export default function Dashboard() {
     return byId
   }, [geojson])
 
-  const city = geojson?.features?.[0]?.properties?.city || null
+  // The city the loaded data is actually FOR, which is not the same as `city`: on first
+  // load `city` is null (no ?city= sent) and only the response says which one the API
+  // chose. The picker and the headline both need that name, not the null.
+  const cityLabel = geojson?.features?.[0]?.properties?.city || null
 
   const matches = useMemo(
     () =>
@@ -161,11 +212,11 @@ export default function Dashboard() {
   const headline = loading
     ? 'Loading zone scores'
     : narrowed
-      ? FILTERS[filter].describe(matches.length, city) +
+      ? FILTERS[filter].describe(matches.length, cityLabel) +
         (query.trim() ? ` matching “${query.trim()}”` : '')
       : showAll
-        ? `All ${scores.length} zones${city ? ` in ${city}` : ''}, ranked`
-        : `Top ${Math.min(TOP_N, scores.length) || ''} to inspect${city ? ` in ${city}` : ''}`
+        ? `All ${scores.length} zones${cityLabel ? ` in ${cityLabel}` : ''}, ranked`
+        : `Top ${Math.min(TOP_N, scores.length) || ''} to inspect${cityLabel ? ` in ${cityLabel}` : ''}`
 
   const listHidden = isMobile && mobileView !== 'list'
   const mapHidden = isMobile && mobileView !== 'map'
@@ -177,6 +228,8 @@ export default function Dashboard() {
           <img className="brand-mark" src="/logo.png" alt="" width="30" height="30" />
           <span className="brand-name">NeerDrishti</span>
         </Link>
+
+        <CityPicker cities={cities} value={city || cityLabel} onChange={changeCity} />
 
         <div className="search">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">

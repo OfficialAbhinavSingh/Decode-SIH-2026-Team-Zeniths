@@ -18,6 +18,11 @@ export const getScores = (city, limit) => {
 export const getScoresGeojson = (city) =>
   get(`/api/scores/geojson${city ? `?city=${encodeURIComponent(city)}` : ''}`)
 
+// Which cities actually have zones loaded. Derived server-side from the zones table, so
+// a database holding only the seeded Jaipur grid returns exactly one row and the picker
+// hides itself -- the dashboard looks and behaves the way it always has.
+export const getCities = () => get('/api/cities')
+
 export const getZoneSignals = (zoneId) => get(`/api/zones/${zoneId}/signals`)
 
 export const getZone = (zoneId) => get(`/api/zones/${zoneId}`)

@@ -43,6 +43,24 @@ function MapSync({ zone, showToken }) {
   return null
 }
 
+// <MapContainer center> is read ONCE, when Leaflet constructs the map, and never again --
+// it is not a reactive prop. Switching city therefore swapped every polygon underneath a
+// map still parked over the old city, so the new zones sat off-screen and the pane looked
+// empty. This moves the view when the centre actually changes.
+//
+// The dependency list is [lat, lon], not [center]: `center` is a fresh array on every
+// render, so depending on it would re-run this on every keystroke in the search box and
+// yank the map back from wherever the user had panned it.
+function RecenterOnCity({ center, zoom = 13 }) {
+  const map = useMap()
+  const [lat, lon] = center || []
+  useEffect(() => {
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return
+    map.setView([lat, lon], zoom)
+  }, [lat, lon, zoom, map])
+  return null
+}
+
 export default function MapView({ geojson, selectedId, onSelect, center, flyTarget, matchIds, resizeToken }) {
   // The map is the demo. If the venue wifi dies, live OSM tiles never arrive and the map
   // renders as a blank grey box with the zone polygons floating on nothing. This falls back
@@ -152,6 +170,7 @@ export default function MapView({ geojson, selectedId, onSelect, center, flyTarg
             />
           ))}
 
+      <RecenterOnCity center={center} />
       <MapSync zone={flyTarget} showToken={resizeToken} />
     </MapContainer>
     </>

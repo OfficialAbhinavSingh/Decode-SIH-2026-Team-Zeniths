@@ -26,6 +26,12 @@ It is a **data** problem, and it splits cleanly in two:
 
 That last row is the whole story. Read it before promising a national map.
 
+> **Shipped in the meantime:** the dashboard now covers 234 cities across every state and
+> union territory using **generated** data — see [SYNTHETIC-DATA.md](SYNTHETIC-DATA.md).
+> That does not solve the row above; it works around it, and it labels every fabricated
+> number as fabricated. The real-data path described in the rest of this document is still
+> the one that matters.
+
 ---
 
 ## 1. Zone geometry — solved

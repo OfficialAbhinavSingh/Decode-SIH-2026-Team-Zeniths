@@ -129,6 +129,17 @@ class ScoreOut(BaseModel):
     computed_at: datetime
 
 
+class CityOut(BaseModel):
+    """One row of the city picker. Everything here is derived from `zones`/`zone_scores`."""
+
+    city: str
+    zone_count: int
+    centroid_lat: float
+    centroid_lon: float
+    # None when a city's zones are loaded but fusion has not run over them yet.
+    top_score: float | None
+
+
 class IngestResult(BaseModel):
     inserted: int
 
