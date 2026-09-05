@@ -6,6 +6,9 @@
     python -m pipelines.synthetic.seed_india --limit 20         # the 20 largest
     python -m pipelines.synthetic.seed_india --dry-run          # count, write nothing
 
+    # Adding the country to a database that already holds a real city, without touching it:
+    python -m pipelines.synthetic.seed_india --keep --exclude Jaipur
+
 This is `seed.py` widened from one city to the whole registry. It writes ONLY to the five
 tables that already exist in docs/DATA-CONTRACT.md -- zones, satellite_signals,
 billing_signals, citizen_reports, zone_scores -- and adds no column to any of them.
@@ -46,7 +49,9 @@ def _insert_rows(db: Session, model, rows: list[dict]) -> None:
         db.execute(insert(model), rows[start : start + CHUNK])
 
 
-def select_cities(names: str, states: str, limit: int | None) -> list[City]:
+def select_cities(
+    names: str, states: str, limit: int | None, exclude: str = ""
+) -> list[City]:
     """Resolve the CLI filters to a city list, largest first."""
     chosen = list(CITIES)
     if names:
@@ -56,6 +61,14 @@ def select_cities(names: str, states: str, limit: int | None) -> list[City]:
         chosen = [c for c in chosen if c.state.lower() in wanted]
         if not chosen:
             raise SystemExit(f"no cities in {states!r}; try one of: {', '.join(sorted({c.state for c in CITIES}))}")
+    if exclude:
+        # get() rather than a bare string compare, so a typo is a loud KeyError naming the
+        # closest match instead of a silent no-op that quietly seeds the city you were
+        # trying to protect.
+        dropped = {get(n.strip()).name for n in exclude.split(",") if n.strip()}
+        chosen = [c for c in chosen if c.name not in dropped]
+        if not chosen:
+            raise SystemExit(f"--exclude {exclude!r} removed every selected city")
     chosen.sort(key=lambda c: (TIER_ORDER.index(c.tier), c.name))
     if limit:
         chosen = chosen[:limit]
@@ -128,6 +141,14 @@ def main() -> int:
     parser.add_argument("--states", default="", help="comma-separated states/UTs")
     parser.add_argument("--limit", type=int, help="keep only the N largest of the selection")
     parser.add_argument(
+        "--exclude",
+        default="",
+        help="comma-separated city names to leave out. The reason this exists: a deployed "
+        "database already holds one real city, and --keep does plain inserts, so a run "
+        "that reaches a city already present dies on its primary key. "
+        "`--keep --exclude Jaipur` adds the other 233 and leaves the real one alone.",
+    )
+    parser.add_argument(
         "--keep",
         action="store_true",
         help="do NOT wipe first. Only safe for cities not already in the database -- "
@@ -137,7 +158,7 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true", help="report the plan, write nothing")
     args = parser.parse_args()
 
-    cities = select_cities(args.cities, args.states, args.limit)
+    cities = select_cities(args.cities, args.states, args.limit, args.exclude)
     zones = sum(c.zone_count for c in cities)
     states = len({c.state for c in cities})
     print(f"{len(cities)} cities across {states} states/UTs -> {zones} zones")

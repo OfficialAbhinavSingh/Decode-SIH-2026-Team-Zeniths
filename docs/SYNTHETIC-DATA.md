@@ -70,6 +70,43 @@ this generator lives entirely inside the frozen schema.
 
 `seed.py` is untouched and still the offline demo fallback. CI still runs it.
 
+### Seeding the deployed database
+
+**Merging a PR does not put any of this on the live site.** Render's start command is
+`python -m app.init_db && uvicorn ...`, and `init_db` only creates missing tables — it
+seeds nothing. A deploy therefore ships the code and leaves the data exactly as it was:
+production keeps its single Jaipur, `/api/cities` returns one row, the picker stays hidden
+and the dashboard never requests the national view. That is the intended fallback, and it
+is also why the country does not appear on its own.
+
+It appears when someone runs the seeder against production, **once**, by hand:
+
+```bash
+cd backend
+export DATABASE_URL='postgresql+psycopg://...supabase...?sslmode=require'
+python -m pipelines.synthetic.seed_india --keep --exclude Jaipur --dry-run   # check first
+python -m pipelines.synthetic.seed_india --keep --exclude Jaipur
+```
+
+Both flags are load-bearing, and the command is wrong without either:
+
+- **`--keep`** skips the wipe. Without it the run deletes every row in all five tables
+  first — including the real Sentinel-2 readings R1's pipeline ingested for Jaipur, and
+  every citizen report a real person submitted through the web form. That is correct for a
+  local demo database and destructive on a deployed one.
+- **`--exclude Jaipur`** leaves the city that is already there alone. `--keep` does plain
+  inserts, not upserts, so a run that reaches a city already in the database dies on its
+  primary key — `--keep` on its own gets most of the way through and then fails. Excluding
+  Jaipur also means its real NDVI keeps scoring it, rather than being replaced by a
+  generated reading.
+
+Rehearsed against a copy of production's shape before it was documented: 233 cities added,
+6,088 zones total, Jaipur's 30 zones and its real satellite row untouched, and its city
+view still ranked within Jaipur. Expect a few minutes against a remote database; the script
+commits one city at a time and prints each, so an interrupted run leaves a smaller database
+rather than a broken one, and re-running it with the same flags resumes nothing — exclude
+what already landed, or wipe and start over.
+
 ---
 
 ## Why the seed matters
