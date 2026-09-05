@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   CircleMarker,
   GeoJSON,
@@ -27,41 +27,19 @@ const TILE_FAILURES_BEFORE_FALLBACK = 4
 // So: re-measure first, then only fly if the pane is actually on screen. A selection made
 // while the map was hidden flies as soon as the switch reveals it, because showToken
 // changes and this effect runs again.
-//
-// `center` gets the same "prop changed after mount, Leaflet ignores it" treatment as the
-// zone fly-to, for a reason that only showed up once Dashboard started serving more than
-// one city: <MapContainer center> is read once, at construction, and every fetch here is
-// async -- so on first render `center` is still the DEFAULT_CENTER fallback (Jaipur's
-// coordinates), and by the time the real city's geojson arrives and Dashboard recomputes
-// `center`, the map has already been built and the new value is silently dropped. Every
-// city other than the one whose coordinates happen to match the fallback then renders its
-// own zone polygons over Jaipur's street tiles. Recentring here whenever the resolved
-// value actually changes -- not on every render, or the initial zoom/pan would keep
-// snapping back -- is what makes a second city's Dashboard show its own city.
-function MapSync({ zone, showToken, center }) {
+function MapSync({ zone, showToken }) {
   const map = useMap()
-  const lastCenter = useRef(null)
   useEffect(() => {
     const id = setTimeout(() => {
       map.invalidateSize()
       const size = map.getSize()
-      if (size.x === 0 || size.y === 0) return
-
-      if (center) {
-        const key = `${center[0].toFixed(4)},${center[1].toFixed(4)}`
-        if (lastCenter.current !== key) {
-          lastCenter.current = key
-          map.setView(center, map.getZoom())
-        }
-      }
-
-      if (!zone) return
+      if (!zone || size.x === 0 || size.y === 0) return
       const { centroid_lat: lat, centroid_lon: lon } = zone
       if (!Number.isFinite(lat) || !Number.isFinite(lon)) return
       map.flyTo([lat, lon], 15, { duration: 0.6 })
     }, 60)
     return () => clearTimeout(id)
-  }, [zone, showToken, center, map])
+  }, [zone, showToken, map])
   return null
 }
 
@@ -174,7 +152,7 @@ export default function MapView({ geojson, selectedId, onSelect, center, flyTarg
             />
           ))}
 
-      <MapSync zone={flyTarget} showToken={resizeToken} center={center} />
+      <MapSync zone={flyTarget} showToken={resizeToken} />
     </MapContainer>
     </>
   )

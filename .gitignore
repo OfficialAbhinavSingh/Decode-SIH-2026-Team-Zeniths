@@ -18,14 +18,10 @@ dist/
 service-account*.json
 gee-credentials*.json
 
-# Data exports (keep data/samples/ and data/india/, ignore big raw pulls)
+# Data exports (keep data/samples/, ignore big raw pulls)
 data/raw/
 *.tif
 *.zip
-
-# Local download cache for pipelines/geo/registry.py (the GeoNames India dump) --
-# 16 MB, re-fetched on demand, never something to commit.
-backend/.cache/
 
 # Editors / OS
 .vscode/
