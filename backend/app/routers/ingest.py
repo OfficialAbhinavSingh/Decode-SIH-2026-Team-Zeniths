@@ -12,7 +12,11 @@ from ..config import settings
 from ..db import get_db
 from ..models import BillingSignal, SatelliteSignal, Zone
 from ..schemas import BillingSignalIn, IngestResult, SatelliteSignalIn
-from ..upsert import dedupe as _dedupe_rows
+# `dedupe` re-exported as `_dedupe`: this router had its own copy of the identical
+# collapse-on-conflict-key logic before `app/upsert.py` existed to share it with the
+# pipeline loaders. Kept importable under its original name -- tests/test_ingest_upsert.py
+# imports it directly -- rather than duplicating the implementation a second time.
+from ..upsert import dedupe as _dedupe
 from ..upsert import upsert
 
 router = APIRouter(prefix="/api/ingest", tags=["ingest"])
@@ -21,19 +25,6 @@ router = APIRouter(prefix="/api/ingest", tags=["ingest"])
 def require_token(x_ingest_token: str = Header(default="")) -> None:
     if x_ingest_token != settings.ingest_token:
         raise HTTPException(status_code=401, detail="bad or missing X-Ingest-Token")
-
-
-def _dedupe(rows: list[dict], conflict_cols: list[str]) -> list[dict]:
-    """Collapse rows that share a natural key, last one wins.
-
-    Postgres refuses a batch that hits the same conflict key twice ("ON CONFLICT DO UPDATE
-    command cannot affect row a second time"), which a concatenated or re-exported CSV will
-    do. Collapsing here turns that 500 into the same answer a second POST would have given.
-    """
-    collapsed: dict[tuple, dict] = {}
-    for row in rows:
-        collapsed[tuple(row[c] for c in conflict_cols)] = row
-    return list(collapsed.values())
 
 
 def _upsert(db: Session, table, rows: list[dict], conflict_cols: list[str]) -> int:
