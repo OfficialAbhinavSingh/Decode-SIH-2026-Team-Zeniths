@@ -347,6 +347,23 @@ button { font: inherit; }
   color: var(--text-2);
 }
 
+.score-decode {
+  margin: 10px 0 0;
+  padding: 9px 11px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.score-decode strong {
+  color: var(--text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 .zone-actions {
   display: flex;
   gap: 8px;
