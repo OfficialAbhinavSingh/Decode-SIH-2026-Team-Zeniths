@@ -98,6 +98,7 @@ Base: `/api`. All responses JSON. Errors: `{"detail": "..."}` with the right HTT
 | `GET` | `/api/zones/{zone_id}/signals` | R4 | `{satellite:[], billing:[], citizen:[]}` |
 | `GET` | `/api/scores?city=&limit=` | R4 | `ZoneScore[]`, sorted by `rank` |
 | `GET` | `/api/scores/geojson?city=` | R4 | FeatureCollection; each feature's `properties` carries `zone_id`, `name`, `ward`, `city`, `rank`, `fusion_score`, `confidence`, `signals_used`, `explanation` — **map draws straight from this** |
+| `GET` | `/api/national/geojson` | R4 | FeatureCollection over **every** city, ranked against each other rather than within a city. **Additive, read-only, recomputed at request time from columns that already exist; adds no column and needs no migration.** |
 | `POST` | `/api/reports` | R5 | creates a `citizen_reports` row |
 | `POST` | `/api/ingest/satellite` | R1 | bulk upsert `SatelliteSignal[]` |
 | `POST` | `/api/ingest/billing` | R2 | bulk upsert `BillingSignal[]` |
@@ -131,6 +132,55 @@ matches it to a zone.
 Sorted by `city`. `centroid_*` is the mean of the city's zone centroids — the map recentres
 on it when the picker changes. `top_score` is `null` when a city's zones are loaded but
 fusion has not scored them yet, which is a real state between the loader and the fusion run.
+
+### `GET /api/national/geojson`
+```json
+{
+  "type": "FeatureCollection",
+  "computed_at": "2026-09-05T10:13:00.515064",
+  "zone_count": 6088,
+  "city_count": 234,
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[73.8327, 18.4984], "..."]] },
+      "properties": {
+        "zone_id": "PNQ-022",
+        "name": "Ward 3 - Sector 4",
+        "ward": "Ward 3",
+        "city": "Pune",
+        "rank": 1,
+        "fusion_score": 100.0,
+        "absolute_score": 98.91,
+        "confidence": "high",
+        "signals_used": 3,
+        "satellite_score": 97.27,
+        "billing_score": 100.0,
+        "citizen_score": 100.0,
+        "explanation": "NDVI +0.21 vs baseline, 61% non-revenue water, ..."
+      }
+    }
+  ]
+}
+```
+
+**`fusion_score` here is not the `fusion_score` in `zone_scores`.** The stored column is a
+percentile *within one city*, so every city's worst zone holds exactly 100.0 — concatenating
+234 cities' rows would return 234 zones tied at the top, ordered by nothing. This endpoint
+re-runs the published rule over a different population instead: `fuse()` on the stored
+absolute sub-scores for the magnitude (returned as `absolute_score`), then
+`percentile_rank()` across the whole country for the spread. Same weights, same coverage
+discount, same two functions imported from `services/fusion.py`.
+
+Ties are broken on `zone_id` **before** the percentile is taken, not after: `percentile_rank()`
+splits equal values by their position in the list it is given, and a `SELECT` without an
+`ORDER BY` guarantees no position at all. Without that sort, two zones on identical evidence
+would swap ranks between requests.
+
+`computed_at` sits on the collection rather than on every feature — it is one value repeated
+six thousand times otherwise — and is the newest `zone_scores.computed_at` in the set.
+Coordinates are rounded to five decimals (~1 m). Responses over 1 KB are gzipped by
+`GZipMiddleware`, which takes the ~3.3 MB body to ~340 KB on the wire.
 
 ### `GET /api/scores` item
 ```json

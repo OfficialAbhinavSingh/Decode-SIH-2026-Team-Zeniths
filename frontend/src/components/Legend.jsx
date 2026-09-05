@@ -11,7 +11,7 @@ const BUCKETS = [
   { from: 0, label: 'Normal' },
 ]
 
-export default function Legend() {
+export default function Legend({ scope = 'the city' }) {
   return (
     <div className="legend">
       <div className="legend-title">Priority score</div>
@@ -22,7 +22,11 @@ export default function Legend() {
           <span className="legend-range">{b.from}+</span>
         </div>
       ))}
-      <div className="legend-foot">Ranked within the city, not an absolute scale.</div>
+      {/* The one sentence that stops the map being read as "43% of this pipe is leaking".
+          It has to name the population the percentile was taken over, because that is the
+          only thing that changes between the two views: nationally a 100 is the worst zone
+          in India, in a city view it is only the worst zone in that city. */}
+      <div className="legend-foot">Ranked across {scope}, not an absolute scale.</div>
     </div>
   )
 }
